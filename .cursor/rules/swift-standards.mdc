@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When working with Swift files:
+
+General Rules:
+- Avoid premature optimization or unnecessary abstraction
+- Follow Apple's Swift API Design Guidelines
+- Keep the code simple. Do not over engineer. Make the least amount of code changes neccessary
+
+Code Style:
+- Use PascalCase for type names (classes, structs, enums, protocols)
+- Use camelCase for method, variable, and constant names
+- Use UPPERCASE for static constants and enum cases
+- Add spaces around operators (x + y) not (x+y)
+
+Architecture:
+- Follow MVVM pattern for UI components
+- Use Swift's Result type for handling success/failure
+- Prefer structs over classes unless inheritance is needed
+- Use protocol-oriented programming when appropriate
+
+Swift Modern Practices:
+- Use Swift's new async/await over completion handlers when possible
+- Leverage property wrappers (@State, @Published, etc.) in SwiftUI
+- Use strong typing and avoid implicitly unwrapped optionals
+- Implement error handling using do-catch blocks
+
+Memory Management:
+- Use weak references in closures to avoid retain cycles
+- Prefer value types (structs) over reference types (classes)
+- Use [weak self] in closure capture lists when appropriate
+
+SwiftUI (if applicable):
+- Keep views small and composable
+- Extract reusable views into separate components
+- Use ViewModifiers for reusable styling
+- Follow declarative UI patterns
+
+Testing:
+- Write unit tests using XCTest
+- Use given/when/then pattern in test names
+- Mock dependencies using protocols
+- Test edge cases and error conditions
