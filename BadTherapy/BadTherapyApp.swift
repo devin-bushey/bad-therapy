@@ -11,7 +11,11 @@ import SwiftUI
 struct BadTherapyApp: App {
     var body: some Scene {
         WindowGroup {
-            ChatView()
+            HomePage()
         }
     }
+}
+
+#Preview {
+    HomePage()
 }

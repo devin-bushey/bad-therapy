@@ -1,5 +1,6 @@
 import SwiftUI
 
+// MARK: - ChatView
 struct ChatView: View {
     @StateObject private var viewModel = ChatViewModel()
     
@@ -32,10 +33,12 @@ struct ChatView: View {
             .background(Color(.systemBackground))
             .shadow(radius: 2)
         }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-struct MessageBubble: View {
+// MARK: - MessageBubble
+private struct MessageBubble: View {
     let message: Message
     
     var body: some View {
@@ -54,5 +57,12 @@ struct MessageBubble: View {
                 Spacer()
             }
         }
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    NavigationStack {
+        ChatView()
     }
 } 
