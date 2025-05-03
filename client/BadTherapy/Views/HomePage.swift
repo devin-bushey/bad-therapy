@@ -1,11 +1,10 @@
 import SwiftUI
+import Foundation
+import BadTherapy
 
 struct HomePage: View {
     @State private var selectedFeeling: Int? = nil
-    let recentSessions = [
-        (title: "Anxiety Check-in", subtitle: "Let's talk about what's making you feel anxio...", time: "2h ago"),
-        (title: "Thought Reframing", subtitle: "Working on negative thought patterns...", time: "Yesterday")
-    ]
+    @State private var recentSessions: [ChatSession] = []
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -20,7 +19,7 @@ struct HomePage: View {
                             Text("Bad Therapy")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(Color.purple)
+                                .foregroundColor(.purple)
                         }
                         Spacer()
                         Image(systemName: "person.crop.circle")
@@ -44,8 +43,8 @@ struct HomePage: View {
                     // Recent Sessions
                     Text("Recent Sessions").font(.headline)
                     VStack(spacing: 10) {
-                        ForEach(recentSessions, id: \ .title) { session in
-                            SessionCard(title: session.title, subtitle: session.subtitle, time: session.time)
+                        ForEach(recentSessions) { session in
+                            SessionCard(title: session.name, subtitle: "", time: session.created_at)
                         }
                     }
 
@@ -64,6 +63,16 @@ struct HomePage: View {
                     .cornerRadius(12)
                 }
                 .padding()
+            }
+        }
+        .onAppear {
+            Task {
+                do {
+                    let sessions = try await AIService().fetchSessions()
+                    recentSessions = sessions
+                } catch {
+                    print("Error fetching sessions: \(error)")
+                }
             }
         }
     }

@@ -34,6 +34,11 @@ struct ChatView: View {
             .shadow(radius: 2)
         }
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            Task {
+                await viewModel.startNewSession(name: "New Chat")
+            }
+        }
     }
 }
 

@@ -15,6 +15,7 @@ General Rules:
 - Avoid premature optimization or unnecessary abstraction
 - Follow Apple's Swift API Design Guidelines
 - Keep the code simple. Do not over engineer. Make the least amount of code changes neccessary
+- Do not fix swift linting errors. Ignore swift linting errors and warnings
 
 Code Style:
 - Use PascalCase for type names (classes, structs, enums, protocols)
