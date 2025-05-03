@@ -3,6 +3,12 @@ description:
 globs: 
 alwaysApply: true
 ---
+---
+description: Best practices for using Swift in ios projects
+globs: [".swift"]
+alwaysApply: true
+---
+
 When working with Swift files:
 
 General Rules:

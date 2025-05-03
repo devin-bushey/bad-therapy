@@ -31,7 +31,7 @@ class ChatViewModel: ObservableObject {
             messages.append(aiMessage)
         } catch {
             print("Error generating AI response: \(error)")
-            let errorMessage = Message(content: "I apologize, but I'm having trouble responding right now. Please try again.", isFromUser: false)
+            let errorMessage = Message(content: "I appologize, but I'm having trouble responding right now. Please try again.", isFromUser: false)
             messages.append(errorMessage)
         }
     }
