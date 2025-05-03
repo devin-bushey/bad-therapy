@@ -12,8 +12,16 @@ struct HomePage: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // App Bar
                     HStack {
-                        Text("Bad Therapy")
-                            .font(.headline)
+                        // App Logo & Title
+                        HStack(spacing: 10) {
+                            Image(systemName: "brain.head.profile")
+                                .foregroundColor(Color.purple)
+                                .font(.title)
+                            Text("Bad Therapy")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(Color.purple)
+                        }
                         Spacer()
                         Image(systemName: "person.crop.circle")
                             .font(.title2)
@@ -21,7 +29,7 @@ struct HomePage: View {
                     // Greeting
                     Text("Hey, ready to vent?")
                         .font(.title2).fontWeight(.semibold)
-                    Text("If your idea of therapy involves a highly questionable trust in AI and you’re mildly anxious, then Bad Therapy might be for you.")
+                    Text("Your judgement-free AI therapist is here 24/7")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     // Action Cards
@@ -40,6 +48,20 @@ struct HomePage: View {
                             SessionCard(title: session.title, subtitle: session.subtitle, time: session.time)
                         }
                     }
+
+                    // Red Warning Card
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Should you use this?")
+                            .font(.headline)
+                            .foregroundColor(.red)
+                        Text("If you're battling real trauma, you need a human. Don't mess around with your mental health.")
+                            .font(.subheadline)
+                        Text("But if you're mildly anxious and your idea of therapy involves a highly questionable trust in AI, then Bad Therapy might be for you.")
+                            .font(.caption).foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color.red.opacity(0.08))
+                    .cornerRadius(12)
                 }
                 .padding()
             }
@@ -53,8 +75,8 @@ private struct CardButton: View {
         VStack(alignment: .leading, spacing: 6) {
             Image(systemName: icon)
                 .font(.title)
-                .foregroundColor(.blue)
-            Text(title).font(.headline)
+                .foregroundColor(.purple)
+            Text(title).font(.headline).foregroundColor(.purple)
             Text(subtitle).font(.caption).foregroundColor(.secondary)
         }
         .padding()
