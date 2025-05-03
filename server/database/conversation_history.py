@@ -10,6 +10,11 @@ def create_session(*, name: str) -> dict:
     result = supabase.table("sessions").insert(data).execute()
     return result.data[0]
 
+def update_session(*, session_id: str, name: str) -> dict:
+    supabase = get_supabase_client()
+    result = supabase.table("sessions").update({"name": name}).eq("id", session_id).execute()
+    return result.data[0]
+
 def save_conversation(*, session_id: str, prompt: str, response: str) -> None:
     supabase = get_supabase_client()
     data = {

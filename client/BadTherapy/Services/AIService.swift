@@ -64,6 +64,41 @@ class AIService: AIServiceProtocol {
         return try JSONDecoder().decode(ChatSession.self, from: data)
     }
 
+    func renameSession(sessionId: String, newName: String) async throws {
+        guard let url = URL(string: "\(baseURL)/sessions/\(sessionId)") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let sessionUpdate = ["name": newName]
+        request.httpBody = try JSONSerialization.data(withJSONObject: sessionUpdate)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+    }
+
+    func loadSession(id: String) async throws -> ChatSession {
+        guard let url = URL(string: "\(baseURL)/sessions/\(id)") else {
+            throw URLError(.badURL)
+        }
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode(ChatSession.self, from: data)
+    }
+
     func sendMessage(prompt: String, sessionId: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/ai/generate") else { return }
         var request = URLRequest(url: url)

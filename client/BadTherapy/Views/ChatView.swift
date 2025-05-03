@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - ChatView
 struct ChatView: View {
     @StateObject private var viewModel = ChatViewModel()
+    let sessionId: String?
     
     var body: some View {
         VStack {
@@ -36,7 +37,11 @@ struct ChatView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
-                await viewModel.startNewSession(name: "New Chat")
+                if let sessionId = sessionId {
+                    await viewModel.loadSession(id: sessionId)
+                } else {
+                    await viewModel.startNewSession(name: "New Chat")
+                }
             }
         }
     }
@@ -68,6 +73,6 @@ private struct MessageBubble: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        ChatView()
+        ChatView(sessionId: nil)
     }
 } 

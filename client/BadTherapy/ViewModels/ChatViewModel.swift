@@ -21,6 +21,15 @@ class ChatViewModel: ObservableObject {
         }
     }
     
+    func loadSession(id: String) async {
+        do {
+            currentSession = try await aiService.loadSession(id: id)
+            messages = currentSession?.messages ?? []
+        } catch {
+            print("Error loading session: \(error)")
+        }
+    }
+    
     func sendMessage() {
         guard !userInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               let sessionId = currentSession?.id else { return }

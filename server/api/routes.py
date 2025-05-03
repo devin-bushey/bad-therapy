@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from models.schemas import AIRequest, AIResponse, Session, SessionCreate
 from services.openai_service import OpenAIService
-from database.conversation_history import get_recent_sessions, create_session
+from database.conversation_history import get_recent_sessions, create_session, update_session
 
 router = APIRouter()
 
@@ -18,6 +18,11 @@ async def create_new_session(session: SessionCreate) -> Session:
 async def list_sessions() -> list[Session]:
     sessions = get_recent_sessions()
     return [Session(**s) for s in sessions]
+
+@router.patch("/sessions/{session_id}", response_model=Session)
+async def rename_session(session_id: str, session: SessionCreate) -> Session:
+    updated_session = update_session(session_id=session_id, name=session.name)
+    return Session(**updated_session)
 
 @router.post("/ai/generate", response_model=AIResponse)
 async def generate_ai_response(
