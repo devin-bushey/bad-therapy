@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from models.schemas import AIRequest, AIResponse, Session, SessionCreate
 from services.openai_service import OpenAIService
-from database.conversation_history import get_recent_sessions, create_session, update_session
+from database.conversation_history import get_recent_sessions, create_session, update_session, get_conversation_history
 
 router = APIRouter()
 
@@ -18,6 +18,23 @@ async def create_new_session(session: SessionCreate) -> Session:
 async def list_sessions() -> list[Session]:
     sessions = get_recent_sessions()
     return [Session(**s) for s in sessions]
+
+@router.get("/sessions/{session_id}", response_model=Session)
+async def get_session(session_id: str) -> Session:
+    sessions = get_recent_sessions()
+    session = next((s for s in sessions if s["id"] == session_id), None)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # Get conversation history
+    history = get_conversation_history(session_id=session_id)
+    messages = []
+    for entry in history:
+        messages.append({"content": entry["prompt"], "isFromUser": True})
+        messages.append({"content": entry["response"], "isFromUser": False})
+    
+    session["messages"] = messages
+    return Session(**session)
 
 @router.patch("/sessions/{session_id}", response_model=Session)
 async def rename_session(session_id: str, session: SessionCreate) -> Session:
