@@ -7,6 +7,15 @@ struct HomePage: View {
     @State private var editingSession: ChatSession? = nil
     @State private var newSessionName: String = ""
     
+    private func refreshSessions() async {
+        do {
+            let sessions = try await AIService().fetchSessions()
+            recentSessions = sessions
+        } catch {
+            print("Error fetching sessions: \(error)")
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -35,8 +44,7 @@ struct HomePage: View {
                         .foregroundColor(.secondary)
                     // Action Cards
                     HStack(spacing: 16) {
-            
-                        NavigationLink(destination: ChatView(sessionId: nil)) {
+                        NavigationLink(destination: ChatView(sessionId: nil, onDisappear: refreshSessions)) {
                             CardButton(icon: "bubble.left.and.bubble.right", title: "New Chat", subtitle: "Start fresh")
                         }
                         NavigationLink(destination: Text("CBT Exercise")) {
@@ -47,7 +55,7 @@ struct HomePage: View {
                     Text("Recent Sessions").font(.headline)
                     VStack(spacing: 10) {
                         ForEach(recentSessions) { session in
-                            NavigationLink(destination: ChatView(sessionId: session.id)) {
+                            NavigationLink(destination: ChatView(sessionId: session.id, onDisappear: refreshSessions)) {
                                 SessionCard(
                                     title: session.name,
                                     subtitle: "",

@@ -29,7 +29,8 @@ async def get_session(session_id: str) -> Session:
     # Get conversation history
     history = get_conversation_history(session_id=session_id)
     messages = []
-    for entry in history:
+    # Sort history from oldest to newest
+    for entry in reversed(history):
         messages.append({"content": entry["prompt"], "isFromUser": True})
         messages.append({"content": entry["response"], "isFromUser": False})
     

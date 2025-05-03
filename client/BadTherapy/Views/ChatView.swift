@@ -3,10 +3,50 @@ import SwiftUI
 // MARK: - ChatView
 struct ChatView: View {
     @StateObject private var viewModel = ChatViewModel()
+    @State private var isEditingName = false
+    @State private var editedName = ""
     let sessionId: String?
+    let onDisappear: () async -> Void
     
     var body: some View {
         VStack {
+            // Session Name Header
+            HStack {
+                if isEditingName {
+                    HStack {
+                        TextField("Session Name", text: $editedName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                        Button("Save") {
+                            Task {
+                                do {
+                                    try await AIService().renameSession(sessionId: viewModel.currentSession?.id ?? "", newName: editedName)
+                                    if let sessionId = viewModel.currentSession?.id {
+                                        await viewModel.loadSession(id: sessionId)
+                                    }
+                                    isEditingName = false
+                                } catch {
+                                    print("Error renaming session: \(error)")
+                                }
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                } else {
+                    Text(viewModel.currentSession?.name ?? "New Chat")
+                        .font(.headline)
+                    Button(action: {
+                        editedName = viewModel.currentSession?.name ?? ""
+                        isEditingName = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                Spacer()
+            }
+            .padding(.horizontal)
+            
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.messages) { message in
@@ -44,6 +84,11 @@ struct ChatView: View {
                 }
             }
         }
+        .onDisappear {
+            Task {
+                await onDisappear()
+            }
+        }
     }
 }
 
@@ -73,6 +118,8 @@ private struct MessageBubble: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        ChatView(sessionId: nil)
+        ChatView(sessionId: nil) {
+            // Placeholder for onDisappear
+        }
     }
 } 
