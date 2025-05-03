@@ -5,7 +5,7 @@ protocol AIServiceProtocol {
 }
 
 class AIService: AIServiceProtocol {
-    private let baseURL = "http://localhost:8000"
+    private let baseURL = "http://10.0.0.194:8000"
     
     func generateResponse(to message: String) async throws -> String {
         guard let url = URL(string: "\(baseURL)/ai/generate") else {
