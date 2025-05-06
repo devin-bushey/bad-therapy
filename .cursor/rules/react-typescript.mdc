@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: Best practices for using React 19 and Typescript in frontend projects
+globs: [".ts", ".tsx", ".css"]
+alwaysApply: true
+---
+
+When working with React files:
+
+General Principles
+- Write concise, readable TypeScript code
+- Use functional and declarative programming patterns
+- Follow DRY (Don't Repeat Yourself) principle
+- Implement early returns for better readability
+- Structure components logically: exports, subcomponents, helpers, types
+
+TanStack Router documentation: https://tanstack.com/router/latest
