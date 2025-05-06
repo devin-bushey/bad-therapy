@@ -61,16 +61,33 @@ function NewChat() {
     if (!input.trim() || !session) return
     setLoading(true)
     setMessages(msgs => [...msgs, { sender: 'user', text: input }])
+    setInput('')
+    let botMsg = ''
+    setMessages(msgs => [...msgs, { sender: 'bot', text: '' }])
     try {
-      const res = await fetch('http://localhost:8000/ai/generate', {
+      const res = await fetch('http://localhost:8000/ai/generate-stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: session.id, prompt: input }),
       })
-      if (!res.ok) throw new Error('AI error')
-      const data: AIResponse = await res.json()
-      setMessages(msgs => [...msgs, { sender: 'bot', text: data.result }])
-      setInput('')
+      if (!res.body) throw new Error('No response body')
+      const reader = res.body.getReader()
+      let done = false
+      while (!done) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        if (value) {
+          const chunk = new TextDecoder().decode(value)
+          botMsg += chunk
+          setMessages(msgs => {
+            const last = msgs[msgs.length - 1]
+            if (last?.sender === 'bot') {
+              return [...msgs.slice(0, -1), { sender: 'bot', text: botMsg }]
+            }
+            return msgs
+          })
+        }
+      }
     } catch {
       setError('Failed to get AI response')
     } finally {

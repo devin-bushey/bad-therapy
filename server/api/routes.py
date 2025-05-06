@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from models.schemas import AIRequest, AIResponse, Session, SessionCreate
 from services.openai_service import OpenAIService
 from database.conversation_history import get_recent_sessions, create_session, update_session, get_conversation_history
+from fastapi.responses import StreamingResponse
 
 router = APIRouter()
 
@@ -48,4 +49,14 @@ async def generate_ai_response(
     openai_service: OpenAIService = Depends()
 ) -> AIResponse:
     result = await openai_service.generate_response(session_id=data.session_id, prompt=data.prompt)
-    return AIResponse(result=result) 
+    return AIResponse(result=result)
+
+@router.post("/ai/generate-stream")
+async def generate_ai_response_stream(
+    data: AIRequest,
+    openai_service: OpenAIService = Depends()
+):
+    async def streamer():
+        async for chunk in openai_service.generate_response_stream(session_id=data.session_id, prompt=data.prompt):
+            yield chunk
+    return StreamingResponse(streamer(), media_type="text/plain") 
