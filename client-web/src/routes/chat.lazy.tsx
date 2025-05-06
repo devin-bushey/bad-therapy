@@ -116,13 +116,14 @@ function NewChat() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white flex flex-col items-center py-4 px-2">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl flex flex-col h-[80vh]">
-        <div className="px-6 py-4 border-b text-lg font-bold text-purple-600 flex items-center gap-2 relative">
+    <div className="min-h-screen bg-zinc-900 flex flex-col items-center py-4 px-2">
+      <div className="w-full max-w-md bg-zinc-800 rounded-3xl shadow-xl flex flex-col h-[80vh]">
+        <div className="px-6 py-4 border-b border-zinc-700 text-lg font-bold text-purple-400 flex items-center gap-2 relative">
+          <Link to="/" className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-300 text-base font-normal px-2 py-1 rounded transition">Home</Link>
           <Link to="/" className="text-2xl hover:scale-110 transition-transform" title="Go Home">🧠</Link>
           {editingName ? (
             <input
-              className="ml-2 px-2 py-1 rounded border text-base font-normal w-40"
+              className="ml-2 px-2 py-1 rounded border border-zinc-700 bg-zinc-900 text-zinc-100 text-base font-normal w-40 focus:outline-none focus:ring-2 focus:ring-purple-400"
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
               onBlur={handleRename}
@@ -131,9 +132,9 @@ function NewChat() {
             />
           ) : (
             <>
-              <span className="ml-2">{session?.name || 'New Chat'}</span>
+              <span className="ml-2 text-zinc-100">{session?.name || 'New Chat'}</span>
               <button
-                className="ml-2 text-purple-400 hover:text-purple-600 text-base"
+                className="ml-2 text-purple-400 hover:text-purple-300 text-base"
                 onClick={() => setEditingName(true)}
                 title="Rename"
               >
@@ -145,24 +146,24 @@ function NewChat() {
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
           {error && <div className="text-red-400 text-center text-xs">{error}</div>}
           {messages.length === 0 && !error && (
-            <div className="text-gray-400 text-center mt-8">Start the conversation…</div>
+            <div className="text-zinc-500 text-center mt-8">Start the conversation…</div>
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-4 py-2 rounded-2xl max-w-[70%] text-sm ${msg.sender === 'user' ? 'bg-purple-100 text-purple-900' : 'bg-gray-100 text-gray-700'}`}>{msg.text}</div>
+              <div className={`px-4 py-2 rounded-2xl max-w-[70%] text-sm ${msg.sender === 'user' ? 'bg-purple-900/40 text-purple-200' : 'bg-zinc-700 text-zinc-100'}`}>{msg.text}</div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
         <form
-          className="flex items-center gap-2 p-4 border-t"
+          className="flex items-center gap-2 p-4 border-t border-zinc-700 bg-zinc-800"
           onSubmit={e => {
             e.preventDefault()
             handleSend()
           }}
         >
           <input
-            className="flex-1 rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-900 text-zinc-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
             placeholder="Type your message…"
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -171,7 +172,7 @@ function NewChat() {
           />
           <button
             type="submit"
-            className="bg-purple-500 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-600 transition disabled:opacity-50"
+            className="bg-purple-700 text-white rounded-xl px-4 py-2 font-medium hover:bg-purple-600 transition disabled:opacity-50"
             disabled={loading || !session}
           >
             {loading ? '...' : 'Send'}
