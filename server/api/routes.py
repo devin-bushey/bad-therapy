@@ -3,6 +3,7 @@ from models.schemas import AIRequest, AIResponse, Session, SessionCreate
 from services.openai_service import OpenAIService
 from database.conversation_history import get_recent_sessions, create_session, update_session, get_conversation_history
 from fastapi.responses import StreamingResponse
+from fastapi import Request
 
 router = APIRouter()
 
@@ -16,8 +17,9 @@ async def create_new_session(session: SessionCreate) -> Session:
     return Session(**created_session)
 
 @router.get("/sessions", response_model=list[Session])
-async def list_sessions() -> list[Session]:
-    sessions = get_recent_sessions()
+async def list_sessions(request: Request) -> list[Session]:
+    limit = request.query_params.get("limit", 5)
+    sessions = get_recent_sessions(limit=limit)
     return [Session(**s) for s in sessions]
 
 @router.get("/sessions/{session_id}", response_model=Session)

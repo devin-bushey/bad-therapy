@@ -35,7 +35,7 @@ def get_conversation_history(*, session_id: str, limit: int = 10) -> list[dict]:
         .execute()
     return result.data
 
-def get_recent_sessions(limit: int = 3) -> list[dict]:
+def get_recent_sessions(limit: int = 5) -> list[dict]:
     supabase = get_supabase_client()
     result = supabase.table("sessions")\
         .select("*")\

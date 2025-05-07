@@ -7,41 +7,48 @@ export const Route = createLazyFileRoute('/')({
 
 type Session = { id: string; name?: string }
 
+const NUM_RECENT_SESSIONS = 5
+
 function RecentSessions() {
   const { data, isLoading, isError } = useQuery<Session[]>({
     queryKey: ['sessions'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:8000/sessions')
+      const res = await fetch(`http://localhost:8000/sessions?limit=${NUM_RECENT_SESSIONS}`)
       if (!res.ok) throw new Error('Failed to fetch sessions')
       return await res.json()
     },
   })
 
-  if (isLoading) return <div className="text-xs text-zinc-400">Loading sessions…</div>
-  if (isError) return <div className="text-xs text-red-400">Could not load sessions.</div>
-  if (!data || data.length === 0) return <div className="text-xs text-zinc-400">No recent sessions.</div>
-
   return (
-    <ul className="space-y-1 mt-1">
-      {data.slice(0, 5).map((session) => (
-        <li key={session.id}>
-          <Link
-            to="/chat"
-            search={{ sessionId: session.id }}
-            className="block text-sm text-zinc-200 truncate bg-zinc-800 rounded px-2 py-1 hover:bg-purple-900/40 transition"
-          >
-            {session.name || session.id}
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <div className="min-h-[120px] flex items-center justify-center">
+      {isLoading && <div className="text-xs text-zinc-400">Loading sessions…</div>}
+      {isError && <div className="text-xs text-red-400">Could not load sessions.</div>}
+      {!isLoading && !isError && (!data || data.length === 0) && (
+        <div className="text-xs text-zinc-400">No recent sessions.</div>
+      )}
+      {!isLoading && !isError && data && data.length > 0 && (
+        <ul className="space-y-1 mt-1 w-full">
+          {data.slice(0, NUM_RECENT_SESSIONS).map((session) => (
+            <li key={session.id}>
+              <Link
+                to="/chat"
+                search={{ sessionId: session.id }}
+                className="block text-sm text-zinc-200 truncate bg-zinc-800 rounded px-2 py-1 hover:bg-purple-900/40 transition"
+              >
+                {session.name || session.id}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
 function Home() {
   return (
     <div className="min-h-screen bg-zinc-900 flex items-center justify-center py-6 px-2">
-      <div className="w-full max-w-md bg-zinc-800 rounded-3xl shadow-xl p-6 flex flex-col items-center">
+      <div className="w-full max-w-4xl bg-zinc-800 rounded-3xl shadow-xl p-6 flex flex-col items-center h-[95vh">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-4xl">🧠</span>
           <span className="text-2xl font-bold text-purple-400">Bad Therapy</span>
