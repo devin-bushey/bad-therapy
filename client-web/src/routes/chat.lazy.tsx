@@ -7,7 +7,6 @@ export const Route = createLazyFileRoute('/chat')({
 
 type Message = { sender: 'user' | 'bot'; text: string }
 type Session = { id: string; name?: string; messages?: { content: string; isFromUser: boolean }[] }
-type AIResponse = { result: string }
 
 function NewChat() {
   const navigate = useNavigate()
@@ -42,11 +41,12 @@ function NewChat() {
         body: JSON.stringify({ name: 'New Chat' }),
       })
         .then(r => r.json())
-        .then((s: Session) => {
+        .then(async (s: Session) => {
           setSession(s)
           setNameInput(s.name || '')
           setMessages([])
           navigate({ to: '/chat', search: { sessionId: s.id } })
+          await fetchFirstBotMessage(s.id)
         })
         .catch(() => setError('Failed to create session'))
     }
@@ -56,6 +56,42 @@ function NewChat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // Fetch and stream the first bot message for a new session
+  async function fetchFirstBotMessage(sessionId: string) {
+    let botMsg = ''
+    setLoading(true)
+    try {
+      const res = await fetch('http://localhost:8000/ai/generate-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, prompt: '' }),
+      })
+      if (!res.body) throw new Error('No response body')
+      const reader = res.body.getReader()
+      let done = false
+      setMessages([{ sender: 'bot', text: '' }])
+      while (!done) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        if (value) {
+          const chunk = new TextDecoder().decode(value)
+          botMsg += chunk
+          setMessages(msgs => {
+            const last = msgs[msgs.length - 1]
+            if (last?.sender === 'bot') {
+              return [...msgs.slice(0, -1), { sender: 'bot', text: botMsg }]
+            }
+            return msgs
+          })
+        }
+      }
+    } catch {
+      setError('Failed to get AI response')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleSend() {
     if (!input.trim() || !session) return
@@ -117,7 +153,7 @@ function NewChat() {
 
   return (
     <div className="min-h-screen bg-zinc-900 flex flex-col items-center py-4 px-2">
-      <div className="w-full max-w-md bg-zinc-800 rounded-3xl shadow-xl flex flex-col h-[80vh]">
+      <div className="w-full max-w-4xl bg-zinc-800 rounded-3xl shadow-xl flex flex-col h-[95vh]">
         <div className="px-6 py-4 border-b border-zinc-700 text-lg font-bold text-purple-400 flex items-center gap-2 relative">
           <Link to="/" className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-300 text-base font-normal px-2 py-1 rounded transition">Home</Link>
           <Link to="/" className="text-2xl hover:scale-110 transition-transform" title="Go Home">🧠</Link>
@@ -150,7 +186,7 @@ function NewChat() {
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-4 py-2 rounded-2xl max-w-[70%] text-sm ${msg.sender === 'user' ? 'bg-purple-900/40 text-purple-200' : 'bg-zinc-700 text-zinc-100'}`}>{msg.text}</div>
+              <div className={`px-4 py-2 rounded-2xl max-w-[70%] text-sm ${msg.sender === 'user' ? 'bg-purple-900/40 text-purple-200' : 'bg-zinc-700 text-zinc-100'}`} style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
             </div>
           ))}
           <div ref={messagesEndRef} />

@@ -2,11 +2,12 @@ import httpx
 from fastapi import HTTPException
 from core.config import get_settings
 from database.conversation_history import save_conversation, get_conversation_history
+from prompts.chat_prompts import get_system_prompt, get_disclaimer
 
 settings = get_settings()
 
-def build_messages(history: list[dict], prompt: str) -> list[dict]:
-    messages = [{"role": "system", "content": "You are a helpful assistant."}]
+def build_messages(history: list[dict], prompt: str, is_first_message: bool = False) -> list[dict]:
+    messages = [{"role": "system", "content": get_system_prompt(is_first_message)}]
     for entry in reversed(history):
         messages.append({"role": "user", "content": entry["prompt"]})
         messages.append({"role": "assistant", "content": entry["response"]})
@@ -22,7 +23,8 @@ class OpenAIService:
 
     async def generate_response(self, *, session_id: str, prompt: str) -> str:
         history = get_conversation_history(session_id=session_id)
-        messages = build_messages(history, prompt)
+        is_first_message = not history
+        messages = build_messages(history, prompt, is_first_message)
         url = "https://api.openai.com/v1/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {
@@ -40,7 +42,8 @@ class OpenAIService:
 
     async def generate_response_stream(self, *, session_id: str, prompt: str):
         history = get_conversation_history(session_id=session_id)
-        messages = build_messages(history, prompt)
+        is_first_message = not history
+        messages = build_messages(history, prompt, is_first_message)
         url = "https://api.openai.com/v1/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {
@@ -64,4 +67,10 @@ class OpenAIService:
                     delta = json.loads(data)["choices"][0]["delta"].get("content", "")
                     full_response += delta
                     yield delta
-        save_conversation(session_id=session_id, prompt=prompt, response=full_response) 
+        if is_first_message:
+            disclaimer = get_disclaimer()
+            combined = full_response.strip() + "\n\n" + disclaimer
+            save_conversation(session_id=session_id, prompt=prompt, response=combined)
+            yield "\n\n" + disclaimer
+        else:
+            save_conversation(session_id=session_id, prompt=prompt, response=full_response) 
