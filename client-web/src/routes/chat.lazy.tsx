@@ -19,6 +19,7 @@ function NewChat() {
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hasCreatedSession = useRef(false)
 
   // Load or create session
   useEffect(() => {
@@ -34,7 +35,8 @@ function NewChat() {
           )
         })
         .catch(() => setError('Failed to load session'))
-    } else {
+    } else if (!hasCreatedSession.current) {
+      hasCreatedSession.current = true
       fetch('http://localhost:8000/sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,8 +47,8 @@ function NewChat() {
           setSession(s)
           setNameInput(s.name || '')
           setMessages([])
-          navigate({ to: '/chat', search: { sessionId: s.id } })
           await fetchFirstBotMessage(s.id)
+          navigate({ to: '/chat', search: { sessionId: s.id } })
         })
         .catch(() => setError('Failed to create session'))
     }
@@ -125,7 +127,7 @@ function NewChat() {
         }
       }
       // Refresh session after first user message to get new name
-      if ((messages?.length ?? 0) === 3) {
+      if ((messages?.length ?? 0) === 4) {
         const updated = await fetch(`http://localhost:8000/sessions/${session.id}`)
         if (updated.ok) {
           const s = await updated.json()

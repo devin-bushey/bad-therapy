@@ -18,4 +18,6 @@ General Principles
 - Implement early returns for better readability
 - Structure components logically: exports, subcomponents, helpers, types
 
+Make code changes without asking
+
 TanStack Router documentation: https://tanstack.com/router/latest
