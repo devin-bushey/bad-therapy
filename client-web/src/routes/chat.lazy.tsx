@@ -124,6 +124,15 @@ function NewChat() {
           })
         }
       }
+      // Refresh session after first user message to get new name
+      if ((messages?.length ?? 0) === 3) {
+        const updated = await fetch(`http://localhost:8000/sessions/${session.id}`)
+        if (updated.ok) {
+          const s = await updated.json()
+          setSession(s)
+          setNameInput(s.name || '')
+        }
+      }
     } catch {
       setError('Failed to get AI response')
     } finally {
@@ -168,7 +177,13 @@ function NewChat() {
             />
           ) : (
             <>
-              <span className="ml-2 text-zinc-100">{session?.name || 'New Chat'}</span>
+              <span
+                className="ml-2 text-zinc-100 cursor-pointer hover:underline"
+                onClick={() => setEditingName(true)}
+                title="Rename"
+              >
+                {session?.name || 'New Chat'}
+              </span>
               <button
                 className="ml-2 text-purple-400 hover:text-purple-300 text-base"
                 onClick={() => setEditingName(true)}

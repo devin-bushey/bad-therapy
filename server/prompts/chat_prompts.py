@@ -37,3 +37,11 @@ def get_disclaimer() -> str:
        "Just a quick note: I'm not a licensed therapist, so I'm not equipped to give medical advice. "
        "If you're in crisis, I recommend reaching out to a professional or calling/texting 988 for help, as they're available 24/7."
     )
+
+def get_session_name_prompt() -> str:
+    return (
+        "You are an assistant that creates short, descriptive names. "
+        "A therapy session chat thread has just been started and the user has sent their second message. "
+        "Respond with a descriptive name based on the messages. The name should describe the conversation. "
+        "Respond with only the session name, 3-6 words, no punctuation."
+    )

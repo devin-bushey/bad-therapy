@@ -43,13 +43,6 @@ async def rename_session(session_id: str, session: SessionCreate) -> Session:
     updated_session = update_session(session_id=session_id, name=session.name)
     return Session(**updated_session)
 
-@router.post("/ai/generate", response_model=AIResponse)
-async def generate_ai_response(
-    data: AIRequest,
-    openai_service: OpenAIService = Depends()
-) -> AIResponse:
-    result = await openai_service.generate_response(session_id=data.session_id, prompt=data.prompt)
-    return AIResponse(result=result)
 
 @router.post("/ai/generate-stream")
 async def generate_ai_response_stream(

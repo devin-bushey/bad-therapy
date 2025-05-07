@@ -1,8 +1,8 @@
 import httpx
 from fastapi import HTTPException
 from core.config import get_settings
-from database.conversation_history import save_conversation, get_conversation_history
-from prompts.chat_prompts import get_system_prompt, get_disclaimer
+from database.conversation_history import save_conversation, get_conversation_history, update_session
+from prompts.chat_prompts import get_session_name_prompt, get_system_prompt, get_disclaimer
 
 settings = get_settings()
 
@@ -21,28 +21,32 @@ class OpenAIService:
         self.max_tokens = settings.OPENAI_MAX_TOKENS
         self.timeout = settings.OPENAI_TIMEOUT
 
-    async def generate_response(self, *, session_id: str, prompt: str) -> str:
-        history = get_conversation_history(session_id=session_id)
-        is_first_message = not history
-        messages = build_messages(history, prompt, is_first_message)
+    async def _generate_session_name(self, user1: str, user2: str, bot2: str, bot3: str) -> str:
         url = "https://api.openai.com/v1/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        prompt = (
+            get_session_name_prompt() +
+            f"\nFirst user message: {user1}\nSecond user message: {user2}\nSecond bot message: {bot2}\nThird bot message: {bot3}"
+        )
         payload = {
             "model": self.model,
-            "messages": messages,
-            "max_tokens": self.max_tokens
+            "messages": [
+                {"role": "system", "content": prompt}
+            ],
+            "max_tokens": 12,
+            "temperature": 0.5
         }
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, headers=headers, json=payload, timeout=self.timeout)
         if resp.status_code != 200:
-            raise HTTPException(status_code=resp.status_code, detail=resp.text)
-        response = resp.json()["choices"][0]["message"]["content"].strip()
-        save_conversation(session_id=session_id, prompt=prompt, response=response)
-        return response
+            return "New Chat"
+        return resp.json()["choices"][0]["message"]["content"].strip().replace("\n", " ")
+
 
     async def generate_response_stream(self, *, session_id: str, prompt: str):
         history = get_conversation_history(session_id=session_id)
         is_first_message = not history
+        should_update_name = history and len(history) == 2
         messages = build_messages(history, prompt, is_first_message)
         url = "https://api.openai.com/v1/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
@@ -73,4 +77,11 @@ class OpenAIService:
             save_conversation(session_id=session_id, prompt=prompt, response=combined)
             yield "\n\n" + disclaimer
         else:
-            save_conversation(session_id=session_id, prompt=prompt, response=full_response) 
+            save_conversation(session_id=session_id, prompt=prompt, response=full_response)
+        if should_update_name:
+            user1 = history[0]["prompt"] if len(history) > 0 else ""
+            user2 = history[1]["prompt"] if len(history) > 1 else ""
+            bot2 = history[1]["response"] if len(history) > 1 else ""
+            bot3 = full_response.strip()
+            session_name = await self._generate_session_name(user1, user2, bot2, bot3)
+            update_session(session_id=session_id, name=session_name) 
