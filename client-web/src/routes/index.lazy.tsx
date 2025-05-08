@@ -54,7 +54,7 @@ function Home() {
           <span className="text-2xl font-bold text-purple-400">Bad Therapy</span>
         </div>
         <h1 className="text-lg font-semibold mb-1 text-center text-zinc-100">Hey, ready to vent?</h1>
-        <p className="text-zinc-400 mb-6 text-center text-sm">Your judgement-free AI therapist is here 24/7</p>
+        <p className="text-zinc-400 mb-6 text-center text-sm">Your judgement-free AI life coach is here 24/7</p>
         <div className="flex gap-4 w-full mb-8">
           <Link to="/chat" className="flex-1 flex flex-col items-center bg-purple-900/40 rounded-2xl py-5 shadow hover:bg-purple-800/60 transition cursor-pointer">
             <span className="text-purple-300 text-2xl mb-1">💬</span>

@@ -166,7 +166,6 @@ function NewChat() {
     <div className="min-h-screen bg-zinc-900 flex flex-col items-center py-4 px-2">
       <div className="w-full max-w-4xl bg-zinc-800 rounded-3xl shadow-xl flex flex-col h-[95vh]">
         <div className="px-6 py-4 border-b border-zinc-700 text-lg font-bold text-purple-400 flex items-center gap-2 relative">
-          <Link to="/" className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 hover:text-purple-300 text-base font-normal px-2 py-1 rounded transition">Home</Link>
           <Link to="/" className="text-2xl hover:scale-110 transition-transform" title="Go Home">🧠</Link>
           {editingName ? (
             <input
