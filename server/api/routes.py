@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
-from models.schemas import AIRequest, AIResponse, Session, SessionCreate
+from fastapi import APIRouter, Depends, HTTPException, Request
+from models.schemas import AIRequest, Session, SessionCreate
+from agent.therapy_agents import build_therapy_graph
 from services.openai_service import OpenAIService
 from database.conversation_history import get_recent_sessions, create_session, update_session, get_conversation_history
 from fastapi.responses import StreamingResponse
-from fastapi import Request
+from langchain_core.messages import HumanMessage
+
 
 router = APIRouter()
+graph = build_therapy_graph()
 
 @router.get("/")
 async def read_root():
@@ -55,3 +58,27 @@ async def generate_ai_response_stream(
         async for chunk in openai_service.generate_response_stream(session_id=data.session_id, prompt=data.prompt):
             yield chunk
     return StreamingResponse(streamer(), media_type="text/plain") 
+
+
+@router.post("/agent/therapy")
+async def run_therapy(request: Request):
+    data = await request.json()
+    user_message = data.get("message", "")
+    emotional_state = data.get("emotional_state", "neutral")
+    initial_state = {
+        "messages": [HumanMessage(content=user_message)],
+        "emotional_state": emotional_state,
+        "therapeutic_approach": "",
+        "safety_level": "safe",
+        "session_notes": "",
+        "next": "safety_check"
+    }
+    result = graph.invoke(initial_state)
+    return {
+        "safety_level": result["safety_level"],
+        "therapeutic_approach": result["therapeutic_approach"],
+        "session_notes": result["session_notes"],
+        "conversation": [
+            {"type": m.type, "content": m.content} for m in result["messages"]
+        ]
+    }

@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     SUPABASE_DB_URL: str
     SUPABASE_ANON_KEY: str
     SUPABASE_PASS: str
+    LANGSMITH_API_KEY: str
+    LANGSMITH_TRACING: bool
+    LANGSMITH_ENDPOINT: str
+    LANGSMITH_PROJECT: str
 
     class Config:
         env_file = ".env"

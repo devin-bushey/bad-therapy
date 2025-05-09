@@ -2,6 +2,9 @@ from typing import TypedDict, Annotated, Sequence, Literal
 from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage
+from core.config import get_settings
+
+settings = get_settings()
 
 class TherapyState(TypedDict):
     messages: Annotated[Sequence[HumanMessage | AIMessage], "Conversation history"]
