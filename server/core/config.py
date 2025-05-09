@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     LANGSMITH_TRACING: bool
     LANGSMITH_ENDPOINT: str
     LANGSMITH_PROJECT: str
+    PG_CRYPTO_KEY: str
 
     class Config:
         env_file = ".env"

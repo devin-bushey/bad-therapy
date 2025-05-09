@@ -3,6 +3,9 @@ from langgraph.graph import StateGraph, END
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage
 from core.config import get_settings
+from dotenv import load_dotenv
+
+load_dotenv()
 
 settings = get_settings()
 
