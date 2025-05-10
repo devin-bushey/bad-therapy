@@ -59,19 +59,19 @@ export function useChatSession(sessionId?: string) {
   }, [sessionId, getAccessTokenSilently, queryClient, isAuthenticated])
 
   // Initial AI message logic
-  useEffect(() => {
-    if (
-      !didInit.current &&
-      sessionQuery.data &&
-      Array.isArray(sessionQuery.data.messages) &&
-      sessionQuery.data.messages.length === 0 &&
-      sessionId &&
-      isAuthenticated
-    ) {
-      didInit.current = true
-      sendAIMessage('')
-    }
-  }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage])
+  // useEffect(() => {
+  //   if (
+  //     !didInit.current &&
+  //     sessionQuery.data &&
+  //     Array.isArray(sessionQuery.data.messages) &&
+  //     sessionQuery.data.messages.length === 0 &&
+  //     sessionId &&
+  //     isAuthenticated
+  //   ) {
+  //     didInit.current = true
+  //     sendAIMessage('')
+  //   }
+  // }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage])
 
 
   return {

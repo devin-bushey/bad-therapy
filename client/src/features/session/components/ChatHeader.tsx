@@ -22,6 +22,7 @@ export function ChatHeader({ editing, nameInput, sessionName, onEdit, onChange, 
             style={{ fontSize: 22, fontWeight: 700, background: '#23233a', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 12px', textAlign: 'center' }}
             onBlur={onSave}
           />
+          <button type="submit" style={{ marginLeft: 8 }} aria-label="save">Save</button>
         </form>
       ) : (
         <span
@@ -30,6 +31,9 @@ export function ChatHeader({ editing, nameInput, sessionName, onEdit, onChange, 
         >
           {sessionName || 'Untitled'}
         </span>
+      )}
+      {!editing && (
+        <button onClick={onEdit} style={{ marginLeft: 8 }} aria-label="edit">Edit</button>
       )}
     </div>
   )
