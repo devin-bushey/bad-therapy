@@ -1,7 +1,11 @@
 import type { TherapySession } from '../../../types/session.types'
 
+
+const API_URL = import.meta.env.VITE_SERVER_DOMAIN
+
+
 export async function fetchSessions(token: string): Promise<TherapySession[]> {
-    const res = await fetch('http://localhost:8000/sessions', {
+    const res = await fetch(`${API_URL}/sessions`, {
         headers: { Authorization: `Bearer ${token}` }
     })
     if (!res.ok) return []
@@ -9,7 +13,7 @@ export async function fetchSessions(token: string): Promise<TherapySession[]> {
 }
 
 export async function createSession(token: string, name: string, userId: string): Promise<TherapySession> {
-    const res = await fetch('http://localhost:8000/sessions', {
+    const res = await fetch(`${API_URL}/sessions`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

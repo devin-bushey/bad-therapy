@@ -1,7 +1,9 @@
 import type { TherapySession } from '../../../types/session.types'
 
+const API_URL = import.meta.env.VITE_SERVER_DOMAIN
+
 export async function fetchSession({ sessionId, token }: { sessionId: string; token: string }): Promise<TherapySession> {
-  const res = await fetch(`http://localhost:8000/sessions/${sessionId}`, {
+  const res = await fetch(`${API_URL}/sessions/${sessionId}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
   if (!res.ok) throw new Error('Failed to fetch session')
@@ -9,7 +11,7 @@ export async function fetchSession({ sessionId, token }: { sessionId: string; to
 }
 
 export async function patchSessionName({ sessionId, token, name }: { sessionId: string; token: string; name: string }): Promise<TherapySession> {
-  const res = await fetch(`http://localhost:8000/sessions/${sessionId}`, {
+  const res = await fetch(`${API_URL}/sessions/${sessionId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -22,7 +24,7 @@ export async function patchSessionName({ sessionId, token, name }: { sessionId: 
 }
 
 export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: string) => void }): Promise<void> {
-  const res = await fetch('http://localhost:8000/ai/generate-stream', {
+  const res = await fetch(`${API_URL}/ai/generate-stream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
