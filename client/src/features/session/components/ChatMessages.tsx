@@ -9,9 +9,12 @@ interface ChatMessagesProps {
 export function ChatMessages({ messages, loading }: ChatMessagesProps) {
   if (loading && messages.length === 0)
     return <div style={{ color: '#bbb', fontSize: 18, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading messages…</div>
+
+  const filteredMessages = Array.isArray(messages) ? messages.filter((m: Message) => m.content !== '') : []
+
   return (
     <>
-      {messages.map((m, i) => (
+      {filteredMessages.map((m, i) => (
         <div key={i} style={{ textAlign: m.isFromUser ? 'right' : 'left', margin: '12px 0' }}>
           <span style={{
             display: 'inline-block',
