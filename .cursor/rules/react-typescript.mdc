@@ -17,7 +17,7 @@ General Principles
 - Follow DRY (Don't Repeat Yourself) principle
 - Implement early returns for better readability
 - Structure components logically: exports, subcomponents, helpers, types
+- use Camel Case for file names and functions
 
 Make code changes without asking
 
-TanStack Router documentation: https://tanstack.com/router/latest

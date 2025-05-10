@@ -2,10 +2,11 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { Auth0Provider } from '@auth0/auth0-react'
-import { authConfig } from './config/auth_config.ts'
-import Dashboard from './pages/Dashboard.tsx'
-import Chat from './pages/Chat'
+import { authConfig } from './auth/authConfig.ts'
+import Dashboard from './features/dashboard/Dashboard.tsx'
+import Chat from './features/session/Chat.tsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Welcome from './features/welcome/Welcome.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -16,7 +17,8 @@ createRoot(document.getElementById('root')!).render(
     >
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Welcome />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/chat" element={<Chat />} />
         </Routes>
       </BrowserRouter>
