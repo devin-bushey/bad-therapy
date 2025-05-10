@@ -1,0 +1,86 @@
+:root {
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: #fff;
+  background-color: #181824;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #181824;
+  color: #fff;
+}
+
+h1, h2, h3 {
+  font-family: 'Inter', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5em 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  border-radius: 8px;
+  border: none;
+  padding: 0.75em 1.5em;
+  font-size: 1.1em;
+  font-weight: 600;
+  font-family: inherit;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px #0002;
+}
+button:hover {
+  background: #1d4ed8;
+}
+button:focus,
+button:focus-visible {
+  outline: 3px solid #2563eb;
+}
+
+.card {
+  background: #23233a;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0003;
+  padding: 2rem;
+  margin: 1.5rem 0;
+}
+
+.dashboard-section {
+  background: #23233a;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0002;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0 0 0;
+}
+
+a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+a:hover {
+  color: #93c5fd;
+}
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }

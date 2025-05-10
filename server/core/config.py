@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     LANGSMITH_ENDPOINT: str
     LANGSMITH_PROJECT: str
     PG_CRYPTO_KEY: str
+    AUTH0_DOMAIN: str
+    AUTH0_AUDIENCE: str
 
     class Config:
         env_file = ".env"
