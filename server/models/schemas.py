@@ -19,9 +19,11 @@ class Message(BaseModel):
 
 class Session(BaseModel):
     id: str
+    user_id: str
     name: str
     created_at: str
     messages: Optional[List[Message]] = None
 
 class SessionCreate(BaseModel):
-    name: str 
+    name: str
+    user_id: str 

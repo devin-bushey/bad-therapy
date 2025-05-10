@@ -17,24 +17,24 @@ async def read_root():
 
 @router.post("/sessions", response_model=Session)
 async def create_new_session(session: SessionCreate, user=Depends(require_auth)) -> Session:
-    created_session = create_session(name=session.name)
+    created_session = create_session(name=session.name, user_id=session.user_id)
     return Session(**created_session)
 
 @router.get("/sessions", response_model=list[Session])
 async def list_sessions(request: Request, user=Depends(require_auth)) -> list[Session]:
     limit = request.query_params.get("limit", 5)
-    sessions = get_recent_sessions(limit=limit)
+    sessions = get_recent_sessions(user_id=user.sub, limit=limit)
     return [Session(**s) for s in sessions]
 
 @router.get("/sessions/{session_id}", response_model=Session)
 async def get_session(session_id: str, user=Depends(require_auth)) -> Session:
-    sessions = get_recent_sessions()
+    sessions = get_recent_sessions(user_id=user.sub)
     session = next((s for s in sessions if s["id"] == session_id), None)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     
     # Get conversation history
-    history = get_conversation_history(session_id=session_id)
+    history = get_conversation_history(session_id=session_id, user_id=user.sub)
     messages = []
     # Sort history from oldest to newest
     for entry in reversed(history):
@@ -57,7 +57,7 @@ async def generate_ai_response_stream(
     user=Depends(require_auth)
 ):
     async def streamer():
-        async for chunk in openai_service.generate_response_stream(session_id=data.session_id, prompt=data.prompt):
+        async for chunk in openai_service.generate_response_stream(session_id=data.session_id, prompt=data.prompt, user_id=user.sub):
             yield chunk
     return StreamingResponse(streamer(), media_type="text/plain") 
 

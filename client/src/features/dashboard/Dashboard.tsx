@@ -29,11 +29,12 @@ export default function Dashboard() {
                         style={{ fontSize: 18, fontWeight: 600, background: '#2563eb', color: '#fff', borderRadius: 8, padding: '0.9em 2.2em', margin: '0 auto', display: 'block', boxShadow: '0 2px 8px #0002' }}
                         onClick={async () => {
                             const token = await getAccessTokenSilently()
-                            const session = await createSession(token)
+                            if (!user || !user.sub) return
+                            const session = await createSession(token, 'New Session', user.sub)
                             navigate(`/chat?sessionId=${session.id}`)
                         }}
                     >
-                        + Start New Session
+                        Start New Session
                     </button>
                 </section>
                 <section>
@@ -42,18 +43,7 @@ export default function Dashboard() {
                         <SessionsTable sessions={sessions} loading={loading} />
                     </div>
                 </section>
-                <section>
-                    <div className="dashboard-section">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                            <h2 style={{ fontWeight: 700, margin: 0 }}>Your Mood Pattern</h2>
-                            <span style={{ color: '#b3b3b3', fontSize: 14 }}>Last 7 days</span>
-                        </div>
-                        <div style={{ color: '#b3b3b3', textAlign: 'center', padding: '2.5rem 0' }}>
-                            {/* Mood chart placeholder */}
-                            <span style={{ fontStyle: 'italic' }}>Mood chart coming soon…</span>
-                        </div>
-                    </div>
-                </section>
+                
             </main>
         </div>
     )

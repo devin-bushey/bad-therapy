@@ -12,10 +12,11 @@ import base64, os
 client = OpenAI()
 settings = get_settings()
 
-def create_session(*, name: str) -> dict:
+def create_session(*, name: str, user_id: str) -> dict:
     supabase = get_supabase_client()
     data = {
         "name": name,
+        "user_id": user_id,
         "created_at": datetime.utcnow().isoformat()
     }
     result = supabase.table("sessions").insert(data).execute()
@@ -54,7 +55,7 @@ def decrypt_data(*, data: str, password: str):
     f = Fernet(key)
     return type('Obj', (), {'data': f.decrypt(token).decode()})
 
-def save_conversation(*, session_id: str, prompt: str, response: str) -> None:
+def save_conversation(*, session_id: str, user_id: str, prompt: str, response: str) -> None:
     supabase = get_supabase_client()
     embedding = get_embedding(prompt + " " + response)
     password = settings.PG_CRYPTO_KEY
@@ -64,6 +65,7 @@ def save_conversation(*, session_id: str, prompt: str, response: str) -> None:
 
     data = {
         "session_id": session_id,
+        "user_id": user_id,
         "prompt": encrypted_prompt.data,
         "response": encrypted_response.data,
         "embedding": embedding,
@@ -71,12 +73,13 @@ def save_conversation(*, session_id: str, prompt: str, response: str) -> None:
     }
     supabase.table("conversation_history").insert(data).execute()
 
-def get_conversation_history(*, session_id: str, limit: int = 10) -> list[dict]:
+def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) -> list[dict]:
     supabase = get_supabase_client()
     password = settings.PG_CRYPTO_KEY
     result = supabase.table("conversation_history")\
         .select("*")\
         .eq("session_id", session_id)\
+        .eq("user_id", user_id)\
         .order("created_at", desc=True)\
         .limit(limit)\
         .execute()
@@ -87,10 +90,11 @@ def get_conversation_history(*, session_id: str, limit: int = 10) -> list[dict]:
 
     return result.data
 
-def get_recent_sessions(limit: int = 5) -> list[dict]:
+def get_recent_sessions(user_id: str, limit: int = 5) -> list[dict]:
     supabase = get_supabase_client()
     result = supabase.table("sessions")\
         .select("*")\
+        .eq("user_id", user_id)\
         .order("created_at", desc=True)\
         .limit(limit)\
         .execute()

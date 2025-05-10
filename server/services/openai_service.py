@@ -43,8 +43,8 @@ class OpenAIService:
         return resp.json()["choices"][0]["message"]["content"].strip().replace("\n", " ")
 
 
-    async def generate_response_stream(self, *, session_id: str, prompt: str):
-        history = get_conversation_history(session_id=session_id)
+    async def generate_response_stream(self, *, session_id: str, prompt: str, user_id: str):
+        history = get_conversation_history(session_id=session_id, user_id=user_id)
         is_first_message = not history
         should_update_name = history and len(history) == 2
         messages = build_messages(history, prompt, is_first_message)
@@ -74,10 +74,10 @@ class OpenAIService:
         if is_first_message:
             disclaimer = get_disclaimer()
             combined = full_response.strip() + "\n\n" + disclaimer
-            save_conversation(session_id=session_id, prompt=prompt, response=combined)
+            save_conversation(session_id=session_id, user_id=user_id, prompt=prompt, response=combined)
             yield "\n\n" + disclaimer
         else:
-            save_conversation(session_id=session_id, prompt=prompt, response=full_response)
+            save_conversation(session_id=session_id, user_id=user_id, prompt=prompt, response=full_response)
         if should_update_name:
             user1 = history[0]["prompt"] if len(history) > 0 else ""
             user2 = history[1]["prompt"] if len(history) > 1 else ""

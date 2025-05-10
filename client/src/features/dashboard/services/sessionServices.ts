@@ -8,14 +8,14 @@ export async function fetchSessions(token: string): Promise<TherapySession[]> {
     return res.json()
 }
 
-export async function createSession(token: string): Promise<TherapySession> {
+export async function createSession(token: string, name: string, userId: string): Promise<TherapySession> {
     const res = await fetch('http://localhost:8000/sessions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ name: '' })
+        body: JSON.stringify({ name, user_id: userId })
     })
     if (!res.ok) throw new Error('Failed to create session')
     return res.json()
