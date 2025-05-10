@@ -26,6 +26,10 @@ function MainRouter() {
   return <Dashboard />
 }
 
+const PageNotFound = () => {
+  return <div>Page not found</div>
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
@@ -38,7 +42,7 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route path="/" element={<MainRouter />} />
             <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-            <Route path="*" element={<MainRouter />} />
+            <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>
       </Auth0Provider>
