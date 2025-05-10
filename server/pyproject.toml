@@ -13,5 +13,6 @@ dependencies = [
     "cryptography>=44.0.3",
     "langchain[openai]>=0.3.25",
     "langgraph>=0.4.3",
-    "supabase>=2.3.0"
+    "supabase>=2.3.0",
+    "python-jose>=3.3.0"
 ]
