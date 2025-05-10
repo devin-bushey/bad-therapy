@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     SUPABASE_DB_URL: str
     SUPABASE_ANON_KEY: str
     SUPABASE_PASS: str
+    SUPABASE_JWT_SECRET: str
+    SUPABASE_SERVICE_ROLE_KEY: str
     LANGSMITH_API_KEY: str
     LANGSMITH_TRACING: bool
     LANGSMITH_ENDPOINT: str

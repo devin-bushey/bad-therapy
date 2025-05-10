@@ -10,14 +10,14 @@ export async function fetchSession({ sessionId, token }: { sessionId: string; to
   return res.json()
 }
 
-export async function patchSessionName({ sessionId, token, name }: { sessionId: string; token: string; name: string }): Promise<TherapySession> {
+export async function patchSessionName({ sessionId, token, name, userId }: { sessionId: string; token: string; name: string; userId: string }): Promise<TherapySession> {
   const res = await fetch(`${API_URL}/sessions/${sessionId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ name })
+    body: JSON.stringify({ name, user_id: userId })
   })
   if (!res.ok) throw new Error('Failed to update session name')
   return res.json()

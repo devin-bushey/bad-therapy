@@ -5,7 +5,7 @@ import { fetchSession, patchSessionName, streamAIMessage } from '../services/cha
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 export function useChatSession(sessionId?: string) {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+  const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
   const [messages, setMessages] = useState<Message[]>([])
   const [nameInput, setNameInput] = useState('')
   const didInit = useRef(false)
@@ -32,7 +32,8 @@ export function useChatSession(sessionId?: string) {
     mutationFn: async (name: string) => {
       if (!sessionId) throw new Error('No sessionId')
       const token = await getAccessTokenSilently()
-      return patchSessionName({ sessionId, token, name })
+      if (!user?.sub) throw new Error('No userId')
+      return patchSessionName({ sessionId, token, name, userId: user.sub })
     },
     onSuccess: (s: TherapySession) => {
       queryClient.invalidateQueries({ queryKey: ['session', sessionId, isAuthenticated] })
