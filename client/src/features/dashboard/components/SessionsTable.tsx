@@ -1,6 +1,10 @@
+import { useNavigate } from 'react-router-dom';
 import type { TherapySession } from '../../../types/session.types'
 
 export function SessionsTable({ sessions, loading }: { sessions: TherapySession[]; loading: boolean }) {
+
+  const navigate = useNavigate()
+  
   return (
     <div style={{ height: 240, width: '100%', margin: '0 auto'}}>
         <table style={{ width: '100%' }}>
@@ -19,7 +23,7 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
             )}
 
             {sessions.map(s => (
-              <tr key={s.id} style={{ cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => window.location.href = `/chat?sessionId=${s.id}`}
+              <tr key={s.id} style={{ cursor: 'pointer', transition: 'background 0.2s' }} onClick={() => navigate(`/chat?sessionId=${s.id}`)}
                 onMouseOver={e => (e.currentTarget.style.background = '#282846')}
                 onMouseOut={e => (e.currentTarget.style.background = '')}
               >
