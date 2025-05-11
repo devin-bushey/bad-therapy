@@ -7,7 +7,7 @@ interface ChatInputProps {
 
 export function ChatInput({ input, onInput, onSend, loading }: ChatInputProps) {
   return (
-    <form style={{ display: 'flex', width: '100%', maxWidth: 600, margin: '0 auto 2rem auto' }} onSubmit={e => { e.preventDefault(); onSend() }}>
+    <form style={{ display: 'flex', width: '100vw', maxWidth: 600 }} onSubmit={e => { e.preventDefault(); onSend() }}>
       <input
         value={input}
         onChange={e => onInput(e.target.value)}

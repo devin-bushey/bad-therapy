@@ -46,48 +46,60 @@ export default function Chat() {
   }
 
   return (
-    <div style={{ height: '90vh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ width: '100%', maxWidth: 600, marginTop: 24, marginBottom: 8, textAlign: 'left' }}>
-        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', marginBottom: 8, padding: 0 }}>&larr; Back</button>
+    <div className="chat-container" style={{ height: '100dvh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100vw', maxWidth: '100vw', overflow: 'hidden' }}>
+      <div style={{ width: '100%', maxWidth: 600, display: 'flex', alignItems: 'center', marginTop: 24, marginBottom: 8, textAlign: 'left', gap: 8, overflow: 'hidden' }}>
+        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', padding: 0, minWidth: 48 }}>Back</button>
+        {editing ? (
+          <form onSubmit={e => { e.preventDefault(); handleSaveName() }} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <input
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              autoFocus
+              style={{ fontSize: 22, fontWeight: 700, background: '#23233a', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 12px', textAlign: 'left', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              maxLength={64}
+              onBlur={handleSaveName}
+            />
+            <button type="submit" style={{ fontSize: 16, padding: '4px 10px', background: '#2563eb', color: '#fff', borderRadius: 8 }}>Save</button>
+          </form>
+        ) : (
+          <span
+            style={{ fontSize: 22, fontWeight: 700, color: '#fff', background: '#23233a', borderRadius: 8, padding: '4px 12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, cursor: 'pointer' }}
+            onClick={() => setEditing(true)}
+            title={session?.name || 'Untitled'}
+          >
+            {session?.name || 'Untitled'}
+          </span>
+        )}
       </div>
-      <ChatHeader
-        editing={editing}
-        nameInput={nameInput}
-        sessionName={session?.name}
-        onEdit={() => setEditing(true)}
-        onChange={setNameInput}
-        onSave={handleSaveName}
-        setEditing={setEditing}
-      />
       <div
         ref={chatRef}
+        className="chat-messages hide-scrollbar"
         style={{
           flex: 1,
           width: '100%',
           maxWidth: 600,
-          height: 400,
           overflowY: 'auto',
-          margin: '2rem 0',
           background: '#23233a',
           borderRadius: 12,
           padding: 24,
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
           position: 'relative',
           display: 'flex',
           flexDirection: 'column',
+          minHeight: 0,
+          marginBottom: 40
         }}
         onScroll={handleScroll}
-        className="hide-scrollbar"
       >
         <ChatMessages messages={messages} loading={loading} />
       </div>
-      <ChatInput
-        input={input}
-        onInput={setInput}
-        onSend={handleSend}
-        loading={loading}
-      />
+      <div className="chat-input">
+        <ChatInput
+          input={input}
+          onInput={setInput}
+          onSend={handleSend}
+          loading={loading}
+        />
+      </div>
     </div>
   )
 }
