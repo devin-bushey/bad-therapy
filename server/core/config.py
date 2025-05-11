@@ -3,7 +3,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     OPENAI_API_KEY: str
-    OPENAI_MODEL: str = "gpt-4o-mini"
+    OPENAI_MODEL: str = "gpt-4.1-mini"
     OPENAI_MAX_TOKENS: int = 256
     OPENAI_TIMEOUT: int = 15
     SUPABASE_DB_URL: str
