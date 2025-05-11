@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import Navbar from '../../pages/Navbar'
 import { fetchProfile, saveProfile } from './services/profileService'
 import type { ProfileForm } from '../../types/profile.types'
+import './UserProfileForm.css'
 
 export default function UserProfileForm() {
     const queryClient = useQueryClient()
@@ -47,28 +48,27 @@ export default function UserProfileForm() {
         mutation.mutate(form)
     }
     return (
-        <div style={{ minHeight: '100vh', background: '#181824' }}>
+        <div className="profile-form-bg">
             <Navbar />
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)' }}>
-                <div style={{ background: '#23233a', borderRadius: 24, boxShadow: '0 2px 12px #0002', padding: '2.5rem 2.5rem 2rem 2.5rem', maxWidth: 420, width: '100%', border: '1.5px solid #2563eb', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 28, marginBottom: 18 }}>Your Profile</h2>
-                    <p style={{ color: '#a3a3a3', fontSize: 15, marginTop: -10, marginBottom: 18, textAlign: 'center' }}>
+            <div className="profile-form-outer">
+                <div className="profile-form-inner">
+                    <h2 className="profile-form-title">Your Profile</h2>
+                    <p className="profile-form-desc">
                         All fields are optional. Any updates to your profile will be used in new conversations. All of your data and conversations are securely stored and encrypted.
                     </p>
-                    <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 18 }}>
-                        {mutation.isError && <div style={{ color: '#ef4444', fontWeight: 500, marginTop: 4 }}>Error saving profile</div>}
-                        {mutation.isSuccess && <div style={{ color: '#22c55e', fontWeight: 500, marginTop: 4 }}>Profile saved</div>}
-                        {mutation.isPending && <div style={{ color: '#2563eb', fontWeight: 500, marginTop: 4 }}>Saving...</div>}
-                        <input name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="goals" placeholder="Goals" value={form.goals} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="coaching_style" placeholder="Coaching Style" value={form.coaching_style} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <input name="preferred_focus_area" placeholder="Preferred Focus Area" value={form.preferred_focus_area} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, marginBottom: 2 }} />
-                        <textarea name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} style={{ background: '#181824', color: '#fff', border: '1.5px solid #444', borderRadius: 10, padding: '0.8em 1em', fontSize: 16, minHeight: 80, resize: 'vertical', marginBottom: 2 }} />
-                        <button type="submit" disabled={mutation.isPending} style={{ background: '#2563eb', color: '#fff', border: 'none', borderRadius: 10, padding: '0.9em 0', fontWeight: 700, fontSize: 18, marginTop: 8, cursor: 'pointer', boxShadow: '0 2px 8px #0002' }}>Save</button>
-                        
+                    <form onSubmit={handleSubmit} className="profile-form">
+                        {mutation.isError && <div className="profile-form-error">Error saving profile</div>}
+                        {mutation.isSuccess && <div className="profile-form-success">Profile saved</div>}
+                        {mutation.isPending && <div className="profile-form-pending">Saving...</div>}
+                        <input name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
+                        <input name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
+                        <input name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
+                        <input name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
+                        <input name="goals" placeholder="Goals" value={form.goals} onChange={handleChange} className="profile-form-input" />
+                        <input name="coaching_style" placeholder="Coaching Style" value={form.coaching_style} onChange={handleChange} className="profile-form-input" />
+                        <input name="preferred_focus_area" placeholder="Preferred Focus Area" value={form.preferred_focus_area} onChange={handleChange} className="profile-form-input" />
+                        <textarea name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
+                        <button type="submit" disabled={mutation.isPending} className="profile-form-save">Save</button>
                     </form>
                 </div>
             </div>
