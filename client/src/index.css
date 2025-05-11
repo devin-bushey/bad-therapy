@@ -86,21 +86,36 @@ a:hover {
 .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
 @media (max-width: 700px) {
+  html, body {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100vw;
+  }
   .chat-container {
     height: 100dvh;
-    min-height: 0;
+    min-height: 100dvh;
+    max-height: 100dvh;
     padding: 0;
     max-width: 100vw;
     width: 100vw;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .chat-messages {
     max-width: 100vw;
     padding: 0.75rem 0.25rem 5rem 0.25rem;
     border-radius: 0;
     margin: 0;
-    height: 100%;
+    flex: 1 1 0%;
     min-height: 0;
+    height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
   .chat-input {
     position: fixed;
