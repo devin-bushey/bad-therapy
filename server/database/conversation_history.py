@@ -90,7 +90,7 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
 
     return result.data
 
-def get_recent_sessions(user_id: str, limit: int) -> list[dict]:
+def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
     supabase = get_supabase_client()
     result = supabase.table("sessions")\
         .select("*")\
