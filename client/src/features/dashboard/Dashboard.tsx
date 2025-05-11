@@ -6,7 +6,7 @@ import { useSessions } from './hooks/useSessions'
 import Navbar from './components/Navbar'
 
 export default function Dashboard() {
-    const { isAuthenticated, getAccessTokenSilently, logout, user } = useAuth0()
+    const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()
     const navigate = useNavigate()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
 
