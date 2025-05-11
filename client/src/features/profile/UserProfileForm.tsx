@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth0 } from '@auth0/auth0-react'
-import Navbar from '../dashboard/components/Navbar'
+import Navbar from '../../pages/Navbar'
 import { fetchProfile, saveProfile } from './services/profileService'
+import type { ProfileForm } from '../../types/profile.types'
 
 export default function UserProfileForm() {
     const queryClient = useQueryClient()
     const { getAccessTokenSilently } = useAuth0()
-    const [form, setForm] = useState({ full_name: '', age: '', bio: '', gender: '', ethnicity: '', goals: '', coaching_style: '', preferred_focus_area: '' })
+    const [form, setForm] = useState<ProfileForm>({ full_name: '', age: '', bio: '', gender: '', ethnicity: '', goals: '', coaching_style: '', preferred_focus_area: '' })
     const [initialized, setInitialized] = useState(false)
 
     useQuery({
@@ -33,15 +34,15 @@ export default function UserProfileForm() {
     })
 
     const mutation = useMutation({
-        mutationFn: async (data: any) => {
+        mutationFn: async (data: ProfileForm) => {
             const token = await getAccessTokenSilently()
             return saveProfile({ data, token })
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile'] })
     })
 
-    const handleChange = (e: any) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-    const handleSubmit = (e: any) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         mutation.mutate(form)
     }

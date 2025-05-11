@@ -3,7 +3,7 @@ import { SessionsTable } from './components/SessionsTable'
 import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
-import Navbar from './components/Navbar'
+import Navbar from '../../pages/Navbar'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()

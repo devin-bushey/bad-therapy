@@ -21,11 +21,11 @@ function DebouncedInput({ value, onChange, debounce = 300, ...props }: {
   value: string
   onChange: (value: string) => void
   debounce?: number
-  [key: string]: any
+  [key: string]: unknown
 }) {
   const [val, setVal] = useState(value)
   useEffect(() => { setVal(value) }, [value])
-  useEffect(() => { const t = setTimeout(() => onChange(val), debounce); return () => clearTimeout(t) }, [val])
+  useEffect(() => { const t = setTimeout(() => onChange(val), debounce); return () => clearTimeout(t) }, [val, debounce, onChange])
   return <input {...props} value={val} onChange={e => setVal(e.target.value)} />
 }
 
@@ -76,9 +76,9 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
       />
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          {table.getHeaderGroups().map((headerGroup: any) => (
+          {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header: any) => (
+              {headerGroup.headers.map((header) => (
                 <th key={header.id} style={{ textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
@@ -93,13 +93,13 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
             {table.getRowModel().rows.length === 0 && (
               <tr><td style={{ padding: 8, color: '#555' }}>No sessions found</td></tr>
             )}
-            {table.getRowModel().rows.map((row: any) => (
+            {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
                 style={{ cursor: 'pointer' }}
                 onClick={() => navigate(`/chat?sessionId=${row.original.id}`)}
               >
-                {row.getVisibleCells().map((cell: any) => (
+                {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} style={{ padding: '6px 0', color: '#eee', border: 'none', background: 'none' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                 ))}
               </tr>
