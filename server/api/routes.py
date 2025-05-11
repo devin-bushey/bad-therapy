@@ -22,7 +22,7 @@ async def create_new_session(session: SessionCreate, user=Depends(require_auth))
 
 @router.get("/sessions", response_model=list[Session])
 async def list_sessions(request: Request, user=Depends(require_auth)) -> list[Session]:
-    limit = request.query_params.get("limit", 5)
+    limit = request.query_params.get("limit")
     sessions = get_recent_sessions(user_id=user.sub, limit=limit)
     return [Session(**s) for s in sessions]
 
