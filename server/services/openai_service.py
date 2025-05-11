@@ -6,8 +6,8 @@ from prompts.chat_prompts import get_session_name_prompt, get_system_prompt, get
 
 settings = get_settings()
 
-def build_messages(history: list[dict], prompt: str, is_first_message: bool = False) -> list[dict]:
-    messages = [{"role": "system", "content": get_system_prompt(is_first_message)}]
+def build_messages(history: list[dict], prompt: str, is_first_message: bool = False, user_profile: dict | None = None) -> list[dict]:
+    messages = [{"role": "system", "content": get_system_prompt(is_first_message, user_profile)}]
     for entry in reversed(history):
         messages.append({"role": "user", "content": entry["prompt"]})
         messages.append({"role": "assistant", "content": entry["response"]})
@@ -43,11 +43,11 @@ class OpenAIService:
         return resp.json()["choices"][0]["message"]["content"].strip().replace("\n", " ")
 
 
-    async def generate_response_stream(self, *, session_id: str, prompt: str, user_id: str):
+    async def generate_response_stream(self, *, session_id: str, prompt: str, user_id: str, user_profile: dict | None = None):
         history = get_conversation_history(session_id=session_id, user_id=user_id)
         is_first_message = not history
         should_update_name = history and len(history) == 2
-        messages = build_messages(history, prompt, is_first_message)
+        messages = build_messages(history, prompt, is_first_message, user_profile)
         url = "https://api.openai.com/v1/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {
@@ -85,3 +85,23 @@ class OpenAIService:
             bot3 = full_response.strip()
             session_name = await self._generate_session_name(user1, user2, bot2, bot3)
             update_session(session_id=session_id, name=session_name) 
+
+
+    async def run_therapy_agent(self, *, user_message: str, emotional_state: str):
+        initial_state = {
+            "messages": [HumanMessage(content=user_message)],
+            "emotional_state": emotional_state,
+            "therapeutic_approach": "",
+            "safety_level": "safe",
+            "session_notes": "",
+            "next": "safety_check"
+        }
+        result = graph.invoke(initial_state)
+        return {
+            "safety_level": result["safety_level"],
+            "therapeutic_approach": result["therapeutic_approach"],
+            "session_notes": result["session_notes"],
+            "conversation": [
+                {"type": m.type, "content": m.content} for m in result["messages"]
+            ]
+        }

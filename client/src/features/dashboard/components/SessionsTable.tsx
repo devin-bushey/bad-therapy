@@ -65,9 +65,9 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 5 } },
   })
-  if (loading) return <div style={{ padding: 10, color: '#bbb' }}>Loading sessions…</div>
+  if (loading) return <div style={{ padding: 10, color: '#bbb', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading sessions…</div>
   return (
-    <div style={{ width: '100%', margin: '0 auto' }}>
+    <div style={{ width: '100%', margin: '0 auto', height: 320, display: 'flex', flexDirection: 'column' }}>
       <DebouncedInput
         value={globalFilter}
         onChange={setGlobalFilter}

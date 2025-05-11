@@ -3,20 +3,26 @@ import { SessionsTable } from './components/SessionsTable'
 import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
+import { useState, useRef, useEffect } from 'react'
+import Navbar from './components/Navbar'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, logout, user } = useAuth0()
     const navigate = useNavigate()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
+    const [open, setOpen] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+      const handler = (e: MouseEvent) => {
+        if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      }
+      document.addEventListener('mousedown', handler)
+      return () => document.removeEventListener('mousedown', handler)
+    }, [])
 
     return (
         <div style={{ minHeight: '100vh', background: '#181824' }}>
-            <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem 2rem 1rem 2rem' }}>
-                <span style={{ fontWeight: 700, fontSize: 20, letterSpacing: -1 }}>bad therapy</span>
-                <button style={{ background: '#23233a', color: '#fff', borderRadius: 24, padding: '0.5rem 1.2rem', fontWeight: 600, fontSize: 16, border: 'none' }} onClick={() => logout({ logoutParams: { returnTo: window.location.origin + '/' } })}>
-                    Logout
-                </button>
-            </nav>
+            <Navbar />
             <main style={{ maxWidth: 700, margin: '0 auto', padding: '0 1rem' }}>
                 <section style={{ textAlign: 'center', margin: '2.5rem 0 2rem 0' }}>
                     <h1 style={{ fontSize: 36, fontWeight: 700, marginBottom: 8 }}>

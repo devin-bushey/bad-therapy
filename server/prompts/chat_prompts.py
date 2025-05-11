@@ -1,4 +1,4 @@
-def get_system_prompt(is_first_message: bool) -> str:
+def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) -> str:
     if is_first_message:
         return (
             "Your name is Arlo. You are a supportive, empathetic mental health coach that provides therapy and life coaching. "
@@ -9,6 +9,7 @@ def get_system_prompt(is_first_message: bool) -> str:
             "Introduce yourself, explain your role, and ask the user how you can help today. "
             "Your tone should be warm, friendly, and supportive. Do not be overly positive. "
             "Do not give solutions right away. Listen to the user's needs and provide support."
+            + get_user_profile(user_profile)
         )
     return (
         "You are a well established therapist. "
@@ -54,3 +55,19 @@ def get_session_name_prompt() -> str:
         "Respond with a descriptive name based on the messages. The name should describe the conversation. "
         "Respond with only the session name, 3-6 words, no punctuation."
     )
+
+def get_user_profile(user_profile: dict) -> str:
+    if not user_profile:
+            return ""
+    fields = [
+        ("Name", user_profile.get("full_name")),
+        ("Age", user_profile.get("age")),
+        ("Bio", user_profile.get("bio")),
+        ("Gender", user_profile.get("gender")),
+        ("Ethnicity", user_profile.get("ethnicity")),
+        ("Goals", user_profile.get("goals")),
+        ("Preferred coaching style", user_profile.get("coaching_style")),
+        ("Preferred focus area", user_profile.get("preferred_focus_area")),
+    ]
+    summary = ", ".join(f"{k}: {v}" for k, v in fields if v)
+    return f"Here is some information about the user: {summary}. " if summary else ""

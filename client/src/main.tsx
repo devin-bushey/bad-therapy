@@ -10,6 +10,7 @@ import Welcome from './pages/Welcome.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ComponentType } from 'react'
 import Loading from './pages/Loading.tsx'
+import UserProfileForm from './features/profile/UserProfileForm.tsx'
 
 const queryClient = new QueryClient()
 
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<Welcome />} />
             <Route path="/dashboard" element={createElement(ProtectedRoute(Dashboard))} />
             <Route path="/chat" element={createElement(ProtectedRoute(Chat))} />
+            <Route path="/user" element={createElement(ProtectedRoute(UserProfileForm))} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>

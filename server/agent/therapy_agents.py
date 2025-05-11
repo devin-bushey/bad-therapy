@@ -18,7 +18,7 @@ class TherapyState(TypedDict):
     next: Annotated[str, "Next step to take"]
 
 
-model = "gpt-4.1-nano"
+model = "gpt-4.1-mini"
 
 class SafetyAgent:
     def __init__(self):
