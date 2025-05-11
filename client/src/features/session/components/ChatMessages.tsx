@@ -1,11 +1,13 @@
 import type { Message } from '../../../types/session.types'
+import TypingBubble from './TypingBubble'
 
 interface ChatMessagesProps {
   messages: Message[]
   loading: boolean
+  showTypingBubble?: boolean
 }
 
-export function ChatMessages({ messages, loading }: ChatMessagesProps) {
+export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessagesProps) {
   if (loading && messages.length === 0)
     return <div style={{ color: '#bbb', fontSize: 18, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading messages…</div>
 
@@ -29,6 +31,12 @@ export function ChatMessages({ messages, loading }: ChatMessagesProps) {
           </span>
         </div>
       ))}
+      {showTypingBubble ? <TypingBubble /> : null}
     </>
   )
-} 
+}
+
+// Add keyframes for typing-bounce animation
+const style = document.createElement('style')
+style.innerHTML = `@keyframes typing-bounce { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }`
+document.head.appendChild(style) 

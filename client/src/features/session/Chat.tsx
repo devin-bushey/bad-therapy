@@ -98,7 +98,9 @@ export default function Chat() {
         }}
         onScroll={handleScroll}
       >
-        <ChatMessages messages={messages} loading={loading} />
+        <ChatMessages messages={messages} loading={loading} showTypingBubble={
+          !loading && messages.length > 0 && messages[messages.length - 1].content === '' && !messages[messages.length - 1].isFromUser
+        } />
       </div>
       <div className="chat-input">
         <ChatInput
