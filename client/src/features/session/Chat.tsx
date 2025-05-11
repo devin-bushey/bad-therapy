@@ -44,6 +44,15 @@ export default function Chat() {
     setEditing(false)
   }
 
+  useEffect(() => {
+    document.body.classList.add('chat-active')
+    document.documentElement.classList.add('chat-active')
+    return () => {
+      document.body.classList.remove('chat-active')
+      document.documentElement.classList.remove('chat-active')
+    }
+  }, [])
+
   return (
     <div className="chat-container" style={{ height: '100dvh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100vw', maxWidth: '100vw', overflow: 'hidden' }}>
       <div style={{ width: '100%', maxWidth: 600, display: 'flex', alignItems: 'center', marginTop: 24, marginBottom: 8, textAlign: 'left', gap: 8, overflow: 'hidden' }}>

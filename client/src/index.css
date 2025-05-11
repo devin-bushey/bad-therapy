@@ -86,7 +86,7 @@ a:hover {
 .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
 @media (max-width: 700px) {
-  html, body {
+  body.chat-active, html.chat-active {
     height: 100dvh;
     min-height: 100dvh;
     max-height: 100dvh;
