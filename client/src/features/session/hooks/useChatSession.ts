@@ -22,6 +22,10 @@ export function useChatSession(sessionId?: string) {
   })
 
   useEffect(() => {
+    if (sessionQuery.error) alert('Session could not be loaded. Please log in again.')
+  }, [sessionQuery.error])
+
+  useEffect(() => {
     const s = sessionQuery.data
     if (!s) return
     setNameInput(s.name || 'Untitled')

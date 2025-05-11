@@ -12,7 +12,7 @@ const Welcome: React.FC = () => {
           AI can support your mental health, but it's not a replacement for real human care. Like boxed mac and cheese, it's fine in a pinch—but not a long-term diet.
         </p>
         <div style={{  margin: "0 0 2.5rem 0", display: "flex", flexDirection: "column", alignItems: "center", minWidth: 320, maxWidth: 400, width: "100%" }}>
-          <button onClick={() => loginWithRedirect({ authorizationParams: { redirect_uri: window.location.origin + "/" } })}
+          <button onClick={() => loginWithRedirect({ authorizationParams: { redirect_uri: window.location.origin + "/dashboard" } })}
             style={{ fontSize: 20, fontWeight: 700, background: "#2563eb", color: "#fff", borderRadius: 10, padding: "1em 2.5em", border: "none", cursor: "pointer", boxShadow: "0 2px 8px #0002", marginBottom: 0 }}>
             Login / Signup
           </button>

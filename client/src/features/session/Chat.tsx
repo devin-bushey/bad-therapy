@@ -48,7 +48,7 @@ export default function Chat() {
   return (
     <div style={{ height: '90vh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ width: '100%', maxWidth: 600, marginTop: 24, marginBottom: 8, textAlign: 'left' }}>
-        <button onClick={() => navigate('/')} style={{ background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', marginBottom: 8, padding: 0 }}>&larr; Back</button>
+        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', marginBottom: 8, padding: 0 }}>&larr; Back</button>
       </div>
       <ChatHeader
         editing={editing}
