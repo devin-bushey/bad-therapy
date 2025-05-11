@@ -40,6 +40,11 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
       cell: info => info.getValue() || 'Untitled',
       filterFn: fuzzyFilter,
     },
+    {
+      accessorKey: 'created_at',
+      header: '',
+      cell: info => <span style={{ marginRight: 8, display: 'inline-block' }}>{(info.getValue() as string)?.slice(0, 10) ?? ''}</span>,
+    },
   ], [])
   const table = useReactTable({
     data: sessions,
