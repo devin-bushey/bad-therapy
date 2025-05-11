@@ -3,22 +3,12 @@ import { SessionsTable } from './components/SessionsTable'
 import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
-import { useState, useRef, useEffect } from 'react'
 import Navbar from './components/Navbar'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, logout, user } = useAuth0()
     const navigate = useNavigate()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
-    const [open, setOpen] = useState(false)
-    const ref = useRef<HTMLDivElement>(null)
-    useEffect(() => {
-      const handler = (e: MouseEvent) => {
-        if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-      }
-      document.addEventListener('mousedown', handler)
-      return () => document.removeEventListener('mousedown', handler)
-    }, [])
 
     return (
         <div style={{ minHeight: '100vh', background: '#181824' }}>
