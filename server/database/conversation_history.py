@@ -14,8 +14,10 @@ settings = get_settings()
 
 def create_session(*, name: str, user_id: str) -> dict:
     supabase = get_supabase_client()
+    password = settings.PG_CRYPTO_KEY
+    encrypted_name = encrypt_data(data=name, password=password)
     data = {
-        "name": name,
+        "name": encrypted_name.data,
         "user_id": user_id,
         "created_at": datetime.utcnow().isoformat()
     }
@@ -24,7 +26,9 @@ def create_session(*, name: str, user_id: str) -> dict:
 
 def update_session(*, session_id: str, name: str) -> dict:
     supabase = get_supabase_client()
-    result = supabase.table("sessions").update({"name": name}).eq("id", session_id).execute()
+    password = settings.PG_CRYPTO_KEY
+    encrypted_name = encrypt_data(data=name, password=password)
+    result = supabase.table("sessions").update({"name": encrypted_name.data}).eq("id", session_id).execute()
     return result.data[0]
 
 def get_embedding(text: str) -> list[float]:
@@ -92,10 +96,16 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
 
 def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
     supabase = get_supabase_client()
+    password = settings.PG_CRYPTO_KEY
     result = supabase.table("sessions")\
         .select("*")\
         .eq("user_id", user_id)\
         .order("created_at", desc=True)\
         .limit(limit)\
         .execute()
+    for item in result.data:
+        try:
+            item['name'] = decrypt_data(data=item['name'], password=password).data
+        except Exception:
+            pass
     return result.data
