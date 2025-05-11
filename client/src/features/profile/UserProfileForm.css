@@ -1,6 +1,8 @@
 .profile-form-bg {
   min-height: 100vh;
   background: #181824;
+  width: 100vw;
+  overflow-x: hidden;
 }
 
 .profile-form-outer {
@@ -9,7 +11,9 @@
   align-items: center;
   justify-content: center;
   min-height: calc(100vh - 80px);
-  padding: 0 8px;
+  padding: 24px 12px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .profile-form-inner {
@@ -23,6 +27,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .profile-form-title {
@@ -95,6 +100,14 @@
   margin-top: 4px;
 }
 
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior-y: contain;
+}
+
 @media (max-width: 480px) {
   .profile-form-inner {
     padding: 1.2rem 0.5rem 1.2rem 0.5rem;
@@ -106,5 +119,8 @@
   .profile-form-save {
     font-size: 16px;
     padding: 0.7em 0;
+  }
+  .profile-form-outer {
+    padding: 16px 4px;
   }
 } 
