@@ -14,7 +14,8 @@ export default function Chat() {
     nameInput,
     setNameInput,
     sendAIMessage,
-    saveName
+    saveName,
+    suggestedPrompts
   } = useChatSession(sessionId)
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
@@ -23,10 +24,10 @@ export default function Chat() {
   const [autoScroll, setAutoScroll] = useState(true)
 
   // Suggested prompts to show after first AI message
-  const suggestedPrompts = [
-    "I don't know where to start",
+  const prompts = suggestedPrompts || [
     "Can you help me understand what I might get out of therapy?",
-    "I'm not sure how I feel today",
+    "I don't know where to start",
+    "What should I expect from my first session?"
   ]
 
   // Show prompts only after first AI message is done streaming
@@ -123,7 +124,7 @@ export default function Chat() {
         } />
         {showSuggestedPrompts && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, alignItems: 'flex-start', margin: '12px 0 60px 0' }}>
-            {suggestedPrompts.map(p => (
+            {prompts.map(p => (
               <button
                 key={p}
                 onClick={() => handlePromptClick(p)}

@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from core.config import get_settings
 from database.conversation_history import save_conversation, get_conversation_history, update_session
 from prompts.chat_prompts import get_prompt_help, get_session_name_prompt, get_system_prompt, get_disclaimer
+import json
 
 settings = get_settings()
 
@@ -106,3 +107,33 @@ class OpenAIService:
                 {"type": m.type, "content": m.content} for m in result["messages"]
             ]
         }
+
+    async def generate_suggested_prompts(self) -> list[str]:
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        prompt = (
+            "You are a helpful therapy assistant. "
+            "Generate 3 concise, friendly, and varied suggested prompts to help a user start a new therapy session. "
+            "One of the prompts should be for someone who is brand new to therapy."
+            "Return only a JSON array of strings, no explanations."
+        )
+        payload = {
+            "model": "gpt-4.1-mini",
+            "messages": [
+                {"role": "system", "content": prompt}
+            ],
+            "max_tokens": 128,
+            "temperature": 0.7
+        }
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(url, headers=headers, json=payload, timeout=self.timeout)
+        if resp.status_code != 200:
+            raise HTTPException(status_code=resp.status_code, detail=await resp.aread())
+        content = resp.json()["choices"][0]["message"]["content"]
+        try:
+            prompts = json.loads(content)
+            if not isinstance(prompts, list):
+                raise ValueError
+            return [str(p) for p in prompts]
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to parse suggested prompts from LLM.")

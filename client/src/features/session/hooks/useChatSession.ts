@@ -10,6 +10,7 @@ export function useChatSession(sessionId?: string) {
   const [nameInput, setNameInput] = useState('')
   const didInit = useRef(false)
   const queryClient = useQueryClient()
+  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([])
 
   const sessionQuery = useQuery<TherapySession>({
     queryKey: ['session', sessionId, isAuthenticated],
@@ -78,6 +79,26 @@ export function useChatSession(sessionId?: string) {
     }
   }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage])
 
+  useEffect(() => {
+    if (
+      sessionQuery.data &&
+      Array.isArray(sessionQuery.data.messages) &&
+      sessionQuery.data.messages.length === 0 &&
+      sessionId &&
+      isAuthenticated
+    ) {
+      (async () => {
+        const token = await getAccessTokenSilently()
+        const res = await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/ai/suggested-prompts`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSuggestedPrompts(Array.isArray(data.prompts) ? data.prompts : [])
+        }
+      })()
+    }
+  }, [sessionQuery.data, sessionId, isAuthenticated, getAccessTokenSilently])
 
   return {
     messages,
@@ -88,6 +109,8 @@ export function useChatSession(sessionId?: string) {
     setNameInput,
     loadSession: sessionQuery.refetch,
     sendAIMessage,
-    saveName: (name: string) => patchNameMutation.mutateAsync(name)
+    saveName: (name: string) => patchNameMutation.mutateAsync(name),
+    suggestedPrompts,
+    setSuggestedPrompts
   }
 } 

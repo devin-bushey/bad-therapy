@@ -84,4 +84,9 @@ async def get_profile(user=Depends(require_auth)) -> UserProfile:
         raise HTTPException(status_code=404, detail="Profile not found")
     return UserProfile(**profile)
 
+@router.get("/ai/suggested-prompts")
+async def get_suggested_prompts(openai_service: OpenAIService = Depends(), user=Depends(require_auth)):
+    prompts = await openai_service.generate_suggested_prompts()
+    return {"prompts": prompts}
+
 
