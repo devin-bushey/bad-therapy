@@ -26,7 +26,7 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
             maxWidth: '80%',
             wordBreak: 'break-word',
             whiteSpace: 'pre-line',
-            textAlign: m.isFromUser ? 'left' : undefined
+            textAlign: m.isFromUser ? 'left' : undefined,
           }}>
             {m.content.split('\n').map((line, idx, arr) => idx < arr.length - 1 ? <span key={idx}>{line}<br /></span> : line)}
           </span>

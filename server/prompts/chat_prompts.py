@@ -48,6 +48,12 @@ def get_disclaimer() -> str:
        "If you're in crisis, I recommend reaching out to a professional or calling/texting 988 for help, as they're available 24/7."
     )
 
+def get_prompt_help() -> str:
+    return (
+        "If you need help starting the chat, click one of the suggested prompts below. "
+        "Otherwise, just start chatting! "
+    )
+
 def get_session_name_prompt() -> str:
     return (
         "You are an assistant that creates short, descriptive names. "

@@ -16,7 +16,7 @@ export default function Dashboard() {
             <main style={{ maxWidth: 700, margin: '0 auto', padding: '0 1rem' }}>
                 <section style={{ textAlign: 'center', margin: '2.5rem 0 2rem 0' }}>
                     <h1 style={{ fontSize: 36, fontWeight: 700, marginBottom: 8 }}>
-                        Welcome back
+                        Welcome back!
                     </h1>
                     <div style={{ color: '#b3b3b3', fontSize: 18, marginBottom: 32 }}>
                         Ready for your daily mental wellness check-in?

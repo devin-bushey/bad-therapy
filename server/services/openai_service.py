@@ -2,7 +2,7 @@ import httpx
 from fastapi import HTTPException
 from core.config import get_settings
 from database.conversation_history import save_conversation, get_conversation_history, update_session
-from prompts.chat_prompts import get_session_name_prompt, get_system_prompt, get_disclaimer
+from prompts.chat_prompts import get_prompt_help, get_session_name_prompt, get_system_prompt, get_disclaimer
 
 settings = get_settings()
 
@@ -73,9 +73,10 @@ class OpenAIService:
                     yield delta
         if is_first_message:
             disclaimer = get_disclaimer()
-            combined = full_response.strip() + "\n\n" + disclaimer
+            prompt_help = get_prompt_help() 
+            combined = full_response.strip() + "\n\n" + disclaimer + "\n\n" + prompt_help
             save_conversation(session_id=session_id, user_id=user_id, prompt=prompt, response=combined)
-            yield "\n\n" + disclaimer
+            yield "\n\n" + disclaimer + "\n\n" + prompt_help
         else:
             save_conversation(session_id=session_id, user_id=user_id, prompt=prompt, response=full_response)
         if should_update_name:

@@ -22,6 +22,21 @@ export default function Chat() {
   const navigate = useNavigate()
   const [autoScroll, setAutoScroll] = useState(true)
 
+  // Suggested prompts to show after first AI message
+  const suggestedPrompts = [
+    "I don't know where to start",
+    "Can you help me understand what I might get out of therapy?",
+    "I'm not sure how I feel today",
+  ]
+
+  // Show prompts only after first AI message is done streaming
+  const showSuggestedPrompts =
+    messages.length === 2 &&
+    messages[0].isFromUser &&
+    !messages[1].isFromUser &&
+    messages[1].content &&
+    !loading
+
   const handleScroll = () => {
     if (!chatRef.current) return
     const { scrollTop, scrollHeight, clientHeight } = chatRef.current
@@ -42,6 +57,11 @@ export default function Chat() {
   const handleSaveName = async () => {
     await saveName(nameInput)
     setEditing(false)
+  }
+
+  const handlePromptClick = async (prompt: string) => {
+    setInput('')
+    await sendAIMessage(prompt)
   }
 
   useEffect(() => {
@@ -94,13 +114,44 @@ export default function Chat() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,
-          marginBottom: 40
+          marginBottom: showSuggestedPrompts ? '10px' : 40
         }}
         onScroll={handleScroll}
       >
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
           !loading && messages.length > 0 && messages[messages.length - 1].content === '' && !messages[messages.length - 1].isFromUser
         } />
+        {showSuggestedPrompts && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, alignItems: 'flex-start', margin: '12px 0 60px 0' }}>
+            {suggestedPrompts.map(p => (
+              <button
+                key={p}
+                onClick={() => handlePromptClick(p)}
+                style={{
+                  display: 'inline-block',
+                  background: '#7c3aed',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 16,
+                  padding: '10px 18px',
+                  maxWidth: '80%',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-line',
+                  margin: '6px 0',
+                  fontSize: 'inherit',
+                  textAlign: 'left',
+                  fontWeight: 500,
+                  boxShadow: '0 1px 4px 0 #0002',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'background 0.2s'
+                }}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <div className="chat-input">
         <ChatInput
