@@ -23,10 +23,6 @@ export function useChatSession(sessionId?: string) {
   })
 
   useEffect(() => {
-    if (sessionQuery.error) alert('Session could not be loaded. Please log in again.')
-  }, [sessionQuery.error])
-
-  useEffect(() => {
     const s = sessionQuery.data
     if (!s) return
     setNameInput(s.name || 'Untitled')
@@ -48,8 +44,11 @@ export function useChatSession(sessionId?: string) {
 
   const sendAIMessage = useCallback(async (prompt: string) => {
     if (!sessionId) return
-    setMessages(msgs => [...msgs, { content: prompt, isFromUser: true }])
-    setMessages(msgs => [...msgs, { content: '', isFromUser: false }])
+    setMessages(msgs => [
+      ...msgs,
+      { content: prompt, isFromUser: true },
+      { content: '', isFromUser: false }
+    ])
     const token = await getAccessTokenSilently()
     await streamAIMessage({
       sessionId,
@@ -59,18 +58,19 @@ export function useChatSession(sessionId?: string) {
         if (typeof chunk === 'object' && chunk.suggestedPrompts) {
           setSuggestedPrompts(chunk.suggestedPrompts)
           return
-        }        
+        }
         setMessages(msgs => {
           const last = msgs[msgs.length - 1]
-          if (msgs.length === 2) {
-            queryClient.invalidateQueries({ queryKey: ['session', sessionId, isAuthenticated] })
-          }
           if (!last || last.isFromUser) return [...msgs, { content: chunk as string, isFromUser: false }]
           return [...msgs.slice(0, -1), { content: chunk as string, isFromUser: false }]
         })
       }
     })
-  }, [sessionId, getAccessTokenSilently, queryClient, isAuthenticated])
+    // Refetch session after 6th message to update session name
+    if (messages.length + 2 === 6) {
+      try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
+    }
+  }, [sessionId, getAccessTokenSilently, streamAIMessage, messages.length, sessionQuery])
 
   // Initial AI message logic
   useEffect(() => {
