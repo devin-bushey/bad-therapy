@@ -62,6 +62,9 @@ export function useChatSession(sessionId?: string) {
         }        
         setMessages(msgs => {
           const last = msgs[msgs.length - 1]
+          if (msgs.length === 2) {
+            queryClient.invalidateQueries({ queryKey: ['session', sessionId, isAuthenticated] })
+          }
           if (!last || last.isFromUser) return [...msgs, { content: chunk as string, isFromUser: false }]
           return [...msgs.slice(0, -1), { content: chunk as string, isFromUser: false }]
         })

@@ -54,7 +54,6 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
         continue
       }
       continue
-      
     }
     aiMsg += chunk
     onChunk(aiMsg)
