@@ -9,7 +9,9 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
             "Introduce yourself, explain your role, and ask the user how you can help today. "
             "Your tone should be warm, friendly, and supportive. Do not be overly positive. "
             "Do not give solutions right away. Listen to the user's needs and provide support."
-            + get_user_profile(user_profile)
+            + get_user_profile(user_profile) + "\n\n"
+            "Please include this disclaimer in your response: " + get_disclaimer() + "\n\n"
+            "Then please include this prompt help in your response: " + get_prompt_help() + "\n\n"
         )
     return (
         "You are a well established therapist. "

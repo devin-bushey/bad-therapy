@@ -23,7 +23,7 @@ export async function patchSessionName({ sessionId, token, name, userId }: { ses
   return res.json()
 }
 
-export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: string) => void }): Promise<void> {
+export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: string | { suggestedPrompts: string[] }) => void }): Promise<void> {
   const res = await fetch(`${API_URL}/ai/generate-stream`, {
     method: 'POST',
     headers: {
@@ -38,7 +38,25 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
-    aiMsg += new TextDecoder().decode(value)
+    const chunk = new TextDecoder().decode(value)
+    if (chunk.trim().startsWith('{"suggested_prompts"')) {
+      try {
+        const obj = JSON.parse(chunk)
+        onChunk({ suggestedPrompts: obj.suggested_prompts })
+      } catch {
+        // fallback if parse fails
+        const default_prompts = [
+            "I'm new to therapy and would like to start by sharing what brought me here.",
+            "I've been feeling overwhelmed lately and want to explore ways to manage my stress.",
+            "I want to understand more about my relationships and how they affect my well-being."
+        ]
+        onChunk({ suggestedPrompts: default_prompts })
+        continue
+      }
+      continue
+      
+    }
+    aiMsg += chunk
     onChunk(aiMsg)
   }
 } 
