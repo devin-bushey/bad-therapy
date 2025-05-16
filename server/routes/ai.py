@@ -10,6 +10,7 @@ from models.ai import AIRequest
 from models.therapy import TherapyState
 import asyncio
 import logging
+import json
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ async def generate_ai_response_stream(
                     if message_chunk.response_metadata and message_chunk.response_metadata.get("finish_reason") == "stop":
                         if is_first_message:
                             # The frontend will check for "suggested_prompts" and parse the rest of the response into a JSON object
-                            yield f'\n\n{{"suggested_prompts": {state["suggested_prompts"]}}}\n'
+                            yield f'\n\n' + json.dumps({"suggested_prompts": state["suggested_prompts"]}) + '\n'
                         
                         if should_update_name:
                             # Create a background task to update the session name

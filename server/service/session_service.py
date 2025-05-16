@@ -1,4 +1,5 @@
 from prompts.chat_prompts import get_session_name_prompt
+from prompts.suggested_prompts import get_suggested_default_prompts, get_suggested_prompts
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from database.conversation_history import update_session
@@ -6,6 +7,7 @@ from database.conversation_history import update_session
 import re
 import json
 import logging
+import ast
 
 logger = logging.getLogger(__name__)
 
@@ -17,25 +19,17 @@ async def generate_session_name(user1: str, user2: str, bot2: str, bot3: str) ->
 
 async def generate_suggested_prompts() -> list[str]:
     llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0.7)
-    prompt = (
-        "You are a helpful therapy assistant. "
-        "Generate 3 concise, friendly, and varied suggested prompts to help a user start a new therapy session. "
-        "One of the prompts should be for someone who is brand new to therapy. "
-        "Return only a JSON array of strings, no explanations."
-    )
+    prompt = get_suggested_prompts()
     resp = llm.invoke([HumanMessage(content=prompt)])
-    default_prompts = [
-        "I'm new to therapy and would like to start by sharing what brought me here.",
-        "I've been feeling overwhelmed lately and want to explore ways to manage my stress.",
-        "I want to understand more about my relationships and how they affect my well-being."
-    ]
+    default_prompts = get_suggested_default_prompts()
     try:
-        match = re.search(r'\[.*?\]', resp.content, re.DOTALL)
-        prompts = json.loads(match.group(0)) if match else None
+        # make sure the response is a list of strings
+        prompts = json.loads(resp.content)
         if not isinstance(prompts, list) or not all(isinstance(p, str) and p.strip() for p in prompts):
             raise ValueError
-        return [p.strip() for p in prompts]
+        return prompts
     except Exception:
+        logger.error(f"Failed to generate suggested prompts: {resp.content}")
         return default_prompts 
     
 

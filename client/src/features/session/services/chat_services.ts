@@ -39,19 +39,26 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
     const { done, value } = await reader.read()
     if (done) break
     const chunk = new TextDecoder().decode(value)
-    if (chunk.trim().startsWith('{"suggested_prompts"')) {
+    // Split out suggested prompts JSON if present
+    const match = chunk.match(/\{ *"suggested_prompts" *: *\[.*\]\s*\}/s)
+    if (match) {
       try {
-        const obj = JSON.parse(chunk)
+        const obj = JSON.parse(match[0])
         onChunk({ suggestedPrompts: obj.suggested_prompts })
       } catch {
-        // fallback if parse fails
+        console.log('Failed to parse suggested prompts', match[0])
         const default_prompts = [
-            "I'm new to therapy and would like to start by sharing what brought me here.",
-            "I've been feeling overwhelmed lately and want to explore ways to manage my stress.",
-            "I want to understand more about my relationships and how they affect my well-being."
+          "I'm new to therapy and would like to start by sharing what brought me here.",
+          "I've been feeling overwhelmed lately and want to explore ways to manage my stress.",
+          "I want to understand more about my relationships and how they affect my well-being."
         ]
         onChunk({ suggestedPrompts: default_prompts })
-        continue
+      }
+      // Remove the JSON from the chunk to get just the text
+      const text = chunk.replace(match[0], '').trim()
+      if (text) {
+        aiMsg += text
+        onChunk(aiMsg)
       }
       continue
     }
