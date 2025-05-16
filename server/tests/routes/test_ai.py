@@ -102,3 +102,27 @@ def test_stream_ends_on_finish_reason(mock_ai_request):
         response = client.post("/ai/generate-stream", json=mock_ai_request)
         body = stream_to_str(response)
         assert "Should not appear" not in body 
+
+def test_suggested_prompts_json_format(mock_ai_request):
+    with patch('routes.ai.get_conversation_history', return_value=[]), \
+         patch('routes.ai.get_user_profile', return_value={}), \
+         patch('routes.ai.convert_to_langchain_messages', return_value=[]), \
+         patch('routes.ai.generate_suggested_prompts', new_callable=AsyncMock, return_value=["Prompt1", 'Prompt2', 'Prompt3']), \
+         patch('routes.ai.build_therapy_graph') as mock_graph:
+        async def fake_astream(state, stream_mode):
+            yield MagicMock(content='AI response', response_metadata={"finish_reason": "stop"}), {"langgraph_node": "primary_therapist"}
+        mock_graph.return_value.astream = fake_astream
+        response = client.post("/ai/generate-stream", json=mock_ai_request)
+        body = stream_to_str(response)
+        # Extract the JSON object from the response body
+        start = body.find('{')
+        end = body.rfind('}') + 1
+        assert start != -1 and end != -1, f"No JSON object found in response: {body}"
+        try:
+            data = json.loads(body[start:end])
+            assert "suggested_prompts" in data
+            assert isinstance(data["suggested_prompts"], list)
+            assert all(isinstance(p, str) for p in data["suggested_prompts"])
+            assert data["suggested_prompts"] == ["Prompt1", "Prompt2", "Prompt3"]
+        except Exception:
+            assert False, f"Could not parse suggested_prompts JSON: {body}" 
