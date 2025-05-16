@@ -2,12 +2,14 @@ from datetime import datetime
 from database.connection import get_supabase_client
 from openai import OpenAI
 from core.config import get_settings
-from supabase import Client
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 import base64, os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = OpenAI()
 settings = get_settings()

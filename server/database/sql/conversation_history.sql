@@ -14,3 +14,5 @@ create table sessions (
     name text not null,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+CREATE INDEX idx_sessions_user_created ON sessions(user_id, created_at DESC);

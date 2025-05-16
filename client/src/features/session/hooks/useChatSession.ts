@@ -23,10 +23,6 @@ export function useChatSession(sessionId?: string) {
   })
 
   useEffect(() => {
-    if (sessionQuery.error) alert('Session could not be loaded. Please log in again.')
-  }, [sessionQuery.error])
-
-  useEffect(() => {
     const s = sessionQuery.data
     if (!s) return
     setNameInput(s.name || 'Untitled')
@@ -48,21 +44,33 @@ export function useChatSession(sessionId?: string) {
 
   const sendAIMessage = useCallback(async (prompt: string) => {
     if (!sessionId) return
-    setMessages(msgs => [...msgs, { content: prompt, isFromUser: true }])
-    setMessages(msgs => [...msgs, { content: '', isFromUser: false }])
+    setMessages(msgs => [
+      ...msgs,
+      { content: prompt, isFromUser: true },
+      { content: '', isFromUser: false }
+    ])
     const token = await getAccessTokenSilently()
     await streamAIMessage({
       sessionId,
       token,
       prompt,
-      onChunk: (aiMsg: string) => setMessages(msgs => {
-        const last = msgs[msgs.length - 1]
-        if (!last || last.isFromUser) return [...msgs, { content: aiMsg, isFromUser: false }]
-        return [...msgs.slice(0, -1), { content: aiMsg, isFromUser: false }]
-      })
+      onChunk: (chunk) => {
+        if (typeof chunk === 'object' && chunk.suggestedPrompts) {
+          setSuggestedPrompts(chunk.suggestedPrompts)
+          return
+        }
+        setMessages(msgs => {
+          const last = msgs[msgs.length - 1]
+          if (!last || last.isFromUser) return [...msgs, { content: chunk as string, isFromUser: false }]
+          return [...msgs.slice(0, -1), { content: chunk as string, isFromUser: false }]
+        })
+      }
     })
-    queryClient.invalidateQueries({ queryKey: ['session', sessionId, isAuthenticated] })
-  }, [sessionId, getAccessTokenSilently, queryClient, isAuthenticated])
+    // Refetch session after 6th message to update session name
+    if (messages.length + 2 === 6) {
+      try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
+    }
+  }, [sessionId, getAccessTokenSilently, streamAIMessage, messages.length, sessionQuery])
 
   // Initial AI message logic
   useEffect(() => {
@@ -78,27 +86,6 @@ export function useChatSession(sessionId?: string) {
       sendAIMessage('')
     }
   }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage])
-
-  useEffect(() => {
-    if (
-      sessionQuery.data &&
-      Array.isArray(sessionQuery.data.messages) &&
-      sessionQuery.data.messages.length === 0 &&
-      sessionId &&
-      isAuthenticated
-    ) {
-      (async () => {
-        const token = await getAccessTokenSilently()
-        const res = await fetch(`${import.meta.env.VITE_SERVER_DOMAIN}/ai/suggested-prompts`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        if (res.ok) {
-          const data = await res.json()
-          setSuggestedPrompts(Array.isArray(data.prompts) ? data.prompts : [])
-        }
-      })()
-    }
-  }, [sessionQuery.data, sessionId, isAuthenticated, getAccessTokenSilently])
 
   return {
     messages,

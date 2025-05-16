@@ -1,3 +1,5 @@
+from prompts.suggested_prompts import get_prompt_help
+
 def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) -> str:
     if is_first_message:
         return (
@@ -9,7 +11,9 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
             "Introduce yourself, explain your role, and ask the user how you can help today. "
             "Your tone should be warm, friendly, and supportive. Do not be overly positive. "
             "Do not give solutions right away. Listen to the user's needs and provide support."
-            + get_user_profile(user_profile)
+            + get_user_profile(user_profile) + "\n\n"
+            "Please include this disclaimer in your response: " + get_disclaimer() + "\n\n"
+            "Then please include this prompt help in your response: " + get_prompt_help() + "\n\n"
         )
     return (
         "You are a well established therapist. "
@@ -46,12 +50,6 @@ def get_disclaimer() -> str:
     return (
        "Just a quick note: I'm not a licensed therapist, so I'm not equipped to give medical advice. "
        "If you're in crisis, I recommend reaching out to a professional or calling/texting 988 for help, as they're available 24/7."
-    )
-
-def get_prompt_help() -> str:
-    return (
-        "If you need help starting the chat, click one of the suggested prompts below. "
-        "Otherwise, just start chatting! "
     )
 
 def get_session_name_prompt() -> str:

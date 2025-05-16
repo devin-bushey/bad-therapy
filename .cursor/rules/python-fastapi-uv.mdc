@@ -22,6 +22,9 @@ Key Principles
 - Favor named exports for routes and utility functions.
 - Use the Receive an Object, Return an Object (RORO) pattern.
 - Use environment variables for configuration.
+- Do NOT prefix imports with '.server'
+
+
 
 Python/FastAPI/uv
 - Use def for pure functions and async def for asynchronous operations.
