@@ -16,6 +16,7 @@ def get_suggested_prompts() -> str:
         "You are a helpful therapy assistant. "
         "Generate 3 concise, interesting, thought provoking, unique, and varied suggested prompts to help a user start a new therapy session. "
         "One of the prompts should be for someone who is brand new to therapy. "
+        "The prompts are to be written from the perspective of the user. They can be questions or statements but will be sent to the therapist. "
         "Return only a JSON array of strings, no explanations."
         "The JSON must be formatted like this: [\"prompt1\", \"prompt2\", \"prompt3\"]"
     )
