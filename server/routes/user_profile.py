@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from models.schemas import UserProfile, UserProfileCreate
 from database.user_profile import create_user_profile, get_user_profile
 from utils.jwt_bearer import require_auth
-
+from models.user import UserProfile, UserProfileCreate
 router = APIRouter()
 
 @router.post("/user/profile", response_model=UserProfile)

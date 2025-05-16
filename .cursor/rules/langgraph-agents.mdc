@@ -29,41 +29,62 @@ This document outlines best practices and coding standards for developing with L
 
 ### 1.1. Directory Structure Best Practices
 
-
-my_langgraph_project/
-├── data/                      # Datasets, knowledge bases, or other data files.
-├── src/                       # Source code.
-│   ├── components/             # Reusable components (e.g., custom nodes, tools).
-│   │   ├── __init__.py
-│   │   ├── retrieval.py        # Retrieval-related nodes
-│   │   ├── tool_selector.py    # Logic for selecting which tool to use
-│   │   └── ...
-│   ├── graphs/                 # Graph definitions.
-│   │   ├── __init__.py
-│   │   ├── customer_support.py  # Example: Customer support graph.
-│   │   ├── rag_pipeline.py     # Example: RAG pipeline graph.
-│   │   └── ...
-│   ├── utils/                  # Utility functions and helpers.
-│   │   ├── __init__.py
-│   │   ├── config.py           # Configuration loading
-│   │   ├── logging.py          # Logging setup
-│   │   └── ...
-│   ├── schemas/                # Data schemas and type definitions.
-│   │   ├── __init__.py
-│   │   ├── agent_state.py      # Definition of agent state
-│   │   └── ...
-│   ├── main.py                 # Entry point of the application.
-│   └── ...
+server/
+├── agents/                    # Nodes to use in graphs
+│   ├── __init__.py
+│   └── primary_therapist_agent.py
+├── components/                # Reusable components (e.g., tools).
+│   ├── __init__.py
+│   └── primary_therapist_tools.py
+├── core/                      # Core config and setup
+│   ├── __init__.py
+│   └── config.py
+├── database/                  # Database access and SQL
+│   ├── __init__.py
+│   ├── connection.py
+│   ├── conversation_history.py
+│   ├── user_profile.py
+│   └── sql/
+│       ├── conversation_history.sql
+│       └── user_profile.sql
+├── graphs/                    # Graph definitions
+│   ├── __init__.py
+│   └── therapy_graph.py
+├── models/                    # Data models and schemas
+│   ├── __init__.py
+│   ├── ai.py
+│   ├── message.py
+│   ├── session.py
+│   ├── therapy.py
+│   └── user.py
+├── prompts/                   # Prompt templates
+│   └── chat_prompts.py
+├── routes/                    # FastAPI route definitions
+│   ├── __init__.py
+│   ├── ai.py
+│   ├── routes.py
+│   ├── sessions.py
+│   └── user_profile.py
+├── service/                   # Service layer
+│   ├── __init__.py
+│   └── session_service.py
+├── utils/                     # Utility functions
+│   ├── __init__.py
+│   ├── jwt_bearer.py
+│   └── message_utils.py
 ├── tests/                     # Unit and integration tests.
 │   ├── __init__.py
-│   ├── components/             # Tests for custom components.
+│   ├── agents/                 # Tests for custom nodes.
 │   ├── graphs/                 # Tests for graph definitions.
 │   ├── utils/                  # Tests for utility functions.
 │   └── ...
-├── .env                       # Environment variables.
-├── requirements.txt           # Project dependencies.
-├── pyproject.toml            # Project metadata and build settings
-└── README.md                  # Project documentation.
+├── main.py                    # Entry point
+├── LICENSE
+├── .gitignore
+├── .python-version
+├── pyproject.toml
+├── uv.lock
+└── .venv/                     # Virtual environment (if present)
 
 
 ### 1.2. File Naming Conventions

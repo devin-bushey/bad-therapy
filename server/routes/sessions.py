@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from models.schemas import Session, SessionCreate
+from models.session import Session, SessionCreate
 from database.conversation_history import create_session, update_session, get_conversation_history
 from utils.jwt_bearer import require_auth
 from database.connection import get_supabase_client

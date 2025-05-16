@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from models.schemas import AIRequest, TherapyState
 from utils.jwt_bearer import require_auth
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
 from database.user_profile import get_user_profile
 from utils.message_utils import convert_to_langchain_messages
 from service.session_service import generate_suggested_prompts, update_session_name
+from models.ai import AIRequest
+from models.therapy import TherapyState
 import asyncio
 import logging
 
