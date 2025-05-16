@@ -29,6 +29,12 @@ uv pip install -r pyproject.toml
 uv run fastapi dev
 ```
 
+**Run unit tests on server:**
+```sh
+PYTHONPATH=. uv run pytest
+
+# or for a specific test:
+PYTHONPATH=. uv run pytest tests/routes/test_ai.py
 ---
 
 ## Client (React/TypeScript)
@@ -39,7 +45,7 @@ cd client
 npm install
 ```
 
-**Run development server:**
+**Run development:**
 ```sh
 npm run dev
 ```
