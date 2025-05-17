@@ -20,7 +20,7 @@ async def generate_session_name(user1: str, user2: str, bot2: str, bot3: str) ->
 async def generate_suggested_prompts() -> list[str]:
     llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0.7)
     prompt = get_suggested_prompts()
-    resp = llm.invoke([HumanMessage(content=prompt)])
+    resp = await llm.ainvoke([HumanMessage(content=prompt)])
     default_prompts = get_suggested_default_prompts()
     try:
         # make sure the response is a list of strings
