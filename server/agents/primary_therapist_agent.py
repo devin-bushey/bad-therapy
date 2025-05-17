@@ -4,6 +4,7 @@ from models.therapy import TherapyState
 from database.user_profile import get_user_profile
 from prompts.chat_prompts import get_system_prompt
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from service.session_service import update_session_name
 
 settings = get_settings()
 llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0.7)
@@ -20,6 +21,6 @@ def primary_therapist_agent(state: TherapyState) -> TherapyState:
     response = llm.invoke(prompt)
     converted_response = AIMessage(content=response.content)
 
-    return { "messages": state.messages + [converted_response] } 
+    return { "history": state.history + [converted_response] } 
 
 

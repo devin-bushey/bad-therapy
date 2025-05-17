@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
-from service.session_service import generate_suggested_prompts
+from service.session_service import update_session_name
+from service.suggested_prompts_service import generate_suggested_prompts
 from utils.jwt_bearer import require_auth
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
@@ -21,7 +22,6 @@ async def generate_ai_response_stream(
         history = get_conversation_history(session_id=data.session_id, user_id=user.sub)
         
         state = TherapyState(
-            messages=[],
             session_id=data.session_id,
             user_id=user.sub,
             prompt=data.prompt,
@@ -30,6 +30,10 @@ async def generate_ai_response_stream(
         )
 
         graph = build_therapy_graph()
+
+        # update session name if the history is 4 messages long
+        if history and len(history) == 4:
+            await update_session_name(data.session_id, history, data.prompt)
 
         async def event_stream():
             full_response = ""
