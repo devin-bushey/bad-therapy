@@ -7,6 +7,7 @@ from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
 from models.ai import AIRequest
 from models.therapy import TherapyState
+from langchain_core.messages import AIMessage
 import logging
 import json
 
@@ -40,18 +41,21 @@ async def generate_ai_response_stream(
             
             async for message_chunk, metadata in graph.astream(state, stream_mode="messages"):
                 node = metadata["langgraph_node"]
+
+                already_in_history = any(message_chunk.content == h.content for h in state.history)
                 
                 if node == "primary_therapist":
                     # Only stream incremental content
-                    if message_chunk.content and message_chunk.content != full_response:
+                    if message_chunk.content and message_chunk.content != full_response and not already_in_history:
                         full_response += message_chunk.content
                         yield f"{message_chunk.content}"
                     
-                    # Handle completion
+                    # Handle completion 
                     if message_chunk.response_metadata.get("finish_reason") == "stop":
-                        suggested_prompts = await generate_suggested_prompts()
-                        yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
-                        break
+                        if len(state.history) == 0:
+                            suggested_prompts = await generate_suggested_prompts()
+                            yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
+                        
 
             save_conversation(
                 session_id=data.session_id,
