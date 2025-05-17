@@ -23,7 +23,10 @@ export async function patchSessionName({ sessionId, token, name, userId }: { ses
   return res.json()
 }
 
-export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: string | { suggestedPrompts: string[] }) => void }): Promise<void> {
+// Define a type for the chunk
+export type AIChunk = { content: string; type: 'ai' } | { suggestedPrompts: string[] }
+
+export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: AIChunk) => void }): Promise<void> {
   const res = await fetch(`${API_URL}/ai/generate-stream`, {
     method: 'POST',
     headers: {
@@ -46,7 +49,6 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
         const obj = JSON.parse(match[0])
         onChunk({ suggestedPrompts: obj.suggested_prompts })
       } catch {
-        console.log('Failed to parse suggested prompts', match[0])
         const default_prompts = [
           "I'm new to therapy and would like to start by sharing what brought me here.",
           "I've been feeling overwhelmed lately and want to explore ways to manage my stress.",
@@ -58,11 +60,11 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
       const text = chunk.replace(match[0], '').trim()
       if (text) {
         aiMsg += text
-        onChunk(aiMsg)
+        onChunk({ content: aiMsg, type: 'ai' })
       }
       continue
     }
     aiMsg += chunk
-    onChunk(aiMsg)
+    onChunk({ content: aiMsg, type: 'ai' })
   }
 } 

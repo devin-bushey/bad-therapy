@@ -5,6 +5,7 @@ from utils.jwt_bearer import require_auth
 from database.connection import get_supabase_client
 from core.config import get_settings
 from database.conversation_history import decrypt_data
+from langchain_core.messages import HumanMessage, AIMessage
 
 router = APIRouter()
 settings = get_settings()
@@ -35,8 +36,8 @@ async def list_sessions(request: Request, user=Depends(require_auth)) -> list[Se
         sessions.append(Session(**item))
     return sessions
 
-@router.get("/sessions/{session_id}", response_model=Session)
-async def get_session(session_id: str, user=Depends(require_auth)) -> Session:
+@router.get("/sessions/{session_id}")
+async def get_session(session_id: str, user=Depends(require_auth)):
     supabase = get_supabase_client()
     result = supabase.table("sessions")\
         .select("*")\
@@ -49,12 +50,13 @@ async def get_session(session_id: str, user=Depends(require_auth)) -> Session:
     session = result.data
     session['name'] = decrypt_data(data=session['name'], password=settings.PG_CRYPTO_KEY).data
     history = get_conversation_history(session_id=session_id, user_id=user.sub)
-    messages = []
-    for entry in reversed(history):
-        messages.append({"content": entry["prompt"], "isFromUser": True})
-        messages.append({"content": entry["response"], "isFromUser": False})
+    def message_to_dict(msg):
+        if isinstance(msg, HumanMessage): return {"content": msg.content, "type": "human"}
+        if isinstance(msg, AIMessage): return {"content": msg.content, "type": "ai"}
+        return {"content": msg.content, "type": "other"}
+    messages = [message_to_dict(entry) for entry in history]
     session["messages"] = messages
-    return Session(**session)
+    return session
 
 @router.patch("/sessions/{session_id}", response_model=Session)
 async def rename_session(session_id: str, session: SessionCreate, user=Depends(require_auth)) -> Session:

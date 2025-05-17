@@ -2,8 +2,8 @@ create table conversation_history (
     id uuid default gen_random_uuid() primary key,
     session_id text not null,
     user_id text not null,
-    prompt text not null,
-    response text not null,
+    human text not null,
+    ai text not null,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

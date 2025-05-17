@@ -33,8 +33,8 @@ export default function Chat() {
   // Show prompts only after first AI message is done streaming
   const showSuggestedPrompts =
     messages.length === 2 &&
-    messages[0].isFromUser &&
-    !messages[1].isFromUser &&
+    messages[0].type === 'human' &&
+    messages[1].type !== 'human' &&
     messages[1].content &&
     !loading
 
@@ -120,7 +120,7 @@ export default function Chat() {
         onScroll={handleScroll}
       >
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
-          !loading && messages.length > 0 && messages[messages.length - 1].content === '' && !messages[messages.length - 1].isFromUser
+          !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
         } />
         {showSuggestedPrompts && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, alignItems: 'flex-start', margin: '12px 0 60px 0' }}>

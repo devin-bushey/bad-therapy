@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react'
 import type { Message, TherapySession } from '../../../types/session.types'
 import { fetchSession, patchSessionName, streamAIMessage } from '../services/chat_services'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { AIChunk } from '../services/chat_services'
 
 export function useChatSession(sessionId?: string) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
@@ -46,24 +47,26 @@ export function useChatSession(sessionId?: string) {
     if (!sessionId) return
     setMessages(msgs => [
       ...msgs,
-      { content: prompt, isFromUser: true },
-      { content: '', isFromUser: false }
+      { content: prompt, type: 'human' },
+      { content: '', type: 'ai' }
     ])
     const token = await getAccessTokenSilently()
     await streamAIMessage({
       sessionId,
       token,
       prompt,
-      onChunk: (chunk) => {
-        if (typeof chunk === 'object' && chunk.suggestedPrompts) {
+      onChunk: (chunk: AIChunk) => {
+        if ('suggestedPrompts' in chunk) {
           setSuggestedPrompts(chunk.suggestedPrompts)
           return
         }
-        setMessages(msgs => {
-          const last = msgs[msgs.length - 1]
-          if (!last || last.isFromUser) return [...msgs, { content: chunk as string, isFromUser: false }]
-          return [...msgs.slice(0, -1), { content: chunk as string, isFromUser: false }]
-        })
+        if ('content' in chunk && chunk.type === 'ai') {
+          setMessages(msgs => {
+            const last = msgs[msgs.length - 1]
+            if (!last || last.type === 'human') return [...msgs, { content: chunk.content, type: 'ai' }]
+            return [...msgs.slice(0, -1), { content: chunk.content, type: 'ai' }]
+          })
+        }
       }
     })
     // Refetch session after 6th message to update session name
