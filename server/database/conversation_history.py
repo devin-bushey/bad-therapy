@@ -74,8 +74,8 @@ def save_conversation(*, session_id: str, user_id: str, prompt: str, response: s
     data = {
         "session_id": session_id,
         "user_id": user_id,
-        "prompt": encrypted_prompt.data,
-        "response": encrypted_response.data,
+        "human": encrypted_prompt.data,
+        "ai": encrypted_response.data,
         "embedding": embedding,
         "created_at": datetime.utcnow().isoformat()
     }
@@ -93,8 +93,8 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
         .execute()
     
     for item in result.data:
-        item['prompt'] = decrypt_data(data=item['prompt'], password=password).data
-        item['response'] = decrypt_data(data=item['response'], password=password).data
+        item['human'] = decrypt_data(data=item['human'], password=password).data
+        item['ai'] = decrypt_data(data=item['ai'], password=password).data
 
     history = convert_to_langchain_messages(result.data)
 
