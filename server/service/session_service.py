@@ -2,12 +2,13 @@ from prompts.chat_prompts import get_session_name_prompt
 from prompts.suggested_prompts import get_suggested_default_prompts, get_suggested_prompts
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import BaseMessage
 from database.conversation_history import update_session
 
-import re
+
 import json
 import logging
-import ast
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +34,13 @@ async def generate_suggested_prompts() -> list[str]:
         return default_prompts 
     
 
-async def update_session_name(session_id: str, history: list[dict], full_response: str):
+async def update_session_name(session_id: str, history: list[BaseMessage]):
     try:
-        user1 = history[0]["prompt"] if len(history) > 0 else ""
-        user2 = history[1]["prompt"] if len(history) > 1 else ""
-        bot2 = history[1]["response"] if len(history) > 1 else ""
-        name = await generate_session_name(user1, user2, bot2, full_response.strip())
+        user1 = history[0].content if len(history) > 0 else ""
+        user2 = history[1].content if len(history) > 1 else ""
+        bot2 = history[1].content if len(history) > 1 else ""
+        bot3 = history[2].content if len(history) > 2 else ""
+        name = await generate_session_name(user1, user2, bot2, bot3)
         update_session(session_id=session_id, name=name)
         logger.info(f"Updated session name for session {session_id}")
     except Exception as e:

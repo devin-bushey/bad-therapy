@@ -6,6 +6,6 @@ async def session_name_node(state: TherapyState) -> TherapyState:
     history = state.history
 
     if history and len(history) == 2:
-        await update_session_name(state.session_id, history, state.response)
+        await update_session_name(state.session_id, history)
 
-    return state 
+    return None

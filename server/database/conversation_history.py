@@ -8,6 +8,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 import base64, os
 from dotenv import load_dotenv
+from langchain_core.messages import BaseMessage
+from utils.message_utils import convert_to_langchain_messages
 
 load_dotenv()
 
@@ -79,7 +81,7 @@ def save_conversation(*, session_id: str, user_id: str, prompt: str, response: s
     }
     supabase.table("conversation_history").insert(data).execute()
 
-def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) -> list[dict]:
+def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) -> list[BaseMessage]:
     supabase = get_supabase_client()
     password = settings.PG_CRYPTO_KEY
     result = supabase.table("conversation_history")\
@@ -94,7 +96,9 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
         item['prompt'] = decrypt_data(data=item['prompt'], password=password).data
         item['response'] = decrypt_data(data=item['response'], password=password).data
 
-    return result.data
+    history = convert_to_langchain_messages(result.data)
+
+    return history
 
 def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
     supabase = get_supabase_client()
