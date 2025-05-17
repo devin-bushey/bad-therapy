@@ -88,7 +88,7 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
         .select("*")\
         .eq("session_id", session_id)\
         .eq("user_id", user_id)\
-        .order("created_at", desc=True)\
+        .order("created_at", desc=False)\
         .limit(limit)\
         .execute()
     
