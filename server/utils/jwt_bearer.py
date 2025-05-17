@@ -1,5 +1,5 @@
 import os
-from fastapi import Request, HTTPException, status, Depends
+from fastapi import Request, HTTPException, status
 from jose import jwt, JWTError
 from pydantic import BaseModel
 from urllib.request import urlopen

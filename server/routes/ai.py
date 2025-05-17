@@ -7,7 +7,6 @@ from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
 from models.ai import AIRequest
 from models.therapy import TherapyState
-from langchain_core.messages import AIMessage
 import logging
 import json
 

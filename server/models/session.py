@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
-from langchain_core.messages import BaseMessage
+from typing import Optional
 
 class Session(BaseModel):
     id: str
