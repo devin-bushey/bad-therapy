@@ -10,3 +10,6 @@ def get_supabase_client() -> Client:
 
 def get_user_profile_table() -> str:
     return "user_profile"
+
+def get_journal_table() -> str:
+    return "journals"
