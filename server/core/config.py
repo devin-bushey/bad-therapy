@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     PG_CRYPTO_KEY: str
     AUTH0_DOMAIN: str
     AUTH0_AUDIENCE: str
+    PERPLEXITY_API_KEY: str
+    GOOGLE_MAPS_API_KEY: str
 
     class Config:
         env_file = ".env"
