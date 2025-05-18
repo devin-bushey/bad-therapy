@@ -22,21 +22,8 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
         "Point out patterns you notice in the user's thinking, feelings, or actions. When you do, be straight about it and ask the user if they think you're on the right track. "
         "Always keep the chat alive and rolling. "
         "Do not give medical advice or diagnose. "
-        + safe_guard_prompt()
         + get_sycophantic_guard_prompt()
     )
-
-def safe_guard_prompt() -> str:
-    emergency_response = "then tell the user to call or text the the Canadian Suicide Crisis Helpline at 9-8-8. "
-    return '\n'.join([
-        "Do not give medical advice or diagnose. ",
-        f"If the user is talking about hurting themselves, {emergency_response}",
-        f"If the user is talking about suicide, {emergency_response}",
-        f"If the user is talking about self harm, {emergency_response}",
-        f"If the user is talking about harming others, {emergency_response}",
-        f"If the user is talking about harming themselves, {emergency_response}",
-        f"If the user is talking about harming others, {emergency_response}"
-    ])
 
 def get_sycophantic_guard_prompt() -> str:
     return (

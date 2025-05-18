@@ -26,7 +26,10 @@ async def generate_ai_response_stream(
             user_id=user.sub,
             prompt=data.prompt,
             history=history,
+            is_safe="safe",
             next="",
+            therapists=[],
+            therapists_summary=""
         )
 
         graph = build_therapy_graph()
@@ -37,23 +40,46 @@ async def generate_ai_response_stream(
 
         async def event_stream():
             full_response = ""
-            
-            async for message_chunk, metadata in graph.astream(state, stream_mode="messages"):
-                node = metadata["langgraph_node"]
 
-                already_in_history = any(message_chunk.content == h.content for h in state.history)
-                
-                if node == "primary_therapist":
-                    # Only stream incremental content
-                    if message_chunk.content and message_chunk.content != full_response and not already_in_history:
-                        full_response += message_chunk.content
-                        yield f"{message_chunk.content}"
+            async for stream_mode, event in graph.astream(state, stream_mode=["updates", "messages", "custom"]):
+
+                if stream_mode == "updates":
+                    for node, updates in event.items():
+
+                        if node == "safety" and updates['is_safe'] == "blocked":
+                            # get the history from updates then format them into a list
+                            history_list = [msg.content for msg in updates["history"]]
+                            print(history_list[-1])
+                            yield f"{history_list[-1]}"
+
+                        if node == "find_therapist":
+                            therapist_list = [therapist.model_dump() for therapist in updates["therapists"]]
+                            find_therapist_response = json.dumps({"therapists": therapist_list})
+                            summary_message = updates["therapists_summary"]
+
+                            full_response = summary_message + "\n\n" + find_therapist_response
+                            yield f'{full_response}\n'
                     
-                    # Handle completion 
-                    if message_chunk.response_metadata.get("finish_reason") == "stop":
-                        if len(state.history) == 0:
-                            suggested_prompts = await generate_suggested_prompts()
-                            yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
+                
+                if stream_mode == "messages":
+
+                    message_chunk, meta = event
+                    node = meta["langgraph_node"]
+
+                    if node == "primary_therapist":
+
+                        already_in_history = any(message_chunk.content == h.content for h in state.history)
+
+                        # Only stream incremental content
+                        if message_chunk.content and message_chunk.content != full_response and not already_in_history:
+                            full_response += message_chunk.content
+                            yield f"{message_chunk.content}"
+                        
+                        # Handle completion 
+                        if message_chunk.response_metadata.get("finish_reason") == "stop":
+                            if len(state.history) == 0:
+                                suggested_prompts = await generate_suggested_prompts()
+                                yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
                         
 
             save_conversation(
