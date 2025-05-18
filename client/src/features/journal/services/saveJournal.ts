@@ -9,7 +9,7 @@ export async function saveJournal(content: object, token: string): Promise<Respo
   })
 }
 
-export async function fetchJournal(token: string): Promise<any> {
+export async function fetchJournal(token: string): Promise<{ content: unknown }> {
   const res = await fetch(`${API_URL}/journal`, {
     headers: { Authorization: `Bearer ${token}` },
     credentials: 'include',
