@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import UserProfileForm from './features/profile/UserProfileForm.tsx'
 import ProtectedRoute from './auth/ProtectedRoute.tsx'
 import PageNotFound from './pages/PageNotFound.tsx'
+import Journal from './features/journal/Journal.tsx'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/dashboard" element={createElement(ProtectedRoute(Dashboard))} />
             <Route path="/chat" element={createElement(ProtectedRoute(Chat))} />
             <Route path="/user" element={createElement(ProtectedRoute(UserProfileForm))} />
+            <Route path="/journal" element={createElement(ProtectedRoute(Journal))} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>
