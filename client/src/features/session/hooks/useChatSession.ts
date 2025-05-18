@@ -73,7 +73,7 @@ export function useChatSession(sessionId?: string) {
     if (messages.length + 2 === 6) {
       try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
     }
-  }, [sessionId, getAccessTokenSilently, streamAIMessage, messages.length, sessionQuery])
+  }, [sessionId, getAccessTokenSilently, messages.length, sessionQuery])
 
   // Initial AI message logic
   useEffect(() => {
