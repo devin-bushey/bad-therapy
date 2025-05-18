@@ -1,3 +1,9 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   font-family: 'Inter', Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -154,4 +160,13 @@ a:hover {
   .chat-messages {
     padding-bottom: 2.5rem;
   }
+}
+
+.journal-container {
+  height: 100vh;
+  min-height: 0;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  background: #181824;
 }
