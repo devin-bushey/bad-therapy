@@ -6,7 +6,11 @@ from langchain_perplexity import ChatPerplexity
 from prompts.find_therapist_prompts import get_find_therapist_prompt
 
 settings = get_settings()
-llm = ChatPerplexity(model='sonar-pro', temperature=0.7, api_key=settings.PERPLEXITY_API_KEY)
+llm = ChatPerplexity(
+    model='sonar-pro', 
+    temperature=0.7, 
+    api_key=settings.PERPLEXITY_API_KEY
+)
     
 
 def find_therapist_agent(state: TherapyState) -> TherapyState:
@@ -18,7 +22,22 @@ def find_therapist_agent(state: TherapyState) -> TherapyState:
     # TODO: Go through previous messages to help find a better fit for the user
 
     structured_llm = llm.with_structured_output(TherapistList)
-    result = structured_llm.invoke([system_prompt, user_message])
+    result = structured_llm.invoke(
+        input=[system_prompt, user_message], 
+        extra_body={
+            "search_domain_filter":
+                [
+                    "psychologytoday.com", 
+                    "counsellingbc.com",
+                    "talltreehealth.ca",
+                ],
+            "web_search_options": {
+                "user_location": { 
+                    "country": "CA"
+                }
+            }
+        }
+    )
     
     return {
         "therapists": result.therapists,

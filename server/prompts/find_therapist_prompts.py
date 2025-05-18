@@ -5,7 +5,7 @@ def get_find_therapist_prompt(user_profile: dict | None = None) -> str:
         "Please search for a clinical counselor, psychologist, or psychiatrist. "
         "The user is looking for a therapist that is a good fit for them. "
         "Do not give generic responses. Find specific therapists that are a good fit for the user. "
-        "If the user did not specify a location, search for therapists in Victoria, BC, Canada"
+        "If the user did not specify a location, search for therapists in British Columbia, Canada"
         "For each therapist, only include a 'website' field if you can find a valid, working website link. "
         "Do not hallucinate and make up your own website links, only use the links that you find. "
         "If you cannot find a valid website, omit the 'website' field for that therapist. "

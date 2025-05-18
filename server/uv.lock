@@ -160,6 +160,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "httpx" },
     { name = "langchain", extra = ["openai"] },
+    { name = "langchain-perplexity" },
     { name = "langgraph" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -174,6 +175,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "langchain", extras = ["openai"], specifier = ">=0.3.25" },
+    { name = "langchain-perplexity", specifier = ">=0.1.1" },
     { name = "langgraph", specifier = ">=0.4.3" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pydantic-settings", specifier = ">=2.0.0" },
@@ -921,6 +923,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/53/fb/536562278d932c80e6a7143f46f14cc3006c0828d77c4cb6a69be112519c/langchain_openai-0.3.16.tar.gz", hash = "sha256:4e423e39d072f1432adc9430f2905fe635cc019f01ad1bdffa5ed8d0dda32149", size = 271031, upload-time = "2025-05-02T17:30:49.374Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/34/d0/bb39691e8ca3748668aa660920afc20e4c92231f3bca0cf85c62214171d3/langchain_openai-0.3.16-py3-none-any.whl", hash = "sha256:eae74a6758d38a26159c5fde5abf8ef313e6400efb01a08f12dd7410c9f4fd0f", size = 62758, upload-time = "2025-05-02T17:30:48.027Z" },
+]
+
+[[package]]
+name = "langchain-perplexity"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "openai" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/22/19/5a19364dcb67b2a818ee25b98f23f8b167cc42a0facec8a9c051d43b7b72/langchain_perplexity-0.1.1.tar.gz", hash = "sha256:eb802b6c8db45e6add7562a91550cde225e4dfb0f74880a67884f64ef81e533d", size = 10058, upload-time = "2025-04-15T18:10:43.035Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/0d/95da0b2103e2ad10e24e312475649e16ac7f0f4e4e867050cbcbe9a80a8d/langchain_perplexity-0.1.1-py3-none-any.whl", hash = "sha256:e2d61b797a37f2709039ae5a05bf12eca72372f83b5aa3916e995aac92c011f1", size = 8638, upload-time = "2025-04-15T18:10:41.819Z" },
 ]
 
 [[package]]
