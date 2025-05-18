@@ -7,3 +7,4 @@ class TherapyState(BaseModel):
     prompt: str = Field(..., description="User prompt")
     history: list[BaseMessage] = Field(..., description="Conversation history")
     next: str = Field(..., description="Next step to take") 
+    is_safe: str = Field(..., description="Is the user safe? \"blocked\" or \"safe\"")
