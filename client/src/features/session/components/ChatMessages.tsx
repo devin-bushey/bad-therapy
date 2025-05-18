@@ -13,14 +13,14 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
 
   const filteredMessages = Array.isArray(messages) ? messages.filter((m: Message) => m.content !== '') : []
   
-  function parseSummaryAndTherapists(msg: string): { summary: string | null, therapists: any[] | null } {
+  function parseSummaryAndTherapists(msg: string): { summary: string | null, therapists: { name: string; specialty: string; website?: string }[] | null } {
     // Try to find the first JSON object in the string
     const jsonStart = msg.indexOf('{')
     if (jsonStart === -1) return { summary: msg, therapists: null }
     const summary = msg.slice(0, jsonStart).trim() || null
     try {
       const obj = JSON.parse(msg.slice(jsonStart))
-      if (Array.isArray(obj.therapists)) return { summary, therapists: obj.therapists }
+      if (Array.isArray(obj.therapists)) return { summary, therapists: obj.therapists as { name: string; specialty: string; website?: string }[] }
       return { summary: msg, therapists: null }
     } catch {
       return { summary: msg, therapists: null }
@@ -64,7 +64,7 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
           </div>
         )
         if (therapists) elements.push(
-          therapists.map((therapist: { name: string; specialty: string; website: string }, idx: number) => (
+          therapists.map((therapist: { name: string; specialty: string; website?: string }, idx: number) => (
             <TherapistCard key={i + '-' + idx} therapist={therapist} />
           ))
         )
