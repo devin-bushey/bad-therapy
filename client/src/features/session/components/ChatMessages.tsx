@@ -13,25 +13,79 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
 
   const filteredMessages = Array.isArray(messages) ? messages.filter((m: Message) => m.content !== '') : []
   
+  function parseSummaryAndTherapists(msg: string): { summary: string | null, therapists: any[] | null } {
+    // Try to find the first JSON object in the string
+    const jsonStart = msg.indexOf('{')
+    if (jsonStart === -1) return { summary: msg, therapists: null }
+    const summary = msg.slice(0, jsonStart).trim() || null
+    try {
+      const obj = JSON.parse(msg.slice(jsonStart))
+      if (Array.isArray(obj.therapists)) return { summary, therapists: obj.therapists }
+      return { summary: msg, therapists: null }
+    } catch {
+      return { summary: msg, therapists: null }
+    }
+  }
+
+  function TherapistCard({ therapist }: { therapist: { name: string; specialty: string; website?: string } }) {
+    return (
+      <div style={{ border: '1px solid #444', borderRadius: 8, padding: 12, margin: 8, background: '#23233a' }}>
+        <div><b>{therapist.name}</b></div>
+        <div>{therapist.specialty}</div>
+        {therapist.website ? (
+          <a href={therapist.website} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa' }}>
+            {therapist.website}
+          </a>
+        ) : (
+          <span style={{ color: '#b0b0b0' }}>Could not find a website for this therapist</span>
+        )}
+      </div>
+    )
+  }
+
   return (
     <>
-      {filteredMessages.map((m, i) => (
-        <div key={i} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
-          <span style={{
-            display: 'inline-block',
-            background: m.type === 'human' ? '#2563eb' : '#282846',
-            color: '#fff',
-            borderRadius: 16,
-            padding: '10px 18px',
-            maxWidth: '80%',
-            wordBreak: 'break-word',
-            whiteSpace: 'pre-line',
-            textAlign: 'left',
-          }}>
-            {m.content.split('\n').map((line, idx, arr) => idx < arr.length - 1 ? <span key={idx}>{line}<br /></span> : line)}
-          </span>
-        </div>
-      ))}
+      {filteredMessages.map((m, i) => {
+        const { summary, therapists } = parseSummaryAndTherapists(m.content)
+        const elements = []
+        if (summary) elements.push(
+          <div key={i + '-summary'} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
+            <span style={{
+              display: 'inline-block',
+              background: m.type === 'human' ? '#2563eb' : '#282846',
+              color: '#fff',
+              borderRadius: 16,
+              padding: '10px 18px',
+              maxWidth: '80%',
+              wordBreak: 'break-word',
+              whiteSpace: 'pre-line',
+              textAlign: 'left',
+            }}>{summary}</span>
+          </div>
+        )
+        if (therapists) elements.push(
+          therapists.map((therapist: { name: string; specialty: string; website: string }, idx: number) => (
+            <TherapistCard key={i + '-' + idx} therapist={therapist} />
+          ))
+        )
+        if (elements.length > 0) return elements
+        // fallback: render as plain text
+        return (
+          <div key={i} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
+            <span style={{
+              display: 'inline-block',
+              background: m.type === 'human' ? '#2563eb' : '#282846',
+              color: '#fff',
+              borderRadius: 16,
+              padding: '10px 18px',
+              maxWidth: '80%',
+              wordBreak: 'break-word',
+              whiteSpace: 'pre-line',
+              textAlign: 'left',
+            }}>{m.content}</span>
+          </div>
+        )
+      })}
       {showTypingBubble ? <TypingBubble /> : null}
     </>
   )

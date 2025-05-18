@@ -17,7 +17,6 @@ def safety_agent(state: TherapyState) -> TherapyState:
 
     result = llm.invoke([system_prompt, human_prompt])
 
-
     result_json = json.loads(result.content)
     is_safe = result_json["is_safe"]
     safety_response = result_json["safety_response"]

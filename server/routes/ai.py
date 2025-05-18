@@ -28,6 +28,8 @@ async def generate_ai_response_stream(
             history=history,
             is_safe="safe",
             next="",
+            therapists=[],
+            therapists_summary=""
         )
 
         graph = build_therapy_graph()
@@ -39,8 +41,6 @@ async def generate_ai_response_stream(
         async def event_stream():
             full_response = ""
 
-
-            
             async for stream_mode, event in graph.astream(state, stream_mode=["updates", "messages", "custom"]):
 
                 if stream_mode == "updates":
@@ -51,6 +51,14 @@ async def generate_ai_response_stream(
                             history_list = [msg.content for msg in updates["history"]]
                             print(history_list[-1])
                             yield f"{history_list[-1]}"
+
+                        if node == "find_therapist":
+                            therapist_list = [therapist.model_dump() for therapist in updates["therapists"]]
+                            find_therapist_response = json.dumps({"therapists": therapist_list})
+                            summary_message = updates["therapists_summary"]
+
+                            full_response = summary_message + "\n\n" + find_therapist_response
+                            yield f'{full_response}\n'
                     
                 
                 if stream_mode == "messages":
@@ -72,7 +80,6 @@ async def generate_ai_response_stream(
                             if len(state.history) == 0:
                                 suggested_prompts = await generate_suggested_prompts()
                                 yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
-
                         
 
             save_conversation(
