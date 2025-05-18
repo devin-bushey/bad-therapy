@@ -12,7 +12,7 @@ export default function UserProfileForm() {
     const [form, setForm] = useState<ProfileForm>({ full_name: '', age: '', bio: '', gender: '', ethnicity: '', goals: '', coaching_style: '', preferred_focus_area: '' })
     const [initialized, setInitialized] = useState(false)
 
-    useQuery({
+    const { isLoading } = useQuery({
         queryKey: ['profile'],
         queryFn: async () => {
             const token = await getAccessTokenSilently()
@@ -60,15 +60,17 @@ export default function UserProfileForm() {
                         {mutation.isError && <div className="profile-form-error">Error saving profile</div>}
                         {mutation.isSuccess && <div className="profile-form-success">Profile saved</div>}
                         {mutation.isPending && <div className="profile-form-pending">Saving...</div>}
-                        <input name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
-                        <input name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
-                        <input name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
-                        <input name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
-                        <input name="goals" placeholder="Goals" value={form.goals} onChange={handleChange} className="profile-form-input" />
-                        <input name="coaching_style" placeholder="Coaching Style" value={form.coaching_style} onChange={handleChange} className="profile-form-input" />
-                        <input name="preferred_focus_area" placeholder="Preferred Focus Area" value={form.preferred_focus_area} onChange={handleChange} className="profile-form-input" />
-                        <textarea name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
-                        <button type="submit" disabled={mutation.isPending} className="profile-form-save">Save</button>
+                        {isLoading ? (<div className="profile-form-pending">Loading profile...</div>) : (<>
+                            <input name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
+                            <input name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
+                            <input name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
+                            <input name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
+                            <input name="goals" placeholder="Goals" value={form.goals} onChange={handleChange} className="profile-form-input" />
+                            <input name="coaching_style" placeholder="Coaching Style" value={form.coaching_style} onChange={handleChange} className="profile-form-input" />
+                            <input name="preferred_focus_area" placeholder="Preferred Focus Area" value={form.preferred_focus_area} onChange={handleChange} className="profile-form-input" />
+                            <textarea name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
+                            <button type="submit" disabled={mutation.isPending} className="profile-form-save">Save</button>
+                        </>)}
                     </form>
                 </div>
             </div>
