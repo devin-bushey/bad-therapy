@@ -50,28 +50,44 @@ export function useChatSession(sessionId?: string) {
       { content: prompt, type: 'human' },
       { content: '', type: 'ai' }
     ])
-    const token = await getAccessTokenSilently()
-    await streamAIMessage({
-      sessionId,
-      token,
-      prompt,
-      onChunk: (chunk: AIChunk) => {
-        if ('suggestedPrompts' in chunk) {
-          setSuggestedPrompts(chunk.suggestedPrompts)
-          return
+    try {
+      const token = await getAccessTokenSilently()
+      await streamAIMessage({
+        sessionId,
+        token,
+        prompt,
+        onChunk: (chunk: AIChunk) => {
+          if ('suggestedPrompts' in chunk) {
+            setSuggestedPrompts(chunk.suggestedPrompts)
+            return
+          }
+          if ('content' in chunk && chunk.type === 'ai') {
+            setMessages(msgs => {
+              const last = msgs[msgs.length - 1]
+              if (!last || last.type === 'human') return [...msgs, { content: chunk.content, type: 'ai' }]
+              return [...msgs.slice(0, -1), { content: chunk.content, type: 'ai' }]
+            })
+          }
         }
-        if ('content' in chunk && chunk.type === 'ai') {
-          setMessages(msgs => {
-            const last = msgs[msgs.length - 1]
-            if (!last || last.type === 'human') return [...msgs, { content: chunk.content, type: 'ai' }]
-            return [...msgs.slice(0, -1), { content: chunk.content, type: 'ai' }]
-          })
-        }
+      })
+      // Refetch session after 6th message to update session name
+      if (messages.length + 2 === 6) {
+        try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
       }
-    })
-    // Refetch session after 6th message to update session name
-    if (messages.length + 2 === 6) {
-      try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
+    } catch (err) {
+      setMessages(msgs => {
+        // Remove the last (empty) ai message and add error message
+        if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
+          return [
+            ...msgs.slice(0, -1),
+            { content: 'Sorry, something went wrong. Please try again.', type: 'ai' }
+          ]
+        }
+        return [
+          ...msgs,
+          { content: 'Sorry, something went wrong. Please try again.', type: 'ai' }
+        ]
+      })
     }
   }, [sessionId, getAccessTokenSilently, messages.length, sessionQuery])
 
