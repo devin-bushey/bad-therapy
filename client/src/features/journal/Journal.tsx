@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { EditorContent, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
+import Color from '@tiptap/extension-color'
+import TextStyle from '@tiptap/extension-text-style'
 import { useSaveJournalMutation, useJournalQuery } from './hooks/useSaveJournal'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useDebouncedAutoSave } from './hooks/useDebouncedAutoSave'
+import JournalToolbar from './components/JournalToolbar'
+import StarterKit from '@tiptap/starter-kit'
 
 export default function Journal() {
   const navigate = useNavigate()
   const { getAccessTokenSilently, isAuthenticated } = useAuth0()
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, TextStyle, Color],
     content: '',
     autofocus: true,
     editable: true,
@@ -64,6 +67,7 @@ export default function Journal() {
               💡 Tip: You ask Arlo to save messages to your journal during a session. 
             </div>
           )}
+          <JournalToolbar editor={editor} />
           <EditorContent editor={editor} className="tiptap flex-1 h-full min-h-0 prose prose-invert focus:outline-none bg-[#23233a] text-white rounded-lg p-2 overflow-y-auto" style={{height:'100%', minHeight:0}} />
         </div>
       </div>

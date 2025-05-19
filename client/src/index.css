@@ -170,3 +170,8 @@ a:hover {
   flex-direction: column;
   background: #181824;
 }
+
+/* Ensure lists are visible in Tiptap editor */
+.tiptap ul, .ProseMirror ul { list-style-type: disc; margin-left: 1.5em; }
+.tiptap ol, .ProseMirror ol { list-style-type: decimal; margin-left: 1.5em; }
+.tiptap li, .ProseMirror li { margin-bottom: 0.25em; }
