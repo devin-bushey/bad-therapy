@@ -1,5 +1,5 @@
 from prompts.suggested_prompts import get_prompt_help
-from tools.save_to_journal_tool import TOOL_SAVE_TO_JOURNAL
+from prompts.journal_prompts import get_journal_prompt
 
 def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) -> str:
     if is_first_message:
@@ -26,12 +26,6 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
         "Do not give medical advice or diagnose. "
         + get_journal_prompt()
         + get_sycophantic_guard_prompt()
-    )
-
-def get_journal_prompt() -> str:
-    return (
-        f"You can save messages to the users journal using a tool call to the {TOOL_SAVE_TO_JOURNAL} function." 
-        f"If the user asks you to save something, use the {TOOL_SAVE_TO_JOURNAL} function to save it."
     )
 
 def get_sycophantic_guard_prompt() -> str:
