@@ -3,7 +3,7 @@ import { Editor } from '@tiptap/react'
 
 export default function JournalToolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null
-  const btn = (onClick: () => void, active: boolean, children: any, aria: string) => (
+  const btn = (onClick: () => void, active: boolean, children: React.ReactNode, aria: string) => (
     <button
       onClick={onClick}
       aria-label={aria}
