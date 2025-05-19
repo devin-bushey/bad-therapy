@@ -17,5 +17,12 @@ def _save_to_journal(user_id: str, message: str) -> str:
 save_to_journal_tool = StructuredTool.from_function(
     func=_save_to_journal,
     args_schema=SaveToJournalInput,
-    description="Save a message to the users journal. Use this tool whenever the user asks to save, record, or remember a message, reflection, or conversation. ",
+    name="save_text_to_journal",
+    description=(
+        "Save a message to the user's journal. "
+        "Use this tool whenever the user says things like: "
+        "'save', 'save this', 'remember this', 'record this', 'add to my journal', "
+        "'write this down', 'save this to my journal', or 'log this reflection'. "
+        "This tool requires a user_id and the message to save."
+    ),
 ) 

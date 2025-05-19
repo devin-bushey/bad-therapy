@@ -26,7 +26,7 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
 
     if getattr(llm_response, "tool_calls", None):
         for tool_call in llm_response.tool_calls:
-            if tool_call["name"] == "_save_to_journal":
+            if tool_call["name"] == "save_text_to_journal":
                 args = dict(tool_call["args"])
                 args["user_id"] = state.user_id
                 try:
