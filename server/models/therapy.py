@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from langchain_core.messages import BaseMessage
 from typing import Optional
 
-
 class Therapist(BaseModel):
     name: str
     specialty: str
