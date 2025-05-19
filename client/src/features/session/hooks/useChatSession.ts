@@ -74,7 +74,7 @@ export function useChatSession(sessionId?: string) {
       if (messages.length + 2 === 6) {
         try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
       }
-    } catch (err) {
+    } catch {
       setMessages(msgs => {
         // Remove the last (empty) ai message and add error message
         if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
