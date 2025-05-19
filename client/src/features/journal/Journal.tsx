@@ -47,6 +47,24 @@ export default function Journal() {
           </button>
         </div>
         <div className="flex-1 w-full max-w-[600px] bg-[#23233a] rounded-2xl p-6 flex flex-col mb-10 min-h-0" style={{flex:1, minHeight:0, height:'auto'}}>
+          {editor && editor.getText().trim().length === 0 && (
+            <div style={{
+              background: '#2563eb22',
+              color: '#2563eb',
+              border: '1px solid #2563eb55',
+              borderRadius: 8,
+              padding: '12px 16px',
+              marginBottom: 12,
+              textAlign: 'center',
+              fontWeight: 500,
+              fontSize: 15,
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              boxShadow: '0 2px 8px 0 #0002'
+            }}>
+              💡 Tip: You ask Arlo to save messages to your journal during a session. 
+            </div>
+          )}
           <EditorContent editor={editor} className="tiptap flex-1 h-full min-h-0 prose prose-invert focus:outline-none bg-[#23233a] text-white rounded-lg p-2 overflow-y-auto" style={{height:'100%', minHeight:0}} />
         </div>
       </div>

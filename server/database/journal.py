@@ -34,17 +34,28 @@ def decrypt_data(*, data: str, password: str):
     f = Fernet(key)
     return type('Obj', (), {'data': f.decrypt(token).decode()})
 
+def create_new_journal(user_id: str):
+    upsert_journal(user_id, [])
+    return {'content': []}
+
 def fetch_journal(user_id: str):
     supabase = get_supabase_client()
     password = settings.PG_CRYPTO_KEY
     result = supabase.table("journals").select("content").eq("user_id", user_id).maybe_single().execute()
-    if result.data and result.data.get('content'):
+
+    # If no journal exists, create a new one
+    if not result or not getattr(result, 'data', None):
+        return create_new_journal(user_id)
+    
+    if result.data.get('content'):
         try:
             decrypted = decrypt_data(data=result.data['content'], password=password)
             return {'content': json.loads(decrypted.data)}
         except Exception:
-            return {'content': ''}
-    return {'content': ''}
+            # TODO: Handle this error better
+            return create_new_journal(user_id)
+    # TODO: Handle this error better
+    return create_new_journal(user_id)
 
 def upsert_journal(user_id: str, content):
     supabase = get_supabase_client()

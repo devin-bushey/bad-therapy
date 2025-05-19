@@ -1,5 +1,6 @@
 import type { Message } from '../../../types/session.types'
 import TypingBubble from './TypingBubble'
+import { useNavigate } from 'react-router-dom'
 
 interface ChatMessagesProps {
   messages: Message[]
@@ -8,6 +9,8 @@ interface ChatMessagesProps {
 }
 
 export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessagesProps) {
+  const navigate = useNavigate()
+
   if (loading && messages.length === 0)
     return <div style={{ color: '#bbb', fontSize: 18, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading messages…</div>
 
@@ -43,26 +46,63 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
     )
   }
 
+  function isJournalSavedMessage(msg: string) {
+    return msg === 'Journal entry saved! Click me to view it.'
+  }
+
   return (
     <>
       {filteredMessages.map((m, i) => {
         const { summary, therapists } = parseSummaryAndTherapists(m.content)
         const elements = []
-        if (summary) elements.push(
-          <div key={i + '-summary'} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
-            <span style={{
-              display: 'inline-block',
-              background: m.type === 'human' ? '#2563eb' : '#282846',
-              color: '#fff',
-              borderRadius: 16,
-              padding: '10px 18px',
-              maxWidth: '80%',
-              wordBreak: 'break-word',
-              whiteSpace: 'pre-line',
-              textAlign: 'left',
-            }}>{summary}</span>
-          </div>
-        )
+        if (summary) {
+          if (isJournalSavedMessage(summary)) {
+            elements.push(
+              <div
+                key={i + '-journal-link'}
+                style={{
+                  textAlign: m.type === 'human' ? 'right' : 'left',
+                  margin: '12px 0',
+                }}
+              >
+                <span
+                  onClick={() => navigate('/journal')}
+                  style={{
+                    display: 'inline-block',
+                    background: '#a259f7', // purple
+                    color: '#fff',
+                    borderRadius: 16,
+                    padding: '10px 18px',
+                    maxWidth: '80%',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'pre-line',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(162,89,247,0.15)'
+                  }}
+                >
+                  {summary}
+                </span>
+              </div>
+            )
+          } else {
+            elements.push(
+              <div key={i + '-summary'} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
+                <span style={{
+                  display: 'inline-block',
+                  background: m.type === 'human' ? '#2563eb' : '#282846',
+                  color: '#fff',
+                  borderRadius: 16,
+                  padding: '10px 18px',
+                  maxWidth: '80%',
+                  wordBreak: 'break-word',
+                  whiteSpace: 'pre-line',
+                  textAlign: 'left',
+                }}>{summary}</span>
+              </div>
+            )
+          }
+        }
         if (therapists) elements.push(
           therapists.map((therapist: { name: string; specialty: string; website?: string }, idx: number) => (
             <TherapistCard key={i + '-' + idx} therapist={therapist} />

@@ -4,9 +4,13 @@ from models.therapy import TherapyState
 from database.user_profile import get_user_profile
 from prompts.chat_prompts import get_system_prompt
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from tools.save_to_journal_tool import save_to_journal_tool
 
 settings = get_settings()
-llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0.7)
+llm = ChatOpenAI(
+    model=settings.OPENAI_MODEL, 
+    temperature=0.7
+).bind_tools([save_to_journal_tool])
 
 def primary_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
@@ -17,8 +21,24 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
 
     prompt = [system_prompt] + state.history + [human_prompt]
 
-    response = llm.invoke(prompt)
-    converted_response = AIMessage(content=response.content)
+    llm_response = llm.invoke(prompt)
+    node_response = ""
+
+    if getattr(llm_response, "tool_calls", None):
+        for tool_call in llm_response.tool_calls:
+            if tool_call["name"] == "_save_to_journal":
+                args = dict(tool_call["args"])
+                args["user_id"] = state.user_id
+                try:
+                    save_to_journal_tool.invoke(args)
+                    node_response = f"Journal entry saved! Click me to view it."
+                except Exception as e:
+                    node_response = f"Whoops! Failed to save journal entry. Please try again."
+                    print(f"Failed to save journal entry: {e} \n")
+    else:
+        node_response = llm_response.content
+
+    converted_response = AIMessage(content=node_response)
 
     return { "history": state.history + [converted_response] } 
 
