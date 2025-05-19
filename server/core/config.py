@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     LANGSMITH_TRACING: bool
     LANGSMITH_ENDPOINT: str
     LANGSMITH_PROJECT: str
+    LANGSMITH_HIDE_INPUTS: bool
+    LANGSMITH_HIDE_OUTPUTS: bool
     PG_CRYPTO_KEY: str
     AUTH0_DOMAIN: str
     AUTH0_AUDIENCE: str
