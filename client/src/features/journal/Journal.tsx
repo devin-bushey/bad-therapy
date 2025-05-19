@@ -4,6 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useSaveJournalMutation, useJournalQuery } from './hooks/useSaveJournal'
 import { useAuth0 } from '@auth0/auth0-react'
+import { useDebouncedAutoSave } from './hooks/useDebouncedAutoSave'
 
 export default function Journal() {
   const navigate = useNavigate()
@@ -30,10 +31,8 @@ export default function Journal() {
     }
   }, [editor, journalQuery.data])
 
-  const handleSave = async () => {
-    if (!editor || !token) return
-    await saveMutation.mutateAsync(editor.getJSON())
-  }
+  const debounced = useDebouncedAutoSave({ editor, token, saveMutation, delay: 3000 })
+  const handleSave = debounced?.handleSave
 
   return (
     <>
