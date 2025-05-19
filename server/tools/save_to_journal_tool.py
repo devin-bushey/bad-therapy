@@ -4,7 +4,7 @@ from langchain_core.tools import StructuredTool
 
 class SaveToJournalInput(BaseModel):
     user_id: str = Field(..., description="The unique identifier of the user.")
-    message: str = Field(..., description="The message to save as a journal entry.")
+    message: str = Field(..., description="The message to save to the journal.")
 
 def _save_to_journal(user_id: str, message: str) -> None:
     journal = get_journal(user_id)
@@ -18,5 +18,5 @@ def _save_to_journal(user_id: str, message: str) -> None:
 save_to_journal_tool = StructuredTool.from_function(
     func=_save_to_journal,
     args_schema=SaveToJournalInput,
-    description="Save a specific message as a journal entry for the user. Use this tool to record any message that the user wants to remember or reflect on later.",
+    description="Save a message to the users journal. Use this tool whenever the user asks to save, record, or remember a message, reflection, or conversation. ",
 ) 
