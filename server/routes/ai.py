@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
 from service.suggested_prompts_service import generate_suggested_prompts
 from utils.jwt_bearer import require_auth
@@ -71,8 +72,12 @@ async def generate_ai_response_stream(
                         already_in_history = any(message_chunk.content == h.content for h in state.history)
 
                         # Only stream incremental content
-                        if message_chunk.content and message_chunk.content != full_response and not already_in_history:
+                        if message_chunk.content and message_chunk.content != full_response and not already_in_history and message_chunk.content != JOURNAL_SAVED_MESSAGE:
                             full_response += message_chunk.content
+                            yield f"{message_chunk.content}"
+
+                        if message_chunk.content == JOURNAL_SAVED_MESSAGE:
+                            full_response = message_chunk.content
                             yield f"{message_chunk.content}"
                         
                         # Handle completion 

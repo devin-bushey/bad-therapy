@@ -30,16 +30,17 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
                 args = dict(tool_call["args"])
                 args["user_id"] = state.user_id
                 try:
-                    save_to_journal_tool.invoke(args)
-                    node_response = f"Journal entry saved! Click me to view it."
+                    res = save_to_journal_tool.invoke(args)
+                    converted_response = AIMessage(content=res)
+                    return { "history": state.history + [converted_response] } 
                 except Exception as e:
                     node_response = f"Whoops! Failed to save journal entry. Please try again."
                     print(f"Failed to save journal entry: {e} \n")
-    else:
-        node_response = llm_response.content
+            else:
+                print(f"Tool call not found: {tool_call['name']} \n")
+                node_response = llm_response.content
 
     converted_response = AIMessage(content=node_response)
-
     return { "history": state.history + [converted_response] } 
 
 
