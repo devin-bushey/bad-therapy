@@ -37,6 +37,12 @@ export default function Journal() {
   const debounced = useDebouncedAutoSave({ editor, token, saveMutation, delay: 3000 })
   const handleSave = debounced?.handleSave
 
+  if (journalQuery.isLoading || !editor) return (
+    <div style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#181824',color:'#60a5fa',fontSize:20,fontWeight:600}}>
+      Loading journal...
+    </div>
+  )
+
   return (
     <>
       <style>{`.ProseMirror { height: 100% !important; min-height: 0 !important; } .ProseMirror:focus { outline: none !important; box-shadow: none !important; }`}</style>
