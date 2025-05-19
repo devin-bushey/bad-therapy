@@ -13,6 +13,8 @@ export function useJournalQuery(token: string) {
   return useQuery({
     queryKey: ['journal', token],
     queryFn: () => fetchJournal(token),
-    enabled: !!token
+    enabled: !!token,
+    staleTime: 1000 * 60 * 1,
+    refetchOnWindowFocus: false
   })
 } 
