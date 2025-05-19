@@ -30,9 +30,9 @@ This document outlines best practices and coding standards for developing with L
 ### 1.1. Directory Structure Best Practices
 
 server/
-├── agents/                    # Nodes to use in graphs
+├── nodes/                    # Nodes to use in graphs
 │   ├── __init__.py
-│   └── primary_therapist_agent.py
+│   └── primary_therapist_node.py
 ├── components/                # Reusable components (e.g., tools).
 │   ├── __init__.py
 │   └── primary_therapist_tools.py

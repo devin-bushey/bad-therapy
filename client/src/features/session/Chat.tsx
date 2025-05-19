@@ -115,7 +115,7 @@ export default function Chat() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,
-          marginBottom: showSuggestedPrompts ? '10px' : 40
+          marginBottom: showSuggestedPrompts ? '10px' : 65
         }}
         onScroll={handleScroll}
       >

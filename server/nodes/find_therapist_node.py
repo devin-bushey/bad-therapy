@@ -13,7 +13,7 @@ llm = ChatPerplexity(
 )
     
 
-def find_therapist_agent(state: TherapyState) -> TherapyState:
+def find_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
     find_therapist_prompt = get_find_therapist_prompt(user_profile)
     system_prompt = SystemMessage(content=find_therapist_prompt)

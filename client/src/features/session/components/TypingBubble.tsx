@@ -1,23 +1,29 @@
 export default function TypingBubble() {
-    return (
-      <div style={{ textAlign: 'left', margin: '12px 0' }}>
-        <span style={{
-          display: 'inline-block',
-          background: '#282846',
-          color: '#fff',
-          borderRadius: 16,
-          padding: '10px 18px',
-          maxWidth: '80%',
-          minWidth: 48,
-          wordBreak: 'break-word',
-          whiteSpace: 'pre-line',
-          height: 24
-        }}>
-          <span className="typing-bubble-dots" style={{ display: 'inline-block', width: 24, textAlign: 'center' }}>
-            <span style={{ display: 'inline-block', width: 6, height: 6, background: '#fff', borderRadius: '50%', margin: '0 2px', animation: 'typing-bounce 1s infinite 0s' }} />
-            <span style={{ display: 'inline-block', width: 6, height: 6, background: '#fff', borderRadius: '50%', margin: '0 2px', animation: 'typing-bounce 1s infinite 0.2s' }} />
-          </span>
+  return (
+    <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '8px 0 8px 0' }}>
+      <span style={{
+        display: 'flex',
+        alignItems: 'center',
+        background: '#35355a',
+        borderRadius: 16,
+        padding: '6px 14px',
+        minWidth: 32,
+        maxWidth: '60%',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        height: 25
+      }}>
+        <span className="typing-bubble-dots" style={{ display: 'flex', gap: 4 }}>
+          <span style={{ width: 6, height: 6, background: '#b3b3c6', borderRadius: '50%', opacity: 0.7, animation: 'typing-bounce 1s infinite 0s' }} />
+          <span style={{ width: 6, height: 6, background: '#b3b3c6', borderRadius: '50%', opacity: 0.7, animation: 'typing-bounce 1s infinite 0.2s' }} />
+          <span style={{ width: 6, height: 6, background: '#b3b3c6', borderRadius: '50%', opacity: 0.7, animation: 'typing-bounce 1s infinite 0.4s' }} />
         </span>
-      </div>
-    )
-  }
+      </span>
+      <style>{`
+        @keyframes typing-bounce {
+          0%, 80%, 100% { transform: translateY(0); opacity: 0.7; }
+          40% { transform: translateY(-4px); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  )
+}

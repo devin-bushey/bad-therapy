@@ -10,7 +10,7 @@ settings = get_settings()
 llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0.7)
 logger = logging.getLogger(__name__)
 
-def safety_agent(state: TherapyState) -> TherapyState:
+def safety_node(state: TherapyState) -> TherapyState:
 
     system_prompt = SystemMessage(content=get_safety_prompt())
     human_prompt = HumanMessage(content=state.prompt)

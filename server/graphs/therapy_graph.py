@@ -1,9 +1,9 @@
 from langgraph.graph import StateGraph, END
-from agents.primary_therapist_agent import primary_therapist_agent
-from agents.safety_agent import safety_agent
+from nodes.primary_therapist_node import primary_therapist_node
+from nodes.safety_node import safety_node
 from models.therapy import TherapyState
-from agents.router_node import router_node
-from agents.find_therapist_agent import find_therapist_agent
+from nodes.router_node import router_node
+from nodes.find_therapist_node import find_therapist_node
 
 def _route_safety(state: TherapyState):
     return state.is_safe
@@ -18,9 +18,9 @@ def _route_decision(state: TherapyState):
 
 def build_therapy_graph() -> StateGraph:
     workflow = StateGraph(TherapyState)
-    workflow.add_node("safety", safety_agent)
-    workflow.add_node("primary_therapist", primary_therapist_agent)
-    workflow.add_node("find_therapist", find_therapist_agent)
+    workflow.add_node("safety", safety_node)
+    workflow.add_node("primary_therapist", primary_therapist_node)
+    workflow.add_node("find_therapist", find_therapist_node)
     workflow.add_node("router", router_node)
     workflow.add_conditional_edges(
         "safety",

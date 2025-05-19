@@ -8,7 +8,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 settings = get_settings()
 llm = ChatOpenAI(model=settings.OPENAI_MODEL, temperature=0.7)
 
-def primary_therapist_agent(state: TherapyState) -> TherapyState:
+def primary_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
     is_first_message = not state.history or len(state.history) == 0
 
