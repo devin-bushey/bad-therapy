@@ -20,3 +20,7 @@ class TherapyState(BaseModel):
     is_safe: str = Field(..., description="Is the user safe? \"blocked\" or \"safe\"")
     therapists: list[Therapist] = Field(..., description="List of therapists")
     therapists_summary: str = Field(..., description="Summary of therapists")
+
+class SafetyCheckResult(BaseModel):
+    is_safe: str
+    safety_response: str

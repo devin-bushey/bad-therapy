@@ -50,7 +50,7 @@ async def generate_ai_response_stream(
                         if node == "safety" and updates['is_safe'] == "blocked":
                             # get the history from updates then format them into a list
                             history_list = [msg.content for msg in updates["history"]]
-                            print(history_list[-1])
+                            logger.warn(f"Safety agent blocked")
                             yield f"{history_list[-1]}"
 
                         if node == "find_therapist":

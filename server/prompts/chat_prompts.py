@@ -1,4 +1,5 @@
 from prompts.suggested_prompts import get_prompt_help
+from tools.save_to_journal_tool import TOOL_SAVE_TO_JOURNAL
 
 def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) -> str:
     if is_first_message:
@@ -11,7 +12,7 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
             "Introduce yourself, explain your role, and ask the user how you can help today. "
             "Your tone should be warm, friendly, and supportive. Do not be overly positive. "
             "Do not give solutions right away. Listen to the user's needs and provide support."
-            "You can save messages to the users journal using a tool call to the 'save_to_journal' function."
+            + get_journal_prompt()
             + get_user_profile(user_profile) + "\n\n"
             "Please include this disclaimer in your response: " + get_disclaimer() + "\n\n"
             "Then please include this prompt help in your response: " + get_prompt_help() + "\n\n"
@@ -23,8 +24,14 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
         "Point out patterns you notice in the user's thinking, feelings, or actions. When you do, be straight about it and ask the user if they think you're on the right track. "
         "Always keep the chat alive and rolling. "
         "Do not give medical advice or diagnose. "
-        "If the user asks you to save something, use the 'save_to_journal' function to save it."
+        + get_journal_prompt()
         + get_sycophantic_guard_prompt()
+    )
+
+def get_journal_prompt() -> str:
+    return (
+        f"You can save messages to the users journal using a tool call to the {TOOL_SAVE_TO_JOURNAL} function." 
+        f"If the user asks you to save something, use the {TOOL_SAVE_TO_JOURNAL} function to save it."
     )
 
 def get_sycophantic_guard_prompt() -> str:

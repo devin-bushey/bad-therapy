@@ -3,6 +3,8 @@ from service.journal_service import save_journal, get_journal
 from pydantic import BaseModel, Field
 from langchain_core.tools import StructuredTool
 
+TOOL_SAVE_TO_JOURNAL = "save_text_to_journal"
+
 class SaveToJournalInput(BaseModel):
     user_id: str = Field(..., description="The unique identifier of the user.")
     message: str = Field(..., description="The message to save to the journal.")
@@ -17,7 +19,7 @@ def _save_to_journal(user_id: str, message: str) -> str:
 save_to_journal_tool = StructuredTool.from_function(
     func=_save_to_journal,
     args_schema=SaveToJournalInput,
-    name="save_text_to_journal",
+    name=TOOL_SAVE_TO_JOURNAL,
     description=(
         "Save a message to the user's journal. "
         "Use this tool whenever the user says things like: "
@@ -25,4 +27,5 @@ save_to_journal_tool = StructuredTool.from_function(
         "'write this down', 'save this to my journal', or 'log this reflection'. "
         "This tool requires a user_id and the message to save."
     ),
+
 ) 
