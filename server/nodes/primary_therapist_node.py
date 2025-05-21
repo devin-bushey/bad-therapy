@@ -4,7 +4,7 @@ from models.therapy import TherapyState
 from database.user_profile import get_user_profile
 from prompts.chat_prompts import get_system_prompt
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from tools.save_to_journal_tool import save_to_journal_tool
+from tools.save_to_journal_tool import save_to_journal_tool, TOOL_SAVE_TO_JOURNAL
 
 settings = get_settings()
 llm = ChatOpenAI(
@@ -26,7 +26,7 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
 
     if getattr(llm_response, "tool_calls", None):
         for tool_call in llm_response.tool_calls:
-            if tool_call["name"] == "save_text_to_journal":
+            if tool_call["name"] == TOOL_SAVE_TO_JOURNAL:
                 args = dict(tool_call["args"])
                 args["user_id"] = state.user_id
                 try:
