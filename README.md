@@ -42,8 +42,8 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 - Nodes:
   - [`safety`](server/nodes/safety_node.py): Checks for harmful language.
   - [`router`](server/nodes/router_node.py): Decides next step.
-  - [`primary_therapist`](server/nodes/primary_therapist_node.py): AI coaching and journaling.
-  - [`find_therapist`](server/nodes/find_therapist_node.py): Suggests real therapists.
+  - [`primary_therapist`](server/nodes/primary_therapist_node.py): Main chatbot including custom tool calls to save messages to the user journal.
+  - [`find_therapist`](server/nodes/find_therapist_node.py): Searches for and suggests real therapists based on user input and conversation history using the Perplexity api.
 
 ### Conditional Routing
 - Edges between nodes are conditional, so the agent can branch based on user input and state (e.g., escalate to human therapist if unsafe).
@@ -54,9 +54,16 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 ### Tool Calling
 - The `primary_therapist` node can call the [`save_to_journal` tool](server/tools/save_to_journal_tool.py) to save user messages to their journal.
 
+### Prompt Engineering
+- All prompts are saved in the [`prompts`](server/prompts/) directory
+
 ### LangSmith Tracing
 - All LangGraph runs are traced with LangSmith for cloud-based debugging and observability.
 - See tracings and monitoring here: https://smith.langchain.com/o/65c77578-2a48-42ef-a24f-8d83c29bc984/
+
+<p align="left">
+  <img src="docs/LangSmith.png" alt="LangSmith"/>
+</p>
 
 ### Long-Term Memory
 - Conversations are saved in a PostgreSQL database for persistent memory.
