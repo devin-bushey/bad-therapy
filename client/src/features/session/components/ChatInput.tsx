@@ -14,8 +14,9 @@ export function ChatInput({ input, onInput, onSend, loading }: ChatInputProps) {
     textareaRef.current.style.height = 'auto'
     textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'
   }, [input])
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 700
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (!isMobile && e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       if (!loading && input.trim()) onSend()
     }
