@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     AUTH0_AUDIENCE: str
     PERPLEXITY_API_KEY: str
     GOOGLE_MAPS_API_KEY: str
+    SERPAPI_API_KEY: str
 
     class Config:
         env_file = ".env"
