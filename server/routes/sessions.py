@@ -61,4 +61,20 @@ async def get_session(session_id: str, user=Depends(require_auth)):
 @router.patch("/sessions/{session_id}", response_model=Session)
 async def rename_session(session_id: str, session: SessionCreate, user=Depends(require_auth)) -> Session:
     updated_session = update_session(session_id=session_id, name=session.name)
-    return Session(**updated_session) 
+    return Session(**updated_session)
+
+@router.delete("/sessions/{session_id}", status_code=204)
+async def delete_session(session_id: str, user=Depends(require_auth)):
+    supabase = get_supabase_client()
+    # Ensure the session belongs to the user
+    result = supabase.table("sessions") \
+        .select("id") \
+        .eq("id", session_id) \
+        .eq("user_id", user.sub) \
+        .single() \
+        .execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+    # Delete the session
+    supabase.table("sessions").delete().eq("id", session_id).execute()
+    return None 

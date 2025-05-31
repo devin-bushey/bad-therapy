@@ -23,4 +23,11 @@ export async function createSession(token: string, name: string, userId: string)
     })
     if (!res.ok) throw new Error('Failed to create session')
     return res.json()
+}
+
+export async function deleteSession(token: string, sessionId: string): Promise<void> {
+    await fetch(`${API_URL}/sessions/${sessionId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+    })
 } 

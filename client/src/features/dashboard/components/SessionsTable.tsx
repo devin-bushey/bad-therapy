@@ -10,6 +10,9 @@ import {
 import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import type { TherapySession } from '../../../types/session.types'
+import { useAuth0 } from '@auth0/auth0-react'
+import { useDeleteSession } from '../hooks/useSessions'
+import Modal from './Modal'
 
 const fuzzyFilter: FilterFn<TherapySession> = (row, columnId, value, addMeta) => {
   const itemRank = rankItem(row.getValue(columnId), value)
@@ -31,8 +34,12 @@ function DebouncedInput({ value, onChange, debounce = 300, ...props }: {
 
 export function SessionsTable({ sessions, loading }: { sessions: TherapySession[]; loading: boolean }) {
   const navigate = useNavigate()
+  const { getAccessTokenSilently } = useAuth0()
+  const deleteSession = useDeleteSession()
   const [globalFilter, setGlobalFilter] = useState('')
   const [pageIndex, setPageIndex] = useState(0)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [toDelete, setToDelete] = useState<string | null>(null)
   const columns = useMemo<ColumnDef<TherapySession>[]>(() => [
     {
       accessorKey: 'name',
@@ -68,6 +75,20 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
   if (loading) return <div style={{ padding: 10, color: '#bbb', height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading sessions…</div>
   return (
     <div style={{ width: '100%', margin: '0 auto', height: 320, display: 'flex', flexDirection: 'column' }}>
+      <Modal
+        open={modalOpen}
+        onClose={() => { setModalOpen(false); setToDelete(null) }}
+        onConfirm={async () => {
+          if (!toDelete) return
+          const token = await getAccessTokenSilently()
+          deleteSession.mutate({ token, sessionId: toDelete })
+          setModalOpen(false)
+          setToDelete(null)
+        }}
+        title="Delete session?"
+      >
+        Are you sure you want to delete this session?
+      </Modal>
       <DebouncedInput
         value={globalFilter}
         onChange={setGlobalFilter}
@@ -76,15 +97,11 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
       />
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} style={{ textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
+          <tr>
+            <th style={{ width: '65%', textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>Name</th>
+            <th style={{ width: '25%', textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>Date</th>
+            <th style={{ width: 40 }}></th>
+          </tr>
         </thead>
       </table>
       <div style={{ height: 220, overflowY: 'auto', width: '100%' }}>
@@ -94,14 +111,32 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
               <tr><td style={{ padding: 8, color: '#555' }}>No sessions found</td></tr>
             )}
             {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                style={{ cursor: 'pointer' }}
-                onClick={() => navigate(`/chat?sessionId=${row.original.id}`)}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} style={{ padding: '6px 0', color: '#eee', border: 'none', background: 'none' }}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+              <tr key={row.id} style={{ cursor: 'pointer' }}>
+                {row.getVisibleCells().map((cell, idx) => (
+                  <td
+                    key={cell.id}
+                    style={{
+                      padding: '6px 0',
+                      color: '#eee',
+                      border: 'none',
+                      background: 'none',
+                      width: idx === 0 ? '65%' : idx === 1 ? '25%' : undefined
+                    }}
+                    onClick={() => navigate(`/chat?sessionId=${row.original.id}`)}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
                 ))}
+                <td style={{ padding: '6px 0', border: 'none', background: 'none', width: 40 }}>
+                  <button
+                    style={{ background: 'none', outline: 'none', border: 'none', boxShadow: 'none', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 28, width: 28, transition: 'background 0.2s' }}
+                    title="Delete session"
+                    onClick={e => { e.stopPropagation(); setModalOpen(true); setToDelete(row.original.id) }}
+                    disabled={deleteSession.isPending}
+                  >
+                    x
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
