@@ -4,8 +4,8 @@ from database.conversation_history import create_session, update_session, get_co
 from utils.jwt_bearer import require_auth
 from database.connection import get_supabase_client
 from core.config import get_settings
-from database.conversation_history import decrypt_data
 from langchain_core.messages import HumanMessage, AIMessage
+from utils.obfuscation import decrypt_data
 
 router = APIRouter()
 settings = get_settings()
@@ -30,7 +30,7 @@ async def list_sessions(request: Request, user=Depends(require_auth)) -> list[Se
     sessions = []
     for item in result.data:
         try:
-            item['name'] = decrypt_data(data=item['name'], password=settings.PG_CRYPTO_KEY).data
+            item['name'] = decrypt_data(data=item['name']).data
         except Exception:
             pass
         sessions.append(Session(**item))
@@ -48,7 +48,7 @@ async def get_session(session_id: str, user=Depends(require_auth)):
     if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
     session = result.data
-    session['name'] = decrypt_data(data=session['name'], password=settings.PG_CRYPTO_KEY).data
+    session['name'] = decrypt_data(data=session['name']).data
     history = get_conversation_history(session_id=session_id, user_id=user.sub)
     def message_to_dict(msg):
         if isinstance(msg, HumanMessage): return {"content": msg.content, "type": "human"}

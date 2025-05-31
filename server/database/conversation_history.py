@@ -2,14 +2,12 @@ from datetime import datetime
 from database.connection import get_supabase_client
 from openai import OpenAI
 from core.config import get_settings
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
-from cryptography.fernet import Fernet
-import base64, os
 from dotenv import load_dotenv
 from langchain_core.messages import BaseMessage
 from utils.message_utils import convert_to_langchain_messages
+from langchain_openai import OpenAIEmbeddings
+from langchain_core.vectorstores import InMemoryVectorStore
+from utils.obfuscation import encrypt_data, decrypt_data
 
 load_dotenv()
 
@@ -18,8 +16,7 @@ settings = get_settings()
 
 def create_session(*, name: str, user_id: str) -> dict:
     supabase = get_supabase_client()
-    password = settings.PG_CRYPTO_KEY
-    encrypted_name = encrypt_data(data=name, password=password)
+    encrypted_name = encrypt_data(data=name)
     data = {
         "name": encrypted_name.data,
         "user_id": user_id,
@@ -30,46 +27,20 @@ def create_session(*, name: str, user_id: str) -> dict:
 
 def update_session(*, session_id: str, name: str) -> dict:
     supabase = get_supabase_client()
-    password = settings.PG_CRYPTO_KEY
-    encrypted_name = encrypt_data(data=name, password=password)
+    encrypted_name = encrypt_data(data=name)
     result = supabase.table("sessions").update({"name": encrypted_name.data}).eq("id", session_id).execute()
     return result.data[0]
 
 def get_embedding(text: str) -> list[float]:
-    response = client.embeddings.create(input=text, model="text-embedding-3-small")
+    response = client.embeddings.create(input=text, model=settings.OPENAI_EMBEDDING_MODEL)
     return response.data[0].embedding
-
-def _derive_key(password: str, salt: bytes) -> bytes:
-    kdf = PBKDF2HMAC(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        iterations=390000,
-        backend=default_backend()
-    )
-    return base64.urlsafe_b64encode(kdf.derive(password.encode()))
-
-def encrypt_data(*, data: str, password: str):
-    salt = os.urandom(16)
-    key = _derive_key(password, salt)
-    f = Fernet(key)
-    token = f.encrypt(data.encode())
-    return type('Obj', (), {'data': base64.b64encode(salt + token).decode()})
-
-def decrypt_data(*, data: str, password: str):
-    raw = base64.b64decode(data.encode())
-    salt, token = raw[:16], raw[16:]
-    key = _derive_key(password, salt)
-    f = Fernet(key)
-    return type('Obj', (), {'data': f.decrypt(token).decode()})
 
 def save_conversation(*, session_id: str, user_id: str, prompt: str, response: str) -> None:
     supabase = get_supabase_client()
     embedding = get_embedding(prompt + " " + response)
-    password = settings.PG_CRYPTO_KEY
 
-    encrypted_prompt = encrypt_data(data=prompt, password=password)
-    encrypted_response = encrypt_data(data=response, password=password)
+    encrypted_prompt = encrypt_data(data=prompt)
+    encrypted_response = encrypt_data(data=response)
 
     data = {
         "session_id": session_id,
@@ -83,7 +54,6 @@ def save_conversation(*, session_id: str, user_id: str, prompt: str, response: s
 
 def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) -> list[BaseMessage]:
     supabase = get_supabase_client()
-    password = settings.PG_CRYPTO_KEY
     result = supabase.table("conversation_history")\
         .select("*")\
         .eq("session_id", session_id)\
@@ -93,8 +63,8 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
         .execute()
     
     for item in result.data:
-        item['human'] = decrypt_data(data=item['human'], password=password).data
-        item['ai'] = decrypt_data(data=item['ai'], password=password).data
+        item['human'] = decrypt_data(data=item['human']).data
+        item['ai'] = decrypt_data(data=item['ai']).data
 
     history = convert_to_langchain_messages(result.data)
 
@@ -102,7 +72,6 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
 
 def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
     supabase = get_supabase_client()
-    password = settings.PG_CRYPTO_KEY
     result = supabase.table("sessions")\
         .select("*")\
         .eq("user_id", user_id)\
@@ -111,7 +80,37 @@ def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
         .execute()
     for item in result.data:
         try:
-            item['name'] = decrypt_data(data=item['name'], password=password).data
+            item['name'] = decrypt_data(data=item['name']).data
         except Exception:
             pass
     return result.data
+
+def fetch_user_conversations(user_id: str) -> list:
+    """Fetch all conversation history items for a user."""
+    supabase = get_supabase_client()
+    return supabase.table("conversation_history")\
+        .select("human, ai, embedding")\
+        .eq("user_id", user_id)\
+        .execute().data
+
+def get_relevant_conversations(user_id: str, prompt: str, top_k: int = 3) -> list[str]:
+    """Return the top_k most relevant decrypted conversations for a user using LangChain retriever interface."""
+    conversations = fetch_user_conversations(user_id)
+    convo_texts = []
+    for item in conversations:
+        convo_texts.append(
+            f"Human: {decrypt_data(data=item['human']).data}\n"
+            f"AI: {decrypt_data(data=item['ai']).data}"
+        )
+    if not convo_texts:
+        return []
+    embeddings = OpenAIEmbeddings(model=settings.OPENAI_EMBEDDING_MODEL)
+    vectorstore = InMemoryVectorStore.from_texts(convo_texts, embedding=embeddings)
+    retriever = vectorstore.as_retriever(search_kwargs={"k": top_k})
+    docs = retriever.invoke(prompt)
+    return [doc.page_content for doc in docs]
+
+def get_relevant_context(user_id: str, prompt: str, top_k: int = 3) -> str:
+    """Return a string of the most relevant past conversations for a prompt."""
+    relevant_convos = get_relevant_conversations(user_id, prompt, top_k)
+    return "\n".join(relevant_convos)

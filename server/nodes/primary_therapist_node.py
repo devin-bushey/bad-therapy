@@ -5,6 +5,7 @@ from database.user_profile import get_user_profile
 from prompts.chat_prompts import get_system_prompt
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from tools.save_to_journal_tool import save_to_journal_tool, TOOL_SAVE_TO_JOURNAL
+from database.conversation_history import get_relevant_conversations, get_relevant_context
 
 settings = get_settings()
 llm = ChatOpenAI(
@@ -16,9 +17,15 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
     is_first_message = not state.history or len(state.history) == 0
 
-    system_prompt = SystemMessage(content=get_system_prompt(is_first_message, user_profile))
-    human_prompt = HumanMessage(content=state.prompt)
+    # Get relevant context from conversation history
+    context = get_relevant_context(state.user_id, state.prompt, top_k=3)
 
+    system_prompt_content = get_system_prompt(is_first_message, user_profile)
+    if context:
+        system_prompt_content += f"\n\nRelevant past conversations from other sessions:\n{context}"
+
+    system_prompt = SystemMessage(content=system_prompt_content)
+    human_prompt = HumanMessage(content=state.prompt)
     prompt = [system_prompt] + state.history + [human_prompt]
 
     llm_response = llm.invoke(prompt)
