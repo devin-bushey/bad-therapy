@@ -95,15 +95,25 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
         placeholder="Search sessions..."
         style={{ marginBottom: 12, padding: 6, width: '100%', background: 'none', border: '1px solid #444', color: '#eee', borderRadius: 4 }}
       />
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ width: '65%', textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>Name</th>
-            <th style={{ width: '25%', textAlign: 'left', fontWeight: 500, padding: '6px 0', color: '#eee', background: 'none', border: 'none' }}>Date</th>
-            <th style={{ width: 40 }}></th>
-          </tr>
-        </thead>
-      </table>
+      <style>
+      {`
+        @media (max-width: 600px) {
+          .session-date {
+            font-size: 12px !important;
+            text-align: right !important;
+            min-width: 70px;
+            max-width: 90px;
+            word-break: break-all;
+          }
+          .session-name {
+            font-size: 14px !important;
+          }
+          th, td {
+            padding: 4px 0 !important;
+          }
+        }
+      `}
+      </style>
       <div style={{ height: 220, overflowY: 'auto', width: '100%' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
@@ -115,12 +125,14 @@ export function SessionsTable({ sessions, loading }: { sessions: TherapySession[
                 {row.getVisibleCells().map((cell, idx) => (
                   <td
                     key={cell.id}
+                    className={idx === 0 ? 'session-name' : idx === 1 ? 'session-date' : undefined}
                     style={{
                       padding: '6px 0',
                       color: '#eee',
                       border: 'none',
                       background: 'none',
-                      width: idx === 0 ? '65%' : idx === 1 ? '25%' : undefined
+                      width: idx === 0 ? '65%' : idx === 1 ? '25%' : undefined,
+                      fontSize: idx === 1 ? 14 : undefined,
                     }}
                     onClick={() => navigate(`/chat?sessionId=${row.original.id}`)}
                   >
