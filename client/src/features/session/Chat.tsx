@@ -17,17 +17,16 @@ export default function Chat() {
     setNameInput,
     sendAIMessage,
     saveName,
-    initialSuggestedPrompts,
-    setInitialSuggestedPrompts
+    initialSuggestedPrompts
   } = useChatSession(sessionId)
   const {
     suggestedPrompts,
-    showSuggestions,
+    showSuggestions: showFollowupSuggestions,
     setShowSuggestions,
     loading: followupSuggestionsLoading,
     handleLightbulbClick,
     handlePromptClick
-  } = useSuggestFollowupPrompts(sessionId)
+  } = useSuggestFollowupPrompts(sessionId, sendAIMessage)
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
@@ -44,9 +43,6 @@ export default function Chat() {
 
   const initialPromptsToShow = initialSuggestedPrompts.length > 0 ? initialSuggestedPrompts : suggestedPrompts
 
-  // Show follow-up suggestions if the lightbulb was clicked and suggestions are loaded
-  const showFollowupSuggestions = showSuggestions && (suggestedPrompts.length > 0 || followupSuggestionsLoading)
-
   const handleScroll = () => {
     if (!chatRef.current) return
     const { scrollTop, scrollHeight, clientHeight } = chatRef.current
@@ -61,19 +57,13 @@ export default function Chat() {
   const handleSend = async () => {
     if (!input.trim() || !sessionId) return
     setInput('')
-    await sendAIMessage(input)
     setShowSuggestions(false)
+    await sendAIMessage(input)
   }
 
   const handleSaveName = async () => {
     await saveName(nameInput)
     setEditing(false)
-  }
-
-  // Wrap sendAIMessage for prompt click
-  const handlePromptClickWrapper = async (prompt: string) => {
-    setInput('')
-    await handlePromptClick(sendAIMessage, prompt)
   }
 
   useEffect(() => {
@@ -137,7 +127,7 @@ export default function Chat() {
         {showInitialSuggestedPrompts && (
           <SuggestedPrompts
             prompts={initialPromptsToShow}
-            onPromptClick={handlePromptClickWrapper}
+            onPromptClick={handlePromptClick}
             align="flex-end"
             loading={false}
           />
@@ -145,7 +135,7 @@ export default function Chat() {
         {showFollowupSuggestions && (
           <SuggestedPrompts
             prompts={suggestedPrompts}
-            onPromptClick={handlePromptClickWrapper}
+            onPromptClick={handlePromptClick}
             align="flex-end"
             loading={followupSuggestionsLoading}
           />

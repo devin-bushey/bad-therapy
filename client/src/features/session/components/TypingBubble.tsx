@@ -8,7 +8,6 @@ export default function TypingBubble() {
         borderRadius: 16,
         padding: '6px 14px',
         minWidth: 32,
-        maxWidth: '60%',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         height: 25
       }}>

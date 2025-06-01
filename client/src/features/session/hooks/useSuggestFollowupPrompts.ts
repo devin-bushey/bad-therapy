@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
 import { fetchFollowupSuggestions } from '../services/followup_suggestion_service'
 
-export function useSuggestFollowupPrompts(sessionId?: string) {
+export function useSuggestFollowupPrompts(sessionId?: string, sendAIMessage?: (prompt: string) => Promise<void>) {
   const { getAccessTokenSilently } = useAuth0()
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -21,10 +21,10 @@ export function useSuggestFollowupPrompts(sessionId?: string) {
     }
   }
 
-  const handlePromptClick = async (cb: (prompt: string) => Promise<void>, prompt: string) => {
+  const handlePromptClick = async (prompt: string) => {
     setSuggestedPrompts([])
     setShowSuggestions(false)
-    await cb(prompt)
+    if (sendAIMessage) await sendAIMessage(prompt)
   }
 
   return {
