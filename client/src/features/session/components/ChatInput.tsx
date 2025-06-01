@@ -24,27 +24,32 @@ export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick }:
   }
   return (
     <div className="chat-input">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+      <form style={{ display: 'flex', alignItems: 'flex-end', gap: 8, width: '100%', maxWidth: 600, margin: '0 auto' }} onSubmit={e => { e.preventDefault(); onSend() }}>
         <button
           aria-label="Show follow-up suggestions"
           type="button"
           onClick={onLightbulbClick}
           disabled={loading}
           style={{
+            height: 44,
+            minWidth: 44,
+            marginBottom: 5,
+            padding: 0,
+            borderRadius: 8,
             background: 'none',
             border: 'none',
             fontSize: 24,
+            color: '#ffd600',
             cursor: loading ? 'not-allowed' : 'pointer',
             opacity: loading ? 0.4 : 0.7,
             transition: 'opacity 0.2s',
-            padding: 0,
-            marginRight: 4
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           💡
         </button>
-      </div>
-      <form style={{ display: 'flex', alignItems: 'flex-end', gap: 8, width: '100%', maxWidth: 600, margin: '0 auto' }} onSubmit={e => { e.preventDefault(); onSend() }}>
         <textarea
           ref={textareaRef}
           value={input}
