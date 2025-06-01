@@ -36,7 +36,7 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
         <div><b>{therapist.name}</b></div>
         <div>{therapist.specialty}</div>
         {therapist.website ? (
-          <a href={therapist.website} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa' }}>
+          <a href={therapist.website} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa', wordBreak: 'break-all', maxWidth: '100%', display: 'inline-block', overflowWrap: 'break-word' }}>
             {therapist.website}
           </a>
         ) : (
