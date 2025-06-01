@@ -67,4 +67,4 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { s
     aiMsg += chunk
     onChunk({ content: aiMsg, type: 'ai' })
   }
-} 
+}

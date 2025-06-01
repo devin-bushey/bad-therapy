@@ -9,9 +9,9 @@ export function useChatSession(sessionId?: string) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
   const [messages, setMessages] = useState<Message[]>([])
   const [nameInput, setNameInput] = useState('')
+  const [initialSuggestedPrompts, setInitialSuggestedPrompts] = useState<string[]>([])
   const didInit = useRef(false)
   const queryClient = useQueryClient()
-  const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([])
 
   const sessionQuery = useQuery<TherapySession>({
     queryKey: ['session', sessionId, isAuthenticated],
@@ -58,7 +58,7 @@ export function useChatSession(sessionId?: string) {
         prompt,
         onChunk: (chunk: AIChunk) => {
           if ('suggestedPrompts' in chunk) {
-            setSuggestedPrompts(chunk.suggestedPrompts)
+            setInitialSuggestedPrompts(chunk.suggestedPrompts)
             return
           }
           if ('content' in chunk && chunk.type === 'ai') {
@@ -116,7 +116,7 @@ export function useChatSession(sessionId?: string) {
     loadSession: sessionQuery.refetch,
     sendAIMessage,
     saveName: (name: string) => patchNameMutation.mutateAsync(name),
-    suggestedPrompts,
-    setSuggestedPrompts
+    initialSuggestedPrompts,
+    setInitialSuggestedPrompts
   }
 } 

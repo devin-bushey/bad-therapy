@@ -5,9 +5,10 @@ interface ChatInputProps {
   onInput: (v: string) => void
   onSend: () => void
   loading: boolean
+  onLightbulbClick?: () => void
 }
 
-export function ChatInput({ input, onInput, onSend, loading }: ChatInputProps) {
+export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick }: ChatInputProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   React.useEffect(() => {
     if (!textareaRef.current) return
@@ -23,6 +24,26 @@ export function ChatInput({ input, onInput, onSend, loading }: ChatInputProps) {
   }
   return (
     <div className="chat-input">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
+        <button
+          aria-label="Show follow-up suggestions"
+          type="button"
+          onClick={onLightbulbClick}
+          disabled={loading}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: 24,
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.4 : 0.7,
+            transition: 'opacity 0.2s',
+            padding: 0,
+            marginRight: 4
+          }}
+        >
+          💡
+        </button>
+      </div>
       <form style={{ display: 'flex', alignItems: 'flex-end', gap: 8, width: '100%', maxWidth: 600, margin: '0 auto' }} onSubmit={e => { e.preventDefault(); onSend() }}>
         <textarea
           ref={textareaRef}

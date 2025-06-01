@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useChatSession } from './hooks/useChatSession'
+import { useSuggestFollowupPrompts } from './hooks/useSuggestFollowupPrompts'
 import { ChatMessages } from './components/ChatMessages'
 import { ChatInput } from './components/ChatInput'
+import SuggestedPrompts from './components/SuggestedPrompts'
 
 export default function Chat() {
   const [searchParams] = useSearchParams()
@@ -15,28 +17,35 @@ export default function Chat() {
     setNameInput,
     sendAIMessage,
     saveName,
-    suggestedPrompts
+    initialSuggestedPrompts,
+    setInitialSuggestedPrompts
   } = useChatSession(sessionId)
+  const {
+    suggestedPrompts,
+    showSuggestions,
+    setShowSuggestions,
+    loading: followupSuggestionsLoading,
+    handleLightbulbClick,
+    handlePromptClick
+  } = useSuggestFollowupPrompts(sessionId)
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
   const [autoScroll, setAutoScroll] = useState(true)
 
-  // Suggested prompts to show after first AI message
-  const prompts = suggestedPrompts || [
-    "Can you help me understand what I might get out of therapy?",
-    "I don't know where to start",
-    "What should I expect from my first session?"
-  ]
-
-  // Show prompts only after first AI message is done streaming
-  const showSuggestedPrompts =
+  // Show initial prompts from backend if available, else fallback
+  const showInitialSuggestedPrompts =
     messages.length === 2 &&
     messages[0].type === 'human' &&
     messages[1].type !== 'human' &&
     messages[1].content &&
     !loading
+
+  const initialPromptsToShow = initialSuggestedPrompts.length > 0 ? initialSuggestedPrompts : suggestedPrompts
+
+  // Show follow-up suggestions if the lightbulb was clicked and suggestions are loaded
+  const showFollowupSuggestions = showSuggestions && (suggestedPrompts.length > 0 || followupSuggestionsLoading)
 
   const handleScroll = () => {
     if (!chatRef.current) return
@@ -53,6 +62,7 @@ export default function Chat() {
     if (!input.trim() || !sessionId) return
     setInput('')
     await sendAIMessage(input)
+    setShowSuggestions(false)
   }
 
   const handleSaveName = async () => {
@@ -60,9 +70,10 @@ export default function Chat() {
     setEditing(false)
   }
 
-  const handlePromptClick = async (prompt: string) => {
+  // Wrap sendAIMessage for prompt click
+  const handlePromptClickWrapper = async (prompt: string) => {
     setInput('')
-    await sendAIMessage(prompt)
+    await handlePromptClick(sendAIMessage, prompt)
   }
 
   useEffect(() => {
@@ -115,7 +126,7 @@ export default function Chat() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: 0,
-          marginBottom: showSuggestedPrompts ? '10px' : 65,
+          marginBottom: '10px',
           paddingBottom: 120
         }}
         onScroll={handleScroll}
@@ -123,36 +134,21 @@ export default function Chat() {
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
           !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
         } />
-        {showSuggestedPrompts && (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, alignItems: 'flex-start', margin: '12px 0 60px 0' }}>
-            {prompts.map(p => (
-              <button
-                key={p}
-                onClick={() => handlePromptClick(p)}
-                style={{
-                  display: 'inline-block',
-                  background: '#7c3aed',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 16,
-                  padding: '10px 18px',
-                  maxWidth: '80%',
-                  wordBreak: 'break-word',
-                  whiteSpace: 'pre-line',
-                  margin: '6px 0',
-                  fontSize: 'inherit',
-                  textAlign: 'left',
-                  fontWeight: 500,
-                  boxShadow: '0 1px 4px 0 #0002',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  transition: 'background 0.2s'
-                }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
+        {showInitialSuggestedPrompts && (
+          <SuggestedPrompts
+            prompts={initialPromptsToShow}
+            onPromptClick={handlePromptClickWrapper}
+            align="flex-end"
+            loading={false}
+          />
+        )}
+        {showFollowupSuggestions && (
+          <SuggestedPrompts
+            prompts={suggestedPrompts}
+            onPromptClick={handlePromptClickWrapper}
+            align="flex-end"
+            loading={followupSuggestionsLoading}
+          />
         )}
       </div>
       <div className="chat-input">
@@ -161,6 +157,7 @@ export default function Chat() {
           onInput={setInput}
           onSend={handleSend}
           loading={loading}
+          onLightbulbClick={handleLightbulbClick}
         />
       </div>
     </div>

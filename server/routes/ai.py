@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
-from service.suggested_prompts_service import generate_suggested_prompts
+from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
 from utils.jwt_bearer import require_auth
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
@@ -98,5 +98,15 @@ async def generate_ai_response_stream(
     
     except Exception as e:
         logger.error(f"Error in generate_ai_response_stream: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/ai/followup-suggestions")
+async def get_followup_suggestions(session_id: str, user=Depends(require_auth)):
+    try:
+        history = get_conversation_history(session_id=session_id, user_id=user.sub)
+        suggestions = await generate_followup_suggestions(history)
+        return {"suggestions": suggestions}
+    except Exception as e:
+        logger.error(f"Error in get_followup_suggestions: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
