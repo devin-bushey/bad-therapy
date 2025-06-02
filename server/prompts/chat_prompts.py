@@ -60,9 +60,7 @@ def get_user_profile(user_profile: dict) -> str:
         ("Bio", user_profile.get("bio")),
         ("Gender", user_profile.get("gender")),
         ("Ethnicity", user_profile.get("ethnicity")),
-        ("Goals", user_profile.get("goals")),
         ("Preferred coaching style", user_profile.get("coaching_style")),
-        ("Preferred focus area", user_profile.get("preferred_focus_area")),
     ]
     summary = ", ".join(f"{k}: {v}" for k, v in fields if v)
     return f"Here is some information about the user: {summary}. " if summary else ""

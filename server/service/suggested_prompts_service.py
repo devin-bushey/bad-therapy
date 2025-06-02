@@ -31,7 +31,6 @@ async def generate_followup_suggestions(history: list) -> list[str]:
         "You are a helpful therapy assistant. "
         "Given the following recent conversation between a user and a therapist, "
         "suggest 3 concise, context-aware follow-up prompts that the user could ask the therapist. "
-        "These should help the user clarify, go deeper, or summarize their thoughts. "
         "Return only a JSON array of strings, no explanations. "
         "The JSON must be formatted like this: [\"prompt1\", \"prompt2\", \"prompt3\"]\n"
         f"Conversation:\n{last_messages}"

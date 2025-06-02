@@ -42,7 +42,7 @@ export default function UserProfileForm() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile'] })
     })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         mutation.mutate(form)
@@ -61,14 +61,34 @@ export default function UserProfileForm() {
                         {mutation.isSuccess && <div className="profile-form-success">Profile saved</div>}
                         {mutation.isPending && <div className="profile-form-pending">Saving...</div>}
                         {isLoading ? (<div className="profile-form-pending">Loading profile...</div>) : (<>
-                            <input name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
-                            <input name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
-                            <input name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
-                            <input name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
-                            <input name="goals" placeholder="Goals" value={form.goals} onChange={handleChange} className="profile-form-input" />
-                            <input name="coaching_style" placeholder="Coaching Style" value={form.coaching_style} onChange={handleChange} className="profile-form-input" />
-                            <input name="preferred_focus_area" placeholder="Preferred Focus Area" value={form.preferred_focus_area} onChange={handleChange} className="profile-form-input" />
-                            <textarea name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
+                            <label htmlFor="full_name" className="profile-form-label">Name</label>
+                            <input id="full_name" name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
+                            <label htmlFor="age" className="profile-form-label">Age</label>
+                            <input id="age" name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
+                            <label htmlFor="gender" className="profile-form-label">Gender</label>
+                            <input id="gender" name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
+                            <label htmlFor="ethnicity" className="profile-form-label">Ethnicity</label>
+                            <input id="ethnicity" name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
+                            <label htmlFor="coaching_style" className="profile-form-label">Coaching Style</label>
+                            <select
+                                id="coaching_style"
+                                name="coaching_style"
+                                value={form.coaching_style}
+                                onChange={handleChange}
+                                className="profile-form-input"
+                            >
+                                <option value="">Select Coaching Style</option>
+                                <option value="CBT">Cognitive Behavioral Therapy (CBT)</option>
+                                <option value="ACT">Acceptance and Commitment Therapy (ACT)</option>
+                                <option value="DBT">Dialectical Behavior Therapy (DBT)</option>
+                                <option value="Psychodynamic">Psychodynamic</option>
+                                <option value="Humanistic">Humanistic</option>
+                                <option value="Mindfulness">Mindfulness-Based</option>
+                                <option value="Solution-Focused">Solution-Focused</option>
+                                <option value="Coaching">Coaching</option>
+                            </select>
+                            <label htmlFor="bio" className="profile-form-label">Short bio</label>
+                            <textarea id="bio" name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
                             <button type="submit" disabled={mutation.isPending} className="profile-form-save">Save</button>
                         </>)}
                     </form>
