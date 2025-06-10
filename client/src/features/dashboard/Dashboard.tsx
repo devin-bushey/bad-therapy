@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
 import Navbar from '../../pages/Navbar'
+import DailyMoodTracker from '../mood/components/DailyMoodTracker'
+import MoodTrendChart from '../mood/components/MoodTrendChart'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()
@@ -42,10 +44,17 @@ export default function Dashboard() {
                     </div>
                 </section>
                 <section>
+                    <h2 style={{ fontWeight: 700, marginBottom: 12 }}>Today's Mood</h2>
+                    <DailyMoodTracker />
+                </section>
+                <section>
                     <h2 style={{ fontWeight: 700, marginBottom: 12 }}>Recent Sessions</h2>
                     <div className="card">
                         <SessionsTable sessions={sessions} loading={loading} />
                     </div>
+                </section>
+                <section>
+                    <MoodTrendChart />
                 </section>
             </main>
         </div>

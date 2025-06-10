@@ -1,7 +1,7 @@
 from prompts.suggested_prompts import get_prompt_help
 from prompts.journal_prompts import get_journal_prompt
 
-def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) -> str:
+def get_system_prompt(is_first_message: bool, user_profile: dict | None = None, mood_context: str | None = None) -> str:
     if is_first_message:
         return (
             "Your name is Arlo. You are a supportive, empathetic mental health coach that provides therapy and life coaching. "
@@ -13,6 +13,7 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
             "Listen to the user's needs and provide support."
             + get_journal_prompt() + "\n\n"
             + get_user_profile(user_profile) + "\n\n"
+            + get_mood_context(mood_context) + "\n\n"
             "Please include this disclaimer in your response: " + get_disclaimer() + "\n\n"
             "Then please include this prompt help in your response: " + get_prompt_help() + "\n\n"
         )
@@ -26,6 +27,7 @@ def get_system_prompt(is_first_message: bool, user_profile: dict | None = None) 
         "If you ask a question, make it thoughtful but dont make every question a difficult one to answer. "
         "Do not give medical advice or diagnose. "
         + get_journal_prompt() + "\n\n"
+        + get_mood_context(mood_context) + "\n\n"
         + get_sycophantic_guard_prompt()
     )
 
@@ -64,3 +66,14 @@ def get_user_profile(user_profile: dict) -> str:
     ]
     summary = ", ".join(f"{k}: {v}" for k, v in fields if v)
     return f"Here is some information about the user: {summary}. " if summary else ""
+
+def get_mood_context(mood_context: str | None) -> str:
+    if not mood_context:
+        return ""
+    return (
+        f"MOOD CONTEXT: {mood_context} "
+        "Please acknowledge their current emotional state naturally in your response. "
+        "Adapt your therapeutic approach to be sensitive to their mood level. "
+        "If they seem to be in a low mood, be extra supportive and gentle. "
+        "If they're in a good mood, you can be more exploratory and engaging."
+    )

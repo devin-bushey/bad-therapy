@@ -6,6 +6,8 @@ from prompts.chat_prompts import get_system_prompt
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from tools.save_to_journal_tool import save_to_journal_tool, TOOL_SAVE_TO_JOURNAL
 from database.conversation_history import get_relevant_conversations, get_relevant_context
+from database.mood_entries import get_today_mood_entry
+from models.mood import MoodEntry
 
 settings = get_settings()
 llm = ChatOpenAI(
@@ -17,10 +19,20 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
     is_first_message = not state.history or len(state.history) == 0
 
+    # Get mood context
+    mood_context = None
+    current_mood = get_today_mood_entry(user_id=state.user_id)
+    if current_mood:
+        mood_entry = MoodEntry(**current_mood)
+        mood_context = f"The user logged their mood today as {mood_entry.mood_emoji} ({mood_entry.mood_score}/10)."
+        # Update state with current mood
+        state.current_mood = mood_entry
+        state.mood_context = mood_context
+
     # Get relevant context from conversation history
     context = get_relevant_context(state.user_id, state.prompt, top_k=3)
 
-    system_prompt_content = get_system_prompt(is_first_message, user_profile)
+    system_prompt_content = get_system_prompt(is_first_message, user_profile, mood_context)
     if context:
         system_prompt_content += f"\n\nRelevant past conversations from other sessions:\n{context}"
 

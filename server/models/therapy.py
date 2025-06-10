@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain_core.messages import BaseMessage
 from typing import Optional
+from models.mood import MoodEntry
 
 class Therapist(BaseModel):
     name: str
@@ -20,6 +21,8 @@ class TherapyState(BaseModel):
     is_safe: str = Field(..., description="Is the user safe? \"blocked\" or \"safe\"")
     therapists: list[Therapist] = Field(..., description="List of therapists")
     therapists_summary: str = Field(..., description="Summary of therapists")
+    current_mood: Optional[MoodEntry] = Field(None, description="User's current mood entry for today")
+    mood_context: Optional[str] = Field(None, description="AI-generated mood context for therapy session")
 
 class SafetyCheckResult(BaseModel):
     is_safe: str
