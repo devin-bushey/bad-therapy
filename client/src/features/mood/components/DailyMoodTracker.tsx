@@ -87,7 +87,7 @@ const DailyMoodTracker: React.FC = () => {
       <div
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           justifyContent: 'space-between',
           gap: '0.5rem',
           marginBottom: '1rem',
@@ -116,7 +116,7 @@ const DailyMoodTracker: React.FC = () => {
                 alignItems: 'center',
                 gap: '0.15rem',
                 minWidth: '54px',
-                flex: '1 1 54px',
+                flex: '1 1 auto',
                 maxWidth: '70px',
               }}
               onMouseEnter={() => !updateMood.isPending && setSelectedMood(option)}
@@ -149,6 +149,9 @@ const DailyMoodTracker: React.FC = () => {
       {/* Responsive styles for mobile */}
       <style>{`
         @media (max-width: 500px) {
+          .card > div[style*='display: flex'] {
+            gap: 0.375rem !important;
+          }
           .card > div[style*='display: flex'] button {
             min-width: 44px !important;
             max-width: 54px !important;
@@ -158,7 +161,23 @@ const DailyMoodTracker: React.FC = () => {
             font-size: 22px !important;
           }
           .card > div[style*='display: flex'] span[style*='font-size: 10px'] {
-            font-size: 9px !important;
+            display: none !important;
+          }
+        }
+        @media (max-width: 375px) {
+          .card > div[style*='display: flex'] {
+            gap: 0.25rem !important;
+          }
+          .card > div[style*='display: flex'] button {
+            min-width: 38px !important;
+            max-width: 42px !important;
+            padding: 0.25rem !important;
+          }
+          .card > div[style*='display: flex'] span[style*='font-size: 28px'] {
+            font-size: 18px !important;
+          }
+          .card > div[style*='display: flex'] span[style*='font-size: 10px'] {
+            display: none !important;
           }
         }
       `}</style>
