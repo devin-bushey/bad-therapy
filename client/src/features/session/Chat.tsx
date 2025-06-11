@@ -9,6 +9,7 @@ import SuggestedPrompts from './components/SuggestedPrompts'
 export default function Chat() {
   const [searchParams] = useSearchParams()
   const sessionId = searchParams.get('sessionId') || undefined
+  const initialPrompt = searchParams.get('initialPrompt')
   const {
     messages,
     session,
@@ -18,7 +19,7 @@ export default function Chat() {
     sendAIMessage,
     saveName,
     initialSuggestedPrompts
-  } = useChatSession(sessionId)
+  } = useChatSession(sessionId, !!initialPrompt)
   const {
     suggestedPrompts,
     showSuggestions: showFollowupSuggestions,
@@ -74,6 +75,13 @@ export default function Chat() {
       document.documentElement.classList.remove('chat-active')
     }
   }, [])
+
+  // Auto-send initial prompt from URL parameter
+  useEffect(() => {
+    if (initialPrompt && sessionId && messages.length === 0 && !loading) {
+      sendAIMessage(decodeURIComponent(initialPrompt), true)
+    }
+  }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
     <div className="chat-container" style={{ height: '100dvh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100vw', maxWidth: '100vw', overflow: 'hidden' }}>

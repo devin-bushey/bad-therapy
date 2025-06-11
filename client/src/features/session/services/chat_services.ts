@@ -26,14 +26,14 @@ export async function patchSessionName({ sessionId, token, name, userId }: { ses
 // Define a type for the chunk
 export type AIChunk = { content: string; type: 'ai' } | { suggestedPrompts: string[] }
 
-export async function streamAIMessage({ sessionId, token, prompt, onChunk }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: AIChunk) => void }): Promise<void> {
+export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTipMessage = false }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: AIChunk) => void; isTipMessage?: boolean }): Promise<void> {
   const res = await fetch(`${API_URL}/ai/generate-stream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ session_id: sessionId, prompt })
+    body: JSON.stringify({ session_id: sessionId, prompt, is_tip_message: isTipMessage })
   })
   if (!res.body) throw new Error('No response body')
   const reader = res.body.getReader()

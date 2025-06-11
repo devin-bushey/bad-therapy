@@ -5,7 +5,7 @@ import { fetchSession, patchSessionName, streamAIMessage } from '../services/cha
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AIChunk } from '../services/chat_services'
 
-export function useChatSession(sessionId?: string) {
+export function useChatSession(sessionId?: string, skipInitialMessage?: boolean) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
   const [messages, setMessages] = useState<Message[]>([])
   const [nameInput, setNameInput] = useState('')
@@ -43,7 +43,7 @@ export function useChatSession(sessionId?: string) {
     }
   })
 
-  const sendAIMessage = useCallback(async (prompt: string) => {
+  const sendAIMessage = useCallback(async (prompt: string, isTipMessage = false) => {
     if (!sessionId) return
     setMessages(msgs => [
       ...msgs,
@@ -56,6 +56,7 @@ export function useChatSession(sessionId?: string) {
         sessionId,
         token,
         prompt,
+        isTipMessage,
         onChunk: (chunk: AIChunk) => {
           if ('suggestedPrompts' in chunk) {
             setInitialSuggestedPrompts(chunk.suggestedPrompts)
@@ -95,6 +96,7 @@ export function useChatSession(sessionId?: string) {
   useEffect(() => {
     if (
       !didInit.current &&
+      !skipInitialMessage &&
       sessionQuery.data &&
       Array.isArray(sessionQuery.data.messages) &&
       sessionQuery.data.messages.length === 0 &&
@@ -104,7 +106,7 @@ export function useChatSession(sessionId?: string) {
       didInit.current = true
       sendAIMessage('')
     }
-  }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage])
+  }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage, skipInitialMessage])
 
   return {
     messages,

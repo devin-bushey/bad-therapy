@@ -23,6 +23,7 @@ class TherapyState(BaseModel):
     therapists_summary: str = Field(..., description="Summary of therapists")
     current_mood: Optional[MoodEntry] = Field(None, description="User's current mood entry for today")
     mood_context: Optional[str] = Field(None, description="AI-generated mood context for therapy session")
+    is_tip_message: bool = Field(False, description="Whether this message originated from a tip")
 
 class SafetyCheckResult(BaseModel):
     is_safe: str

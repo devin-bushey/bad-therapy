@@ -84,16 +84,19 @@ const DailyMoodTracker: React.FC = () => {
       )}
       
       {/* Mood Options */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        gap: '0.5rem',
-        marginBottom: '1rem'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+          marginBottom: '1rem',
+        }}
+      >
         {DAILY_MOOD_OPTIONS.map((option) => {
           const isSelected = currentMoodOption?.score === option.score
           const isHovered = selectedMood?.score === option.score
-          
+
           return (
             <button
               key={option.score}
@@ -103,37 +106,62 @@ const DailyMoodTracker: React.FC = () => {
                 background: 'none',
                 border: isSelected ? '2px solid #60a5fa' : '2px solid transparent',
                 borderRadius: '12px',
-                padding: '0.75rem',
+                padding: '0.5rem',
                 cursor: updateMood.isPending ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
-                transform: isSelected || isHovered ? 'scale(1.1)' : 'scale(1)',
+                transform: isSelected || isHovered ? 'scale(1.08)' : 'scale(1)',
                 opacity: updateMood.isPending ? 0.7 : 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.25rem',
-                minWidth: '70px'
+                gap: '0.15rem',
+                minWidth: '54px',
+                flex: '1 1 54px',
+                maxWidth: '70px',
               }}
               onMouseEnter={() => !updateMood.isPending && setSelectedMood(option)}
               onMouseLeave={() => !updateMood.isPending && setSelectedMood(null)}
             >
-              <span style={{ 
-                fontSize: '32px',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-              }}>
+              <span
+                style={{
+                  fontSize: '28px',
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                }}
+              >
                 {option.emoji}
               </span>
-              <span style={{ 
-                fontSize: '11px', 
-                color: '#b3b3b3',
-                fontWeight: 500
-              }}>
+              <span
+                style={{
+                  fontSize: '10px',
+                  color: '#b3b3b3',
+                  fontWeight: 500,
+                  wordBreak: 'break-word',
+                  textAlign: 'center',
+                }}
+              >
                 {option.label}
               </span>
             </button>
           )
         })}
       </div>
+      
+      {/* Responsive styles for mobile */}
+      <style>{`
+        @media (max-width: 500px) {
+          .card > div[style*='display: flex'] button {
+            min-width: 44px !important;
+            max-width: 54px !important;
+            padding: 0.35rem !important;
+          }
+          .card > div[style*='display: flex'] span[style*='font-size: 28px'] {
+            font-size: 22px !important;
+          }
+          .card > div[style*='display: flex'] span[style*='font-size: 10px'] {
+            font-size: 9px !important;
+          }
+        }
+      `}</style>
       
       {/* Current mood display */}
       {todayMood && (

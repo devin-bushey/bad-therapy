@@ -30,7 +30,8 @@ async def generate_ai_response_stream(
             is_safe="safe",
             next="",
             therapists=[],
-            therapists_summary=""
+            therapists_summary="",
+            is_tip_message=data.is_tip_message
         )
 
         graph = build_therapy_graph()
@@ -82,7 +83,7 @@ async def generate_ai_response_stream(
                         
                         # Handle completion 
                         if message_chunk.response_metadata.get("finish_reason") == "stop":
-                            if len(state.history) == 0:
+                            if len(state.history) == 0 and not state.is_tip_message:
                                 suggested_prompts = await generate_suggested_prompts()
                                 yield f'\n\n' + json.dumps({"suggested_prompts": suggested_prompts}) + '\n'
                         
