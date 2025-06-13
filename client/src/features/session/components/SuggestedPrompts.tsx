@@ -17,25 +17,7 @@ const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onPromptCl
         <button
           key={p}
           onClick={() => onPromptClick(p)}
-          style={{
-            display: 'inline-block',
-            background: '#7c3aed',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 16,
-            padding: '10px 18px',
-            maxWidth: '80%',
-            wordBreak: 'break-word',
-            whiteSpace: 'pre-line',
-            margin: '6px 0',
-            fontSize: 'inherit',
-            textAlign: 'left',
-            fontWeight: 500,
-            boxShadow: '0 1px 4px 0 #0002',
-            cursor: 'pointer',
-            outline: 'none',
-            transition: 'background 0.2s'
-          }}
+          className="inline-block bg-purple-600 text-white border-none rounded-2xl px-4 py-2.5 max-w-[80%] break-words whitespace-pre-line my-1.5 text-left font-medium shadow-sm outline-none transition-colors hover:bg-purple-700"
         >
           {p}
         </button>

@@ -86,7 +86,7 @@ export default function Chat() {
   return (
     <div className="chat-container" style={{ height: '100dvh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100vw', maxWidth: '100vw', overflow: 'hidden' }}>
       <div style={{ width: '100%', maxWidth: 600, display: 'flex', alignItems: 'center', marginTop: 24, marginBottom: 8, textAlign: 'left', gap: 8, overflow: 'hidden' }}>
-        <button onClick={() => navigate('/dashboard')} style={{ background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', padding: 0, minWidth: 48 }}>Back</button>
+        <button onClick={() => navigate('/dashboard')} className="bg-transparent text-blue-400 border-none text-base p-0 min-w-[48px] hover:text-blue-300 transition-colors">Back</button>
         {editing ? (
           <form onSubmit={e => { e.preventDefault(); handleSaveName() }} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
             <input
@@ -97,7 +97,7 @@ export default function Chat() {
               maxLength={64}
               onBlur={handleSaveName}
             />
-            <button type="submit" style={{ fontSize: 16, padding: '4px 10px', background: '#2563eb', color: '#fff', borderRadius: 8 }}>Save</button>
+            <button type="submit" className="text-base px-2.5 py-1 bg-purple-600 text-white rounded-lg border-none hover:bg-purple-700 transition-colors">Save</button>
           </form>
         ) : (
           <span
@@ -132,7 +132,7 @@ export default function Chat() {
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
           !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
         } />
-        {showInitialSuggestedPrompts && (
+        {!showFollowupSuggestions && showInitialSuggestedPrompts && (
           <SuggestedPrompts
             prompts={initialPromptsToShow}
             onPromptClick={handlePromptClick}

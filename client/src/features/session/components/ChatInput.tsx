@@ -59,7 +59,7 @@ export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick }:
           rows={1}
           style={{ flex: 1, padding: 14, borderRadius: 8, border: 'none', fontSize: 16, lineHeight: 1.5, background: '#181824', color: '#fff', resize: 'none', maxHeight: 200, overflowY: 'auto', boxSizing: 'border-box', outline: 'none', outlineColor: '#444', outlineWidth: 1, outlineStyle: 'solid' }}
         />
-        <button type="submit" disabled={loading || !input.trim()} style={{ height: 44, minWidth: 80, marginBottom: 5, paddingTop: 7, borderRadius: 8, background: '#3b5bff', color: '#fff', fontWeight: 600, fontSize: 18, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', padding: '0 1.5em', boxShadow: 'none' }}>Send</button>
+        <button type="submit" disabled={loading || !input.trim()} className={`h-11 min-w-[80px] mb-1.5 rounded-lg bg-blue-600 text-white font-semibold text-lg border-none px-6 shadow-none hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center ${loading || !input.trim() ? 'cursor-not-allowed' : 'cursor-pointer'}`}>Send</button>
       </form>
     </div>
   )

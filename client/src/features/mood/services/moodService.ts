@@ -1,74 +1,19 @@
+import { useApiClient } from '../../../shared/services/apiClient'
 import type { 
   MoodEntry, 
   MoodEntryCreate, 
   MoodTrendData, 
   MoodSummary 
-} from '../../../types/mood.types'
+} from '../../../shared/types/api.types'
 
-const API_URL = import.meta.env.VITE_SERVER_DOMAIN
+export function useMoodApi() {
+  const apiClient = useApiClient()
 
-export const updateDailyMood = async (data: MoodEntryCreate, token: string): Promise<MoodEntry> => {
-  const res = await fetch(`${API_URL}/mood/daily`, {
-    method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json', 
-      'Authorization': `Bearer ${token}` 
-    },
-    body: JSON.stringify(data)
-  })
-  
-  if (!res.ok) {
-    throw new Error('Failed to save mood entry')
+  return {
+    getTodayMood: () => apiClient.get<MoodEntry | null>('/mood/today'),
+    updateDailyMood: (data: MoodEntryCreate) => apiClient.put<MoodEntry>('/mood/daily', data),
+    getRecentMoods: (days: number = 7) => apiClient.get<MoodEntry[]>(`/mood/recent?days=${days}`),
+    getMoodTrend: (days: number = 7) => apiClient.get<MoodTrendData[]>(`/mood/trend?days=${days}`),
+    getMoodSummary: () => apiClient.get<MoodSummary>('/mood/summary')
   }
-  
-  return res.json()
-}
-
-export const fetchTodayMood = async (token: string): Promise<MoodEntry | null> => {
-  const res = await fetch(`${API_URL}/mood/today`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch today\'s mood')
-  }
-  
-  const data = await res.json()
-  return data || null
-}
-
-export const fetchRecentMoods = async (token: string, days: number = 7): Promise<MoodEntry[]> => {
-  const res = await fetch(`${API_URL}/mood/recent?days=${days}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch recent moods')
-  }
-  
-  return res.json()
-}
-
-export const fetchMoodTrend = async (token: string, days: number = 7): Promise<MoodTrendData[]> => {
-  const res = await fetch(`${API_URL}/mood/trend?days=${days}`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch mood trend')
-  }
-  
-  return res.json()
-}
-
-export const fetchMoodSummary = async (token: string): Promise<MoodSummary> => {
-  const res = await fetch(`${API_URL}/mood/summary`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  })
-  
-  if (!res.ok) {
-    throw new Error('Failed to fetch mood summary')
-  }
-  
-  return res.json()
 }

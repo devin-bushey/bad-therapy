@@ -1,26 +1,13 @@
-export interface ResourceLink {
-    url: string
-    title: string
-    description?: string
-    source_type: string
-    credibility_score?: number
+import { useApiClient } from '../../../shared/services/apiClient'
+import type { DailyTip, ResourceLink } from '../../../shared/types/api.types'
+
+export function useTipsApi() {
+  const apiClient = useApiClient()
+
+  return {
+    getDailyTip: () => apiClient.get<DailyTip>('/tips/daily')
+  }
 }
 
-export interface DailyTip {
-    content: string
-    type: 'prompt' | 'info' | 'ai_guidance' | 'resource'
-    link?: ResourceLink
-    follow_up_prompts?: string[]
-    technique_category?: string
-    confidence_score?: number
-}
-
-const API_URL = import.meta.env.VITE_SERVER_DOMAIN
-
-export async function fetchDailyTip(token: string): Promise<DailyTip> {
-    const res = await fetch(`${API_URL}/tips/daily`, {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-    if (!res.ok) throw new Error('Failed to fetch daily tip')
-    return res.json()
-}
+// Re-export types for backward compatibility
+export type { DailyTip, ResourceLink }

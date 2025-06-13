@@ -14,19 +14,19 @@ export default function Dashboard() {
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
 
     return (
-        <div style={{ minHeight: '100vh', background: '#181824' }}>
+        <div className="min-h-screen bg-gray-900">
             <Navbar />
-            <main style={{ maxWidth: 700, margin: '0 auto', padding: '0 1rem' }}>
-                <section style={{ textAlign: 'center', margin: '2.5rem 0 2rem 0' }}>
-                    <h1 style={{ fontSize: 36, fontWeight: 700, marginBottom: 8 }}>
+            <main className="max-w-2xl mx-auto px-4">
+                <section className="text-center my-10 mb-8">
+                    <h1 className="text-4xl font-bold mb-2 text-white">
                         Welcome back!
                     </h1>
-                    <div style={{ color: '#b3b3b3', fontSize: 18, marginBottom: 32 }}>
+                    <div className="text-gray-400 text-lg mb-8">
                         Ready for your daily mental wellness check-in?
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 0 }}>
+                    <div className="flex justify-center gap-3 mb-0">
                         <button
-                            style={{ fontSize: 18, fontWeight: 600, background: '#2563eb', color: '#fff', borderRadius: 8, padding: '0.9em 2.2em', boxShadow: '0 2px 8px #0002', minWidth: 180 }}
+                            className="text-lg font-semibold bg-blue-600 text-white rounded-lg px-9 py-4 shadow-md border-none min-w-[180px] hover:bg-blue-700 transition-colors"
                             onClick={async () => {
                                 const token = await getAccessTokenSilently()
                                 if (!user || !user.sub) return
@@ -37,7 +37,7 @@ export default function Dashboard() {
                             New Session
                         </button>
                         <button
-                            style={{ fontSize: 18, fontWeight: 600, background: '#6366f1', color: '#fff', borderRadius: 8, padding: '0.9em 2.2em', boxShadow: '0 2px 8px #0002', border: 'none', minWidth: 180 }}
+                            className="text-lg font-semibold bg-purple-600 text-white rounded-lg px-9 py-4 border border-purple-500 min-w-[180px] hover:bg-purple-700 hover:border-purple-600 transition-colors"
                             onClick={() => navigate('/journal')}
                         >
                             Journal
@@ -45,19 +45,21 @@ export default function Dashboard() {
                     </div>
                 </section>
                 <section>
-                    <h2 style={{ fontWeight: 700, marginBottom: 12 }}>Today's Mood</h2>
+                    <h2 className="font-bold mb-3 text-white">Today's Mood</h2>
                     <DailyMoodTracker />
                 </section>
                 <TipsSection />
                 <section>
-                    <h2 style={{ fontWeight: 700, marginBottom: 12 }}>Recent Sessions</h2>
+                    <h2 className="font-bold mb-3 text-white">Recent Sessions</h2>
                     <div className="card">
                         <SessionsTable sessions={sessions} loading={loading} />
                     </div>
                 </section>
-                <section>
+                <section className="pb-3">
+                    <h2 className="font-bold mb-3 text-white">Mood Tracker</h2>
                     <MoodTrendChart />
                 </section>
+
             </main>
         </div>
     )

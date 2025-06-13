@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
 import { useTodayMood, useUpdateMood } from '../hooks/useMood'
-import { DAILY_MOOD_OPTIONS } from '../../../types/mood.types'
-import type { DailyMoodOption } from '../../../types/mood.types'
+import { DAILY_MOOD_OPTIONS } from '../../../shared/constants/mood.constants'
+import { getCurrentMoodOption } from '../../../shared/utils/moodHelpers'
+import { LoadingSpinner } from '../../../shared/components/ui/LoadingSpinner'
+import { SuccessToast } from '../../../shared/components/ui/SuccessToast'
+import { cn } from '../../../shared/utils/cn'
+import type { DailyMoodOption } from '../../../shared/constants/mood.constants'
 
 const DailyMoodTracker: React.FC = () => {
   const { data: todayMood, isLoading } = useTodayMood()
   const updateMood = useUpdateMood()
-  const [selectedMood, setSelectedMood] = useState<DailyMoodOption | null>(null)
+  const [, setSelectedMood] = useState<DailyMoodOption | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
@@ -18,7 +22,6 @@ const DailyMoodTracker: React.FC = () => {
         mood_emoji: moodOption.emoji
       })
       
-      // Show success message
       setShowSuccess(true)
       setTimeout(() => setShowSuccess(false), 2000)
     } catch (error) {
@@ -27,118 +30,58 @@ const DailyMoodTracker: React.FC = () => {
     }
   }
 
-  const getCurrentMoodOption = (): DailyMoodOption | null => {
-    if (!todayMood) return null
-    
-    return DAILY_MOOD_OPTIONS.find(option => 
-      todayMood.mood_score >= option.range[0] && 
-      todayMood.mood_score <= option.range[1]
-    ) || null
-  }
-
-  const currentMoodOption = getCurrentMoodOption()
+  const currentMoodOption = getCurrentMoodOption(todayMood || null)
 
   if (isLoading) {
     return (
       <div className="card">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '120px',
-          color: '#b3b3b3'
-        }}>
-          Loading...
+        <div className="flex justify-center items-center h-[120px] text-gray-400">
+          <LoadingSpinner />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="card" style={{ position: 'relative' }}>
-      <h3 style={{ 
-        fontWeight: 600, 
-        marginBottom: '1rem',
-        color: '#fff',
-        fontSize: '18px'
-      }}>
+    <div className="card relative">
+      <h3 className="text-lg font-semibold pb-4 text-white">
         How are you feeling today?
       </h3>
       
-      {/* Success message */}
       {showSuccess && (
-        <div style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          background: '#22c55e',
-          color: '#fff',
-          padding: '0.5rem 1rem',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 500,
-          zIndex: 10
-        }}>
-          Mood updated!
-        </div>
+        <SuccessToast message="Mood updated!" />
       )}
       
-      {/* Mood Options */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'nowrap',
-          justifyContent: 'space-between',
-          gap: '0.5rem',
-          marginBottom: '1rem',
-        }}
-      >
+      <div className="flex justify-between max-sm:justify-center gap-6 mb-4 max-sm:gap-3 max-xs:gap-2 max-sm:px-0 px-2">
         {DAILY_MOOD_OPTIONS.map((option) => {
           const isSelected = currentMoodOption?.score === option.score
-          const isHovered = selectedMood?.score === option.score
 
           return (
             <button
               key={option.score}
               onClick={() => handleMoodSelect(option)}
               disabled={updateMood.isPending}
-              style={{
-                background: 'none',
-                border: isSelected ? '2px solid #60a5fa' : '2px solid transparent',
-                borderRadius: '12px',
-                padding: '0.5rem',
-                cursor: updateMood.isPending ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease',
-                transform: isSelected || isHovered ? 'scale(1.08)' : 'scale(1)',
-                opacity: updateMood.isPending ? 0.7 : 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.15rem',
-                minWidth: '54px',
-                flex: '1 1 auto',
-                maxWidth: '70px',
-              }}
+              className={cn(
+                "group flex flex-col items-center bg-transparent outline-none border-none p-0 m-0 appearance-none focus:outline-none transition-all duration-200",
+                updateMood.isPending && "opacity-70 cursor-not-allowed"
+              )}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
               onMouseEnter={() => !updateMood.isPending && setSelectedMood(option)}
               onMouseLeave={() => !updateMood.isPending && setSelectedMood(null)}
             >
               <span
-                style={{
-                  fontSize: '28px',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                }}
-              >
-                {option.emoji}
-              </span>
-              <span
-                style={{
-                  fontSize: '10px',
-                  color: '#b3b3b3',
-                  fontWeight: 500,
-                  wordBreak: 'break-word',
-                  textAlign: 'center',
-                }}
-              >
+                className={cn(
+                  "block w-12 h-12 rounded-full transition-all duration-200 shadow-md",
+                  option.score <= 2 ? "bg-red-500" :
+                  option.score <= 4 ? "bg-orange-400" :
+                  option.score <= 5 ? "bg-gray-400" :
+                  option.score <= 7 ? "bg-green-400" :
+                  "bg-green-600",
+                  isSelected && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-blue-400",
+                  !isSelected && "group-hover:scale-105 group-hover:shadow-xl group-hover:ring-2 group-hover:ring-opacity-30 group-hover:ring-emerald-300"
+                )}
+              />
+              <span className="text-[11px] text-gray-400 font-medium text-center mt-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
                 {option.label}
               </span>
             </button>
@@ -146,69 +89,24 @@ const DailyMoodTracker: React.FC = () => {
         })}
       </div>
       
-      {/* Responsive styles for mobile */}
-      <style>{`
-        @media (max-width: 500px) {
-          .card > div[style*='display: flex'] {
-            gap: 0.375rem !important;
-          }
-          .card > div[style*='display: flex'] button {
-            min-width: 44px !important;
-            max-width: 54px !important;
-            padding: 0.35rem !important;
-          }
-          .card > div[style*='display: flex'] span[style*='font-size: 28px'] {
-            font-size: 22px !important;
-          }
-          .card > div[style*='display: flex'] span[style*='font-size: 10px'] {
-            display: none !important;
-          }
-        }
-        @media (max-width: 375px) {
-          .card > div[style*='display: flex'] {
-            gap: 0.25rem !important;
-          }
-          .card > div[style*='display: flex'] button {
-            min-width: 38px !important;
-            max-width: 42px !important;
-            padding: 0.25rem !important;
-          }
-          .card > div[style*='display: flex'] span[style*='font-size: 28px'] {
-            font-size: 18px !important;
-          }
-          .card > div[style*='display: flex'] span[style*='font-size: 10px'] {
-            display: none !important;
-          }
-        }
-      `}</style>
-      
-      {/* Current mood display */}
       {todayMood && (
-        <div style={{ 
-          textAlign: 'center', 
-          color: '#b3b3b3', 
-          fontSize: '14px',
-          marginTop: '0.5rem'
-        }}>
-          <span>Current: {todayMood.mood_emoji} {currentMoodOption?.label}</span>
-          <span style={{ marginLeft: '0.5rem', opacity: 0.7 }}>
+        <div className="text-center text-gray-400 text-sm mt-2">
+          <span>Current: {currentMoodOption && (
+            <span className={cn(
+              "inline-block w-3 h-3 rounded-full align-middle ml-1 mr-1",
+              currentMoodOption.score <= 2 ? "bg-red-500" :
+              currentMoodOption.score <= 4 ? "bg-orange-400" :
+              currentMoodOption.score <= 5 ? "bg-gray-400" :
+              currentMoodOption.score <= 7 ? "bg-green-400" :
+              "bg-green-600"
+            )} />
+          )} {currentMoodOption?.label}</span>
+          <span className="ml-2 opacity-70">
             • Updated {new Date(todayMood.updated_at).toLocaleTimeString([], { 
               hour: '2-digit', 
               minute: '2-digit' 
             })}
           </span>
-        </div>
-      )}
-      
-      {/* No mood set message */}
-      {!todayMood && !updateMood.isPending && (
-        <div style={{ 
-          textAlign: 'center', 
-          color: '#888', 
-          fontSize: '14px',
-          fontStyle: 'italic'
-        }}>
-          Select your mood to get started
         </div>
       )}
     </div>
