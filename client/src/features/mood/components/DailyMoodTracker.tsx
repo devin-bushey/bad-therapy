@@ -16,12 +16,14 @@ const DailyMoodTracker: React.FC = () => {
   // Enable daily reset functionality
   useIsNewDay()
   
-  // Reset selected mood when todayMood changes (including daily reset)
+  // Reset selected mood when todayMood changes or when daily reset occurs
   useEffect(() => {
+    // Reset selectedMood only when not in a pending update state
+    // This allows hover states and optimistic updates to work properly
     if (!updateMood.isPending) {
       setSelectedMood(null)
     }
-  }, [todayMood, updateMood.isPending])
+  }, [todayMood?.id, updateMood.isPending]) // Use todayMood.id to detect actual data changes
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
     setSelectedMood(moodOption)

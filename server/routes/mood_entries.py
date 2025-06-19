@@ -14,23 +14,33 @@ from models.mood import MoodEntry, MoodEntryCreate, MoodTrendData, MoodSummary
 router = APIRouter()
 
 @router.put("/mood/daily", response_model=MoodEntry)
-async def update_daily_mood(entry: MoodEntryCreate, user=Depends(require_auth)) -> MoodEntry:
-    """Create or update today's mood entry."""
+async def update_daily_mood(entry: MoodEntryCreate, user=Depends(require_auth), date: str = None) -> MoodEntry:
+    """Create or update today's mood entry.
+    
+    Args:
+        entry: The mood entry data
+        date: Optional local date in YYYY-MM-DD format
+    """
     try:
         created = create_or_update_daily_mood(
             user_id=user.sub,
             mood_score=entry.mood_score,
-            mood_emoji=entry.mood_emoji
+            mood_emoji=entry.mood_emoji,
+            local_date=date
         )
         return MoodEntry(**created)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save mood entry: {str(e)}")
 
 @router.get("/mood/today", response_model=MoodEntry | None)
-async def get_today_mood(user=Depends(require_auth)) -> MoodEntry | None:
-    """Get today's mood entry if it exists."""
+async def get_today_mood(user=Depends(require_auth), date: str = None) -> MoodEntry | None:
+    """Get today's mood entry if it exists.
+    
+    Args:
+        date: Optional local date in YYYY-MM-DD format. If not provided, uses recent entries.
+    """
     try:
-        today_entry = get_today_mood_entry(user_id=user.sub)
+        today_entry = get_today_mood_entry(user_id=user.sub, local_date=date)
         return MoodEntry(**today_entry) if today_entry else None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch today's mood: {str(e)}")

@@ -31,8 +31,10 @@ const MoodTrendChart: React.FC = () => {
   )
   const moodByDay: Record<number, MoodEntry> = {}
   moods.forEach(m => {
-    const d = new Date(m.created_at).getDate()
-    moodByDay[d] = m
+    // Extract day directly from the date string to avoid timezone conversion issues
+    const dateStr = m.created_at.split('T')[0] // Gets YYYY-MM-DD
+    const day = parseInt(dateStr.split('-')[2]) // Gets the day number
+    moodByDay[day] = m
   })
   const firstDayOfWeek = new Date(year, month, 1).getDay()
   const paddedDays = [
