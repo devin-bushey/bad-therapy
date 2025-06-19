@@ -32,7 +32,6 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
-  const [autoScroll, setAutoScroll] = useState(true)
 
   // Show initial prompts from backend if available, else fallback
   const showInitialSuggestedPrompts =
@@ -44,11 +43,6 @@ export default function Chat() {
 
   const initialPromptsToShow = initialSuggestedPrompts.length > 0 ? initialSuggestedPrompts : suggestedPrompts
 
-  const handleScroll = () => {
-    if (!chatRef.current) return
-    const { scrollTop, scrollHeight, clientHeight } = chatRef.current
-    setAutoScroll(scrollHeight - scrollTop - clientHeight < 40)
-  }
 
 
   const handleSend = async () => {
@@ -121,7 +115,6 @@ export default function Chat() {
           scrollbarWidth: 'none', /* Firefox */
           msOverflowStyle: 'none', /* IE and Edge */
         }}
-        onScroll={handleScroll}
       >
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
           !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'

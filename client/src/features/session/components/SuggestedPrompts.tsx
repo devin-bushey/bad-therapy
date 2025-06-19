@@ -8,8 +8,11 @@ interface SuggestedPromptsProps {
   loading?: boolean
 }
 
-const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onPromptClick, align = 'flex-end', loading = false }) => (
-  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0, alignItems: align, margin: '12px 0 60px 0' }}>
+const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onPromptClick, align = 'flex-end', loading = false }) => {
+  const alignClass = align === 'flex-end' ? 'items-end' : align === 'flex-start' ? 'items-start' : 'items-center'
+  
+  return (
+  <div className={`w-full flex flex-col gap-0 my-3 mb-15 ${alignClass}`}>
     {loading ? (
       <TypingBubble />
     ) : (
@@ -24,6 +27,7 @@ const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onPromptCl
       ))
     )}
   </div>
-)
+  )
+}
 
 export default SuggestedPrompts 

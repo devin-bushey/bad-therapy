@@ -10,20 +10,22 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ editing, nameInput, sessionName, onEdit, onChange, onSave }: ChatHeaderProps) {
   return (
-    <div style={{ width: '100%', maxWidth: 600, marginBottom: 8, textAlign: 'center' }}>
+    <div className="w-full max-w-[600px] mb-2 text-center">
       {editing ? (
-        <form onSubmit={e => { e.preventDefault(); onSave() }} style={{ display: 'inline-block' }}>
+        <form onSubmit={e => { e.preventDefault(); onSave() }} className="inline-block">
           <input
             value={nameInput}
             onChange={e => onChange(e.target.value)}
             autoFocus
-            style={{ fontSize: 22, fontWeight: 700, background: '#23233a', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 12px', textAlign: 'center' }}
+            className="text-xl font-bold text-white border-none rounded-lg py-1 px-3 text-center"
+            style={{ backgroundColor: 'rgb(40, 40, 70)' }}
             onBlur={onSave}
           />
         </form>
       ) : (
         <span
-          style={{ fontSize: 22, fontWeight: 700, color: '#fff', cursor: 'pointer', background: '#23233a', borderRadius: 8, padding: '4px 12px' }}
+          className="text-xl font-bold text-white cursor-pointer rounded-lg py-1 px-3"
+          style={{ backgroundColor: 'rgb(40, 40, 70)' }}
           onClick={onEdit}
         >
           {sessionName || 'Untitled'}
@@ -31,4 +33,4 @@ export function ChatHeader({ editing, nameInput, sessionName, onEdit, onChange, 
       )}
     </div>
   )
-} 
+}
