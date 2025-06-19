@@ -79,9 +79,20 @@ export default function Chat() {
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
-    <div className="flex flex-col items-center w-screen h-dvh bg-slate-900 overflow-hidden">
-      {/* Mobile-optimized menu bar with proper responsive design */}
-      <div className="flex items-center w-full max-w-[600px] mt-4 mb-2 px-4 gap-2 text-left overflow-hidden flex-shrink-0 min-h-[48px] sm:mt-3 sm:px-6">
+    <div className="flex flex-col items-center w-screen h-screen bg-slate-900 overflow-hidden" style={{ 
+      /* Prevent body scrolling only in chat - support safe areas */
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      paddingTop: 'env(safe-area-inset-top, 0px)',
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      paddingLeft: 'env(safe-area-inset-left, 0px)',
+      paddingRight: 'env(safe-area-inset-right, 0px)'
+    }}>
+      {/* Fixed header - always visible at top */}
+      <div className="flex items-center w-full max-w-[600px] px-4 gap-2 text-left overflow-hidden flex-shrink-0 h-16 sm:px-6">
         <button 
           onClick={() => navigate('/dashboard')} 
           className="bg-transparent text-blue-400 border-none text-base p-0 min-w-[48px] hover:text-blue-300 transition-colors"
@@ -117,15 +128,17 @@ export default function Chat() {
         )}
       </div>
       
-      {/* Chat messages area with hidden scrollbar */}
+      {/* Scrollable chat messages area - fills remaining space */}
       <div
         ref={chatRef}
-        className="flex-1 w-full max-w-[600px] overflow-y-auto rounded-xl p-6 relative flex flex-col min-h-0 mb-2 pb-28 scrollbar-hide sm:pb-20"
+        className="w-full max-w-[600px] overflow-y-auto rounded-xl p-6 relative flex flex-col scrollbar-hide"
         style={{
           backgroundColor: 'rgb(35, 35, 58)',
+          height: 'calc(100vh - 64px - 80px)', /* viewport - header - input */
           /* Ensure scrollbar is hidden on all browsers */
           scrollbarWidth: 'none', /* Firefox */
           msOverflowStyle: 'none', /* IE and Edge */
+          touchAction: 'pan-y', /* Allow only vertical scrolling on mobile */
         }}
       >
         <ChatMessages messages={messages} loading={loading} showTypingBubble={
@@ -149,8 +162,8 @@ export default function Chat() {
         )}
       </div>
       
-      {/* Chat input with proper mobile positioning and centering */}
-      <div className="w-full bg-slate-900 z-50 py-3 px-4 flex justify-center items-center fixed bottom-0 transform shadow-lg sm:static sm:transform-none  sm:shadow-none sm:py-0 sm:mb-8">
+      {/* Fixed input at bottom - always visible */}
+      <div className="w-full bg-slate-900 z-50 py-3 px-4 flex justify-center items-center fixed bottom-0 h-20 shadow-lg">
         <ChatInput
           input={input}
           onInput={setInput}
