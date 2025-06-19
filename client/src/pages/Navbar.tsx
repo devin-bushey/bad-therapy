@@ -1,10 +1,10 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import type { ReactNode } from 'react'
+import { useEnhancedLogout } from '../auth/useEnhancedLogout'
 
 export default function Navbar({ children }: { children?: ReactNode }) {
-  const { logout } = useAuth0()
+  const { logout } = useEnhancedLogout()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -43,7 +43,9 @@ export default function Navbar({ children }: { children?: ReactNode }) {
             </button>
             <button 
               className="block w-full bg-transparent text-red-400 border-none py-3 px-5 text-left font-medium cursor-pointer hover:bg-red-600 hover:text-white rounded-b-xl transition-colors"
-              onClick={() => logout({ logoutParams: { returnTo: window.location.origin + '/' } })}
+              onClick={() => logout({ 
+                returnTo: window.location.origin + '/' 
+              })}
             >
               Logout
             </button>
