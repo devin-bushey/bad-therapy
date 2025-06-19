@@ -40,6 +40,7 @@ export default function Chat() {
     await handleLightbulbClick()
     setTimeout(scrollToBottom, 100) // Small delay to ensure suggestions have rendered
   }
+
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
@@ -89,7 +90,8 @@ export default function Chat() {
       paddingTop: 'env(safe-area-inset-top, 0px)',
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       paddingLeft: 'env(safe-area-inset-left, 0px)',
-      paddingRight: 'env(safe-area-inset-right, 0px)'
+      paddingRight: 'env(safe-area-inset-right, 0px)',
+      touchAction: 'none' /* Prevent all touch scrolling on container */
     }}>
       {/* Fixed header - always visible at top */}
       <div className="flex items-center w-full max-w-[600px] px-4 gap-2 text-left overflow-hidden flex-shrink-0 h-16 sm:px-6">
