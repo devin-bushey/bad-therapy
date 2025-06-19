@@ -49,7 +49,7 @@ const DailyMoodTracker: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="card">
+      <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
         <div className="flex justify-center items-center h-[120px] text-gray-400">
           <LoadingSpinner />
         </div>
@@ -58,7 +58,7 @@ const DailyMoodTracker: React.FC = () => {
   }
 
   return (
-    <div className="card relative">
+    <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700 relative">
       <h3 className="text-lg font-semibold pb-4 text-white">
         How are you feeling today?
       </h3>

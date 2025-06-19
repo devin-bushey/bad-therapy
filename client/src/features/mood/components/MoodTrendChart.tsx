@@ -42,7 +42,7 @@ const MoodTrendChart: React.FC = () => {
     ...days
   ]
   return (
-    <div className="card ">
+    <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
       <div className="font-bold mb-4 text-white text-center">
         {now.toLocaleString('default', { month: 'long' })}
       </div>

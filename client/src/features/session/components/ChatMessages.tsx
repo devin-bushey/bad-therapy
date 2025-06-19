@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { Message } from '../../../types/session.types'
 import TypingBubble from './TypingBubble'
 import { useNavigate } from 'react-router-dom'
@@ -10,9 +11,17 @@ interface ChatMessagesProps {
 
 export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessagesProps) {
   const navigate = useNavigate()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, showTypingBubble])
 
   if (loading && messages.length === 0)
-    return <div style={{ color: '#bbb', fontSize: 18, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading messages…</div>
+    return <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg">Loading messages…</div>
 
   const filteredMessages = Array.isArray(messages) ? messages.filter((m: Message) => m.content !== '') : []
   
@@ -32,15 +41,20 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
 
   function TherapistCard({ therapist }: { therapist: { name: string; specialty: string; website?: string } }) {
     return (
-      <div style={{ border: '1px solid #444', borderRadius: 8, padding: 12, margin: 8, background: '#23233a' }}>
-        <div><b>{therapist.name}</b></div>
-        <div>{therapist.specialty}</div>
+      <div className="border border-gray-600 rounded-lg p-3 m-2 bg-slate-700">
+        <div className="font-bold text-white">{therapist.name}</div>
+        <div className="text-gray-300">{therapist.specialty}</div>
         {therapist.website ? (
-          <a href={therapist.website} target="_blank" rel="noopener noreferrer" style={{ color: '#60a5fa', wordBreak: 'break-all', maxWidth: '100%', display: 'inline-block', overflowWrap: 'break-word' }}>
+          <a 
+            href={therapist.website} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-blue-400 break-all max-w-full inline-block break-words hover:text-blue-300 transition-colors"
+          >
             {therapist.website}
           </a>
         ) : (
-          <span style={{ color: '#b0b0b0' }}>Could not find a website for this therapist</span>
+          <span className="text-gray-400">Could not find a website for this therapist</span>
         )}
       </div>
     )
@@ -60,26 +74,11 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
             elements.push(
               <div
                 key={i + '-journal-link'}
-                style={{
-                  textAlign: m.type === 'human' ? 'right' : 'left',
-                  margin: '12px 0',
-                }}
+                className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}
               >
                 <span
                   onClick={() => navigate('/journal')}
-                  style={{
-                    display: 'inline-block',
-                    background: '#a259f7', // purple
-                    color: '#fff',
-                    borderRadius: 16,
-                    padding: '10px 18px',
-                    maxWidth: '80%',
-                    wordBreak: 'break-word',
-                    whiteSpace: 'pre-line',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(162,89,247,0.15)'
-                  }}
+                  className="inline-block bg-purple-500 text-white rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left cursor-pointer shadow-lg hover:bg-purple-600 transition-colors"
                 >
                   {summary}
                 </span>
@@ -87,18 +86,12 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
             )
           } else {
             elements.push(
-              <div key={i + '-summary'} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
-                <span style={{
-                  display: 'inline-block',
-                  background: m.type === 'human' ? '#2563eb' : '#282846',
-                  color: '#fff',
-                  borderRadius: 16,
-                  padding: '10px 18px',
-                  maxWidth: '80%',
-                  wordBreak: 'break-word',
-                  whiteSpace: 'pre-line',
-                  textAlign: 'left',
-                }}>{summary}</span>
+              <div key={i + '-summary'} className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}>
+                <span className={`inline-block text-white rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left ${
+                  m.type === 'human' ? 'bg-blue-600' : ''
+                }`} style={m.type !== 'human' ? { backgroundColor: 'rgb(40, 40, 70)' } : {}}>
+                  {summary}
+                </span>
               </div>
             )
           }
@@ -111,27 +104,20 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
         if (elements.length > 0) return elements
         // fallback: render as plain text
         return (
-          <div key={i} style={{ textAlign: m.type === 'human' ? 'right' : 'left', margin: '12px 0' }}>
-            <span style={{
-              display: 'inline-block',
-              background: m.type === 'human' ? '#2563eb' : '#282846',
-              color: '#fff',
-              borderRadius: 16,
-              padding: '10px 18px',
-              maxWidth: '80%',
-              wordBreak: 'break-word',
-              whiteSpace: 'pre-line',
-              textAlign: 'left',
-            }}>{m.content}</span>
+          <div key={i} className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}>
+            <span className={`inline-block text-white rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left ${
+              m.type === 'human' ? 'bg-blue-600' : ''
+            }`} style={m.type !== 'human' ? { backgroundColor: 'rgb(40, 40, 70)' } : {}}>
+              {m.content}
+            </span>
           </div>
         )
       })}
       {showTypingBubble ? <TypingBubble /> : null}
+      {/* Invisible element to scroll to */}
+      <div ref={messagesEndRef} />
     </>
   )
 }
 
-// Add keyframes for typing-bounce animation
-const style = document.createElement('style')
-style.innerHTML = `@keyframes typing-bounce { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }`
-document.head.appendChild(style) 
+// Note: typing-bounce animation is now handled in TypingBubble component 

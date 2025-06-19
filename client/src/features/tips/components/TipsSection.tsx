@@ -59,7 +59,7 @@ export function TipsSection() {
     return (
       <section>
         <h2 className="font-bold mb-3">Daily Tip</h2>
-        <div className="card p-4 min-h-[80px] flex items-center">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-8 min-h-[80px] flex items-center mb-10">
           <div className="flex items-center gap-3 text-gray-400">
             <LoadingSpinner size="sm" />
             Loading your daily tip...
@@ -73,7 +73,7 @@ export function TipsSection() {
     return (
       <section>
         <h2 className="font-bold mb-3">Daily Tip</h2>
-        <div className="card p-4 min-h-[80px] flex items-center">
+        <div className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 p-8 min-h-[80px] flex items-center mb-10">
           <div className="text-gray-400">Unable to load tip. Try refreshing the page.</div>
         </div>
       </section>
@@ -92,7 +92,7 @@ export function TipsSection() {
       <h2 className="font-bold mb-2 text-lg">Daily Tip</h2>
       <div 
         className={cn(
-          'card p-3 min-h-[60px] bg-gray-950 border border-gray-800 rounded-lg shadow-sm transition-all duration-200',
+          'bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 min-h-[60px] transition-all duration-200 mb-10',
           isClickable 
             ? 'cursor-pointer hover:border-amber-500 hover:-translate-y-px'
             : 'cursor-default'

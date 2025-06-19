@@ -51,7 +51,7 @@ export default function Dashboard() {
                 <TipsSection />
                 <section>
                     <h2 className="font-bold mb-3 text-white">Recent Sessions</h2>
-                    <div className="card">
+                    <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
                         <SessionsTable sessions={sessions} loading={loading} />
                     </div>
                 </section>

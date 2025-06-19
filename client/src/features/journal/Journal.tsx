@@ -46,11 +46,19 @@ export default function Journal() {
   return (
     <>
       <style>{`.ProseMirror { height: 100% !important; min-height: 0 !important; } .ProseMirror:focus { outline: none !important; box-shadow: none !important; }`}</style>
-      <div className="journal-container flex flex-col items-center w-screen max-w-full h-screen" style={{ background: '#181824', overflow: 'hidden' }}>
-        <div style={{ width: '100%', maxWidth: 600, display: 'flex', alignItems: 'center', marginTop: 24, marginBottom: 8, textAlign: 'center', gap: 8, overflow: 'hidden', justifyContent: 'center', position: 'relative' }}>
-          <button onClick={() => navigate('/dashboard')} style={{ position: 'absolute', left: 10, background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', padding: 0, minWidth: 48 }}>Back</button>
-          <span style={{ fontSize: 22, fontWeight: 700, color: '#fff', padding: '4px 12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Journal</span>
-          <button onClick={handleSave} disabled={saveMutation.isPending || !token} style={{ position: 'absolute', right: 10, background: 'none', color: '#60a5fa', border: 'none', fontSize: 16, cursor: 'pointer', padding: 0, minWidth: 48 }}>
+      <div className="h-screen w-screen flex flex-col bg-gray-900 items-center max-w-full overflow-hidden">
+        <div className="w-full max-w-[600px] flex items-center mt-6 mb-2 text-center gap-2 overflow-hidden justify-center relative">
+          <button onClick={() => navigate('/dashboard')} className="absolute left-2 bg-transparent text-blue-400 border-none text-base cursor-pointer p-0 min-w-[48px] hover:text-blue-300 transition-colors">
+            Back
+          </button>
+          <span className="text-xl font-bold text-white py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis">
+            Journal
+          </span>
+          <button 
+            onClick={handleSave} 
+            disabled={saveMutation.isPending || !token} 
+            className="absolute right-2 bg-transparent text-blue-400 border-none text-base cursor-pointer p-0 min-w-[48px] hover:text-blue-300 transition-colors disabled:text-gray-500 disabled:cursor-not-allowed"
+          >
             {saveMutation.isPending ? 'Saving...' : 'Save'}
           </button>
         </div>

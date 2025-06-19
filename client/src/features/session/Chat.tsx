@@ -67,14 +67,7 @@ export default function Chat() {
     setEditing(false)
   }
 
-  useEffect(() => {
-    document.body.classList.add('chat-active')
-    document.documentElement.classList.add('chat-active')
-    return () => {
-      document.body.classList.remove('chat-active')
-      document.documentElement.classList.remove('chat-active')
-    }
-  }, [])
+  // Remove chat-active class usage - now handled by pure Tailwind layout
 
   // Auto-send initial prompt from URL parameter
   useEffect(() => {
@@ -84,24 +77,36 @@ export default function Chat() {
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
-    <div className="chat-container" style={{ height: '100dvh', background: '#181824', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100vw', maxWidth: '100vw', overflow: 'hidden' }}>
-      <div style={{ width: '100%', maxWidth: 600, display: 'flex', alignItems: 'center', marginTop: 24, marginBottom: 8, textAlign: 'left', gap: 8, overflow: 'hidden' }}>
-        <button onClick={() => navigate('/dashboard')} className="bg-transparent text-blue-400 border-none text-base p-0 min-w-[48px] hover:text-blue-300 transition-colors">Back</button>
+    <div className="flex flex-col items-center w-screen h-dvh bg-slate-900 overflow-hidden">
+      {/* Mobile-optimized menu bar with proper responsive design */}
+      <div className="flex items-center w-full max-w-[600px] mt-4 mb-2 px-4 gap-2 text-left overflow-hidden flex-shrink-0 min-h-[48px] sm:mt-3 sm:px-6">
+        <button 
+          onClick={() => navigate('/dashboard')} 
+          className="bg-transparent text-blue-400 border-none text-base p-0 min-w-[48px] hover:text-blue-300 transition-colors"
+        >
+          Back
+        </button>
         {editing ? (
-          <form onSubmit={e => { e.preventDefault(); handleSaveName() }} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <form onSubmit={e => { e.preventDefault(); handleSaveName() }} className="flex-1 flex items-center gap-1">
             <input
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
               autoFocus
-              style={{ fontSize: 22, fontWeight: 700, background: '#23233a', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 12px', textAlign: 'left', flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              className="text-lg font-bold text-white border-none rounded-lg py-1 px-3 text-left flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis"
+              style={{ backgroundColor: 'rgb(40, 40, 70)' }}
               maxLength={64}
               onBlur={handleSaveName}
             />
-            <button type="submit" className="text-base px-2.5 py-1 bg-purple-600 text-white rounded-lg border-none hover:bg-purple-700 transition-colors">Save</button>
+            <button type="submit" className="text-sm px-2.5 py-1 bg-purple-600 text-white rounded-lg border-none hover:bg-purple-700 transition-colors">
+              Save
+            </button>
           </form>
         ) : (
           <span
-            style={{ fontSize: 22, fontWeight: 700, color: '#fff', background: '#23233a', borderRadius: 8, padding: '4px 12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1, cursor: 'pointer' }}
+            className="text-lg font-bold text-white rounded-lg py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis flex-1 cursor-pointer transition-colors"
+            style={{ backgroundColor: 'rgb(40, 40, 70)' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(50, 50, 80)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(40, 40, 70)'}
             onClick={() => setEditing(true)}
             title={session?.name || 'Untitled'}
           >
@@ -109,23 +114,16 @@ export default function Chat() {
           </span>
         )}
       </div>
+      
+      {/* Chat messages area with hidden scrollbar */}
       <div
         ref={chatRef}
-        className="chat-messages hide-scrollbar"
+        className="flex-1 w-full max-w-[600px] overflow-y-auto rounded-xl p-6 relative flex flex-col min-h-0 mb-2 pb-28 scrollbar-hide sm:pb-20"
         style={{
-          flex: 1,
-          width: '100%',
-          maxWidth: 600,
-          overflowY: 'auto',
-          background: '#23233a',
-          borderRadius: 12,
-          padding: 24,
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: 0,
-          marginBottom: '10px',
-          paddingBottom: 120
+          backgroundColor: 'rgb(35, 35, 58)',
+          /* Ensure scrollbar is hidden on all browsers */
+          scrollbarWidth: 'none', /* Firefox */
+          msOverflowStyle: 'none', /* IE and Edge */
         }}
         onScroll={handleScroll}
       >
@@ -149,7 +147,9 @@ export default function Chat() {
           />
         )}
       </div>
-      <div className="chat-input">
+      
+      {/* Chat input with proper mobile positioning and centering */}
+      <div className="w-full bg-slate-900 z-50 py-3 px-4 flex justify-center items-center fixed bottom-0 transform shadow-lg sm:static sm:transform-none  sm:shadow-none sm:py-0 sm:mb-8">
         <ChatInput
           input={input}
           onInput={setInput}

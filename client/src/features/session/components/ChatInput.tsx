@@ -23,30 +23,16 @@ export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick }:
     }
   }
   return (
-    <div className="chat-input">
-      <form style={{ display: 'flex', alignItems: 'flex-end', gap: 8, width: '100%', maxWidth: 600, margin: '0 auto' }} onSubmit={e => { e.preventDefault(); onSend() }}>
+    <div className="w-full flex justify-center">
+      <form className="flex items-end gap-2 w-full max-w-[600px]" onSubmit={e => { e.preventDefault(); onSend() }}>
         <button
           aria-label="Show follow-up suggestions"
           type="button"
           onClick={onLightbulbClick}
           disabled={loading}
-          style={{
-            height: 44,
-            minWidth: 44,
-            marginBottom: 5,
-            padding: 0,
-            borderRadius: 8,
-            background: 'none',
-            border: 'none',
-            fontSize: 24,
-            color: '#ffd600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.4 : 0.7,
-            transition: 'opacity 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className={`h-11 w-9 mb-1 p-0 rounded-lg bg-transparent border-none text-lg text-yellow-400 transition-opacity duration-200 flex items-center justify-center ${
+            loading ? 'cursor-not-allowed opacity-40' : 'cursor-pointer opacity-70 hover:opacity-100'
+          }`}
         >
           💡
         </button>
@@ -57,9 +43,14 @@ export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick }:
           onKeyDown={handleKeyDown}
           placeholder="Type your message…"
           rows={1}
-          style={{ flex: 1, padding: 14, borderRadius: 8, border: 'none', fontSize: 16, lineHeight: 1.5, background: '#181824', color: '#fff', resize: 'none', maxHeight: 200, overflowY: 'auto', boxSizing: 'border-box', outline: 'none', outlineColor: '#444', outlineWidth: 1, outlineStyle: 'solid' }}
+          className="flex-1 p-3.5 rounded-lg border-none text-base leading-relaxed bg-slate-800 text-white resize-none max-h-[200px] overflow-y-auto box-border outline-none focus:outline-gray-600 focus:outline-1"
         />
-        <button type="submit" disabled={loading || !input.trim()} className={`h-11 min-w-[80px] mb-1.5 rounded-lg bg-blue-600 text-white font-semibold text-lg border-none px-6 shadow-none hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center ${loading || !input.trim() ? 'cursor-not-allowed' : 'cursor-pointer'}`}>Send</button>
+        <button type="submit" disabled={loading || !input.trim()} className={`h-11 w-11 mb-1.5 rounded-full bg-blue-600 text-white text-lg border-none shadow-none hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center ${loading || !input.trim() ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22,2 15,22 11,13 2,9"></polygon>
+          </svg>
+        </button>
       </form>
     </div>
   )

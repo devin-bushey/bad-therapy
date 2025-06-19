@@ -17,14 +17,6 @@ body {
 
 /* Remove all global h1, h2, h3, button, card, dashboard-section, a, etc. styles. Use Tailwind classes in components instead. */
 
-/* Custom scrollbar and chat/journal container styles if needed */
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-
-.journal-container {
-  @apply h-screen w-screen flex flex-col bg-gray-900;
-}
-
 /* Tiptap editor list styles (if needed) */
 .tiptap ul, .ProseMirror ul {
   list-style-type: disc;
@@ -36,57 +28,4 @@ body {
 }
 .tiptap li, .ProseMirror li {
   @apply mb-1;
-}
-
-.card {
-  @apply bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700;
-}
-
-.dashboard-section {
-  @apply bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 border border-gray-700;
-}
-
-.chat-container {
-  @apply flex flex-col items-center w-full max-w-3xl mx-auto px-4 py-8 bg-gray-900 rounded-xl shadow-lg;
-  @apply sm:rounded-none sm:shadow-none sm:px-0 sm:pt-0 sm:pb-0 sm:max-w-full sm:h-screen sm:w-screen sm:mx-0 sm:items-stretch;
-}
-
-.chat-messages {
-  @apply max-w-full rounded-none m-0 flex-1 min-h-0 h-0 overflow-y-auto flex flex-col pb-10 px-1;
-}
-
-.chat-input {
-  @apply w-full max-w-2xl mx-auto bg-gray-900 z-10 py-2 flex justify-center fixed bottom-0 left-0 px-1 shadow-lg;
-  @apply mb-0;
-}
-
-@media (max-width: 700px) {
-  body.chat-active, html.chat-active {
-    @apply h-[100dvh] min-h-[100dvh] max-h-[100dvh] overflow-hidden w-screen;
-  }
-  .chat-container {
-    @apply h-[100dvh] min-h-[100dvh] max-h-[100dvh] p-0 max-w-full w-screen overflow-hidden flex flex-col;
-  }
-  .chat-messages {
-    @apply max-w-full p-[0.75rem_0.25rem_5rem_0.25rem] rounded-none m-0 flex-1 min-h-0 h-0 overflow-y-auto flex flex-col;
-  }
-  .chat-input {
-    @apply fixed bottom-0 left-0 w-screen max-w-full bg-gray-900 z-[100] p-[0.5rem_0.25rem_0.75rem_0.25rem] shadow-[0_-2px_12px_#0005] flex justify-center;
-  }
-  .chat-input form {
-    @apply w-full max-w-[600px];
-  }
-}
-
-@media (min-width: 701px) {
-  .chat-input {
-    @apply static max-w-2xl mx-auto bg-transparent shadow-none py-0 mb-8;
-  }
-  .chat-messages {
-    @apply pb-10;
-  }
-}
-
-body.chat-active, html.chat-active {
-  @apply h-screen min-h-screen max-h-screen overflow-hidden w-screen;
 }
