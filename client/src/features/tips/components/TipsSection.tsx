@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { useNavigate } from 'react-router-dom'
 import { useTips } from '../hooks/useTips'
-import { createSession } from '../services/sessionServices'
+import { createSession } from '../../dashboard/services/sessionServices'
 import { getTipTypeInfo, getSourceIcon, getCredibilityColorClass } from '../../../shared/utils/tipHelpers'
 import { LoadingSpinner } from '../../../shared/components/ui/LoadingSpinner'
 import { cn } from '../../../shared/utils/cn'

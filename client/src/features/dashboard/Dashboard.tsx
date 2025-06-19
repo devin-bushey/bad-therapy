@@ -6,7 +6,7 @@ import { useSessions } from './hooks/useSessions'
 import Navbar from '../../pages/Navbar'
 import DailyMoodTracker from '../mood/components/DailyMoodTracker'
 import MoodTrendChart from '../mood/components/MoodTrendChart'
-import { TipsSection } from './components/TipsSection'
+import { TipsSection } from '../tips'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()
