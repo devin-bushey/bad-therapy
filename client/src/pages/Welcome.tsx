@@ -27,7 +27,7 @@ const Welcome: React.FC = () => {
             <ul className="space-y-2 text-base text-gray-200 text-center">
               <li><span className="font-semibold text-purple-400">24/7 Access:</span> Get support anywhere</li>
               <li><span className="font-semibold text-purple-400">Inexpensive:</span> Affordable for everyone</li>
-              <li><span className="font-semibold text-purple-400">Anonymous:</span> Judgement free & encrypted messaging</li>
+              <li><span className="font-semibold text-purple-400">Judgement free:</span> Anonymous & encrypted messaging</li>
             </ul>
           </div>
           <p className="text-base text-gray-500 max-w-lg text-center font-light">

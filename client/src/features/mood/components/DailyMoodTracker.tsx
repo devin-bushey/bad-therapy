@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useTodayMood, useUpdateMood } from '../hooks/useMood'
+import React, { useState, useEffect } from 'react'
+import { useTodayMood, useUpdateMood, useIsNewDay } from '../hooks/useMood'
 import { DAILY_MOOD_OPTIONS } from '../../../shared/constants/mood.constants'
 import { getCurrentMoodOption } from '../../../shared/utils/moodHelpers'
 import { LoadingSpinner } from '../../../shared/components/ui/LoadingSpinner'
@@ -10,8 +10,18 @@ import type { DailyMoodOption } from '../../../shared/constants/mood.constants'
 const DailyMoodTracker: React.FC = () => {
   const { data: todayMood, isLoading } = useTodayMood()
   const updateMood = useUpdateMood()
-  const [, setSelectedMood] = useState<DailyMoodOption | null>(null)
+  const [selectedMood, setSelectedMood] = useState<DailyMoodOption | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
+  
+  // Enable daily reset functionality
+  useIsNewDay()
+  
+  // Reset selected mood when todayMood changes (including daily reset)
+  useEffect(() => {
+    if (!updateMood.isPending) {
+      setSelectedMood(null)
+    }
+  }, [todayMood, updateMood.isPending])
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
     setSelectedMood(moodOption)
@@ -30,7 +40,10 @@ const DailyMoodTracker: React.FC = () => {
     }
   }
 
-  const currentMoodOption = getCurrentMoodOption(todayMood || null)
+  // Use optimistic update: show selected mood immediately, fall back to saved mood
+  const currentMoodOption = updateMood.isPending && selectedMood
+    ? selectedMood
+    : getCurrentMoodOption(todayMood || null)
 
   if (isLoading) {
     return (
@@ -55,6 +68,7 @@ const DailyMoodTracker: React.FC = () => {
       <div className="flex justify-between max-sm:justify-center gap-6 mb-4 max-sm:gap-3 max-xs:gap-2 max-sm:px-0 px-2">
         {DAILY_MOOD_OPTIONS.map((option) => {
           const isSelected = currentMoodOption?.score === option.score
+          const isPending = updateMood.isPending && selectedMood?.score === option.score
 
           return (
             <button
@@ -63,7 +77,8 @@ const DailyMoodTracker: React.FC = () => {
               disabled={updateMood.isPending}
               className={cn(
                 "group flex flex-col items-center bg-transparent outline-none border-none p-0 m-0 appearance-none focus:outline-none transition-all duration-200",
-                updateMood.isPending && "opacity-70 cursor-not-allowed"
+                updateMood.isPending && !isPending && "opacity-50 cursor-not-allowed",
+                isPending && "opacity-80"
               )}
               style={{ WebkitTapHighlightColor: 'transparent' }}
               onMouseEnter={() => !updateMood.isPending && setSelectedMood(option)}
@@ -78,7 +93,8 @@ const DailyMoodTracker: React.FC = () => {
                   option.score <= 7 ? "bg-green-400" :
                   "bg-green-600",
                   isSelected && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-blue-400",
-                  !isSelected && "group-hover:scale-105 group-hover:shadow-xl group-hover:ring-2 group-hover:ring-opacity-30 group-hover:ring-emerald-300"
+                  isPending && "scale-105 ring-2 ring-opacity-50 ring-blue-300 animate-pulse",
+                  !isSelected && !isPending && "group-hover:scale-105 group-hover:shadow-xl group-hover:ring-2 group-hover:ring-opacity-30 group-hover:ring-emerald-300"
                 )}
               />
               <span className="text-[11px] text-gray-400 font-medium text-center mt-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
