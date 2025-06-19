@@ -48,7 +48,7 @@ export function TipsSection() {
       const token = await getAccessTokenSilently()
       if (!user || !user.sub) return
       
-      const session = await createSession(token, `Session: ${tip.content.slice(0, 30)}...`, user.sub)
+      const session = await createSession(token, `${tip.content.slice(0, 30)}...`, user.sub)
       navigate(`/chat?sessionId=${session.id}&initialPrompt=${encodeURIComponent(tip.content)}`)
     } catch (error) {
       console.error('Failed to create session from tip:', error)
