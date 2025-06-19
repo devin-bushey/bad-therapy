@@ -18,7 +18,7 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, showTypingBubble])
+  }, [messages, showTypingBubble, loading])
 
   if (loading && messages.length === 0)
     return <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-lg">Loading messages…</div>

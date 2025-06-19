@@ -50,10 +50,6 @@ export default function Chat() {
     setAutoScroll(scrollHeight - scrollTop - clientHeight < 40)
   }
 
-  useEffect(() => {
-    if (autoScroll && chatRef.current)
-      chatRef.current.scrollTop = chatRef.current.scrollHeight
-  }, [messages, autoScroll])
 
   const handleSend = async () => {
     if (!input.trim() || !sessionId) return
