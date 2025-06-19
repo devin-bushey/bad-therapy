@@ -24,6 +24,8 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
   - Smart router to decide next steps
 - **User Profiles**: Personalized sessions and recommendations.
 - **Journaling**: Save and review your thoughts securely.
+- **Daily Tips**: AI-generated wellness tips with curated resource links and credibility scoring.
+- **Mood Tracking**: Daily mood logging with trend visualization and analytics.
 - **Security**: All data is encrypted and protected with Auth0 authentication.
 
 ## Upcoming
