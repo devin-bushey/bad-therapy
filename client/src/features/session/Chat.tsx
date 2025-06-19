@@ -28,6 +28,18 @@ export default function Chat() {
     handleLightbulbClick,
     handlePromptClick
   } = useSuggestFollowupPrompts(sessionId, sendAIMessage)
+  
+  // Scroll to bottom when suggestions appear
+  const scrollToBottom = () => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight
+    }
+  }
+  
+  const handleLightbulbClickWithScroll = async () => {
+    await handleLightbulbClick()
+    setTimeout(scrollToBottom, 100) // Small delay to ensure suggestions have rendered
+  }
   const [editing, setEditing] = useState(false)
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
@@ -144,7 +156,7 @@ export default function Chat() {
           onInput={setInput}
           onSend={handleSend}
           loading={loading}
-          onLightbulbClick={handleLightbulbClick}
+          onLightbulbClick={handleLightbulbClickWithScroll}
         />
       </div>
     </div>
