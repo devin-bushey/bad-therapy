@@ -57,6 +57,19 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 ### Prompt Engineering
 - All prompts are saved in the [`prompts`](server/prompts/) directory
 
+### LangStudio 
+- All LangGraph runs can be visualized with LangGraph Studio debugging.
+
+```sh
+cd server
+source .venv/bin/activate
+langgraph dev
+```
+
+<p align="left">
+  <img src="docs/LanggraphStudio.png" alt="LangGrapgStudio"/>
+</p>
+
 ### LangSmith Tracing
 - All LangGraph runs are traced with LangSmith for cloud-based debugging and observability.
 - See tracings and monitoring here: https://smith.langchain.com/o/65c77578-2a48-42ef-a24f-8d83c29bc984/
@@ -78,11 +91,13 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 **Install dependencies:**
 ```sh
 cd server
+source .venv/bin/activate
 uv pip install -r pyproject.toml
 ```
 
 **Run development server:**
 ```sh
+source .venv/bin/activate
 uv run fastapi dev
 ```
 

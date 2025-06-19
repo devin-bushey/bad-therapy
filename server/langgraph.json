@@ -1,0 +1,8 @@
+{
+    "dependencies": ["."],
+    "graphs": {
+      "agent": "./graphs/therapy_graph.py:build_therapy_graph"
+    },
+    "env": ".env",
+    "image_distro": "wolfi"
+  }
