@@ -10,13 +10,6 @@
   background-color: #181824;
 }
 
-body {
-  @apply bg-gray-900 text-white min-w-[320px] min-h-screen m-0;
-  font-family: inherit;
-}
-
-/* Remove all global h1, h2, h3, button, card, dashboard-section, a, etc. styles. Use Tailwind classes in components instead. */
-
 /* Tiptap editor list styles (if needed) */
 .tiptap ul, .ProseMirror ul {
   list-style-type: disc;

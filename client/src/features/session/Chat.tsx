@@ -76,7 +76,7 @@ export default function Chat() {
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
-    <div className="h-dvh flex flex-col bg-slate-900" style={{ height: '100dvh' }}>
+    <div className="h-dvh grid grid-rows-[auto_1fr_auto] bg-slate-900" style={{ height: '100dvh' }}>
       {/* Fixed Header - Always visible at top */}
       <header className="flex-shrink-0 h-16 pt-safe-top px-4 flex items-center justify-center text-left overflow-hidden">
         <div className="flex items-center gap-2 w-full max-w-[600px]">
@@ -119,7 +119,7 @@ export default function Chat() {
       {/* Scrollable Messages Area - Takes remaining space */}
       <main 
         ref={chatRef}
-        className="flex-1 overflow-y-auto px-4 w-full max-w-[600px] mx-auto flex flex-col"
+        className="overflow-y-auto px-4 w-full max-w-[600px] mx-auto flex flex-col"
       >
         <div 
           className="rounded-xl p-6 flex flex-col flex-1 scrollbar-hide"
