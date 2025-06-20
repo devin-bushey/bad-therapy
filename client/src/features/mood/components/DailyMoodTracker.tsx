@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useTodayMood, useUpdateMood, useIsNewDay } from '../hooks/useMood'
 import { DAILY_MOOD_OPTIONS } from '../../../shared/constants/mood.constants'
 import { getCurrentMoodOption } from '../../../shared/utils/moodHelpers'
@@ -14,7 +14,7 @@ const DailyMoodTracker: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false)
   
   // Enable daily reset functionality
-  const currentDay = useIsNewDay()
+  useIsNewDay()
   
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
