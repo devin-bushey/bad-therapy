@@ -14,8 +14,7 @@ const DailyMoodTracker: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false)
   
   // Enable daily reset functionality
-  useIsNewDay()
-  
+  useIsNewDay()  
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
     try {

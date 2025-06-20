@@ -34,9 +34,9 @@ const MoodTrendChart: React.FC = () => {
   
   moods.forEach(m => {
     // Convert UTC timestamp to local time and extract day number
-    const localDay = extractLocalDayFromUtc(m.created_at)
-    const localMonth = extractLocalMonthFromUtc(m.created_at)
-    const localYear = extractLocalYearFromUtc(m.created_at)
+    const localDay = extractLocalDayFromUtc(m.updated_at)
+    const localMonth = extractLocalMonthFromUtc(m.updated_at)
+    const localYear = extractLocalYearFromUtc(m.updated_at)
     
     // Only include moods from the current month/year being displayed
     if (localYear === year && localMonth === month) {
