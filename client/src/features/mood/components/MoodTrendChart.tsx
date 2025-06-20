@@ -1,6 +1,7 @@
 import React from 'react'
 import { useAuthenticatedQuery } from '../../../shared/hooks/useAuthenticatedQuery'
 import { useMoodApi } from '../services/moodService'
+import { extractLocalDayFromUtc, extractLocalMonthFromUtc, extractLocalYearFromUtc } from '../../../shared/utils/timeUtils'
 import type { MoodEntry } from '../../../shared/types/api.types'
 
 function getMonthDays(year: number, month: number) {
@@ -30,17 +31,24 @@ const MoodTrendChart: React.FC = () => {
     () => moodApi.getRecentMoods(40)
   )
   const moodByDay: Record<number, MoodEntry> = {}
+  
   moods.forEach(m => {
-    // Extract day directly from the date string to avoid timezone conversion issues
-    const dateStr = m.created_at.split('T')[0] // Gets YYYY-MM-DD
-    const day = parseInt(dateStr.split('-')[2]) // Gets the day number
-    moodByDay[day] = m
+    // Convert UTC timestamp to local time and extract day number
+    const localDay = extractLocalDayFromUtc(m.created_at)
+    const localMonth = extractLocalMonthFromUtc(m.created_at)
+    const localYear = extractLocalYearFromUtc(m.created_at)
+    
+    // Only include moods from the current month/year being displayed
+    if (localYear === year && localMonth === month) {
+      moodByDay[localDay] = m
+    }
   })
   const firstDayOfWeek = new Date(year, month, 1).getDay()
   const paddedDays = [
     ...Array(firstDayOfWeek).fill(null),
     ...days
   ]
+  
   return (
     <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
       <div className="font-bold mb-4 text-white text-center">

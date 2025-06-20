@@ -5,29 +5,19 @@ import { getCurrentMoodOption } from '../../../shared/utils/moodHelpers'
 import { LoadingSpinner } from '../../../shared/components/ui/LoadingSpinner'
 import { SuccessToast } from '../../../shared/components/ui/SuccessToast'
 import { cn } from '../../../shared/utils/cn'
+import { formatTimeForDisplay } from '../../../shared/utils/timeUtils'
 import type { DailyMoodOption } from '../../../shared/constants/mood.constants'
 
 const DailyMoodTracker: React.FC = () => {
   const { data: todayMood, isLoading } = useTodayMood()
   const updateMood = useUpdateMood()
-  const [selectedMood, setSelectedMood] = useState<DailyMoodOption | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   
   // Enable daily reset functionality
-  useIsNewDay()
+  const currentDay = useIsNewDay()
   
-  // Reset selected mood when todayMood changes or when daily reset occurs
-  useEffect(() => {
-    // Reset selectedMood only when not in a pending update state
-    // This allows hover states and optimistic updates to work properly
-    if (!updateMood.isPending) {
-      setSelectedMood(null)
-    }
-  }, [todayMood?.id, updateMood.isPending]) // Use todayMood.id to detect actual data changes
 
   const handleMoodSelect = async (moodOption: DailyMoodOption) => {
-    setSelectedMood(moodOption)
-    
     try {
       await updateMood.mutateAsync({
         mood_score: moodOption.score,
@@ -38,14 +28,11 @@ const DailyMoodTracker: React.FC = () => {
       setTimeout(() => setShowSuccess(false), 2000)
     } catch (error) {
       console.error('Failed to save mood:', error)
-      setSelectedMood(null)
     }
   }
 
-  // Use optimistic update: show selected mood immediately, fall back to saved mood
-  const currentMoodOption = updateMood.isPending && selectedMood
-    ? selectedMood
-    : getCurrentMoodOption(todayMood || null)
+  // Show saved mood from backend
+  const currentMoodOption = getCurrentMoodOption(todayMood || null)
 
   if (isLoading) {
     return (
@@ -70,7 +57,7 @@ const DailyMoodTracker: React.FC = () => {
       <div className="flex justify-between max-sm:justify-center gap-6 mb-4 max-sm:gap-3 max-xs:gap-2 max-sm:px-0 px-2">
         {DAILY_MOOD_OPTIONS.map((option) => {
           const isSelected = currentMoodOption?.score === option.score
-          const isPending = updateMood.isPending && selectedMood?.score === option.score
+          const isPending = updateMood.isPending
 
           return (
             <button
@@ -83,8 +70,6 @@ const DailyMoodTracker: React.FC = () => {
                 isPending && "opacity-80"
               )}
               style={{ WebkitTapHighlightColor: 'transparent' }}
-              onMouseEnter={() => !updateMood.isPending && setSelectedMood(option)}
-              onMouseLeave={() => !updateMood.isPending && setSelectedMood(null)}
             >
               <span
                 className={cn(
@@ -94,12 +79,11 @@ const DailyMoodTracker: React.FC = () => {
                   option.score <= 5 ? "bg-gray-400" :
                   option.score <= 7 ? "bg-green-400" :
                   "bg-green-600",
-                  isSelected && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-blue-400",
+                  isSelected && !isPending && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-blue-400",
                   isPending && "scale-105 ring-2 ring-opacity-50 ring-blue-300 animate-pulse",
-                  !isSelected && !isPending && "group-hover:scale-105 group-hover:shadow-xl group-hover:ring-2 group-hover:ring-opacity-30 group-hover:ring-emerald-300"
                 )}
               />
-              <span className="text-[11px] text-gray-400 font-medium text-center mt-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
+              <span className="text-[11px] text-gray-400 font-medium text-center mt-2 opacity-70 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
                 {option.label}
               </span>
             </button>
@@ -120,10 +104,7 @@ const DailyMoodTracker: React.FC = () => {
             )} />
           )} {currentMoodOption?.label}</span>
           <span className="ml-2 opacity-70">
-            • Updated {new Date(todayMood.updated_at).toLocaleTimeString([], { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
+            • Updated {formatTimeForDisplay(todayMood.updated_at)}
           </span>
         </div>
       )}

@@ -49,20 +49,27 @@ export function useUpdateMood() {
     (data) => moodApi.updateDailyMood(data),
     {
       onMutate: async (newMoodData): Promise<MutationContext> => {
-        // Cancel any outgoing refetches
+        // Cancel any outgoing refetches for today's mood
         await queryClient.cancelQueries({ queryKey: ['mood', 'today'] })
+        
+        // Also cancel MoodTrendChart queries to prevent race conditions
+        const now = new Date()
+        const currentYear = String(now.getFullYear())
+        const currentMonth = String(now.getMonth())
+        await queryClient.cancelQueries({ queryKey: ['mood', 'month', currentYear, currentMonth] })
         
         // Snapshot the previous value
         const previousMood = queryClient.getQueryData<MoodEntry | null>(['mood', 'today'])
         
         // Optimistically update to the new value
+        const nowIso = now.toISOString()
         const optimisticMood: MoodEntry = {
           id: previousMood?.id || 'temp-id',
           user_id: previousMood?.user_id || 'temp-user',
           mood_score: newMoodData.mood_score,
           mood_emoji: newMoodData.mood_emoji,
-          created_at: previousMood?.created_at || new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: previousMood?.created_at || nowIso,
+          updated_at: nowIso
         }
         
         queryClient.setQueryData(['mood', 'today'], optimisticMood)
@@ -72,11 +79,16 @@ export function useUpdateMood() {
       },
       onSuccess: (newMood) => {
         queryClient.setQueryData(['mood', 'today'], newMood)
+        
+        // Only invalidate queries that need fresh data (NOT the today query we just updated)
         queryClient.invalidateQueries({ queryKey: ['mood', 'trend'] })
         queryClient.invalidateQueries({ queryKey: ['mood', 'summary'] })
-        // Invalidate the month view for MoodTrendChart
+        
+        // Invalidate the month view for MoodTrendChart - this is the key one!
         const now = new Date()
-        queryClient.invalidateQueries({ queryKey: ['mood', 'month', String(now.getFullYear()), String(now.getMonth())] })
+        const currentYear = String(now.getFullYear())
+        const currentMonth = String(now.getMonth())
+        queryClient.invalidateQueries({ queryKey: ['mood', 'month', currentYear, currentMonth] })
       },
       onError: (error, _newMoodData, context) => {
         // If the mutation fails, use the context returned from onMutate to roll back
@@ -87,8 +99,8 @@ export function useUpdateMood() {
         console.error('Failed to update mood:', error)
       },
       onSettled: () => {
-        // Always refetch after error or success to ensure consistency
-        queryClient.invalidateQueries({ queryKey: ['mood', 'today'] })
+        // Don't invalidate the today query since we already set the correct data in onSuccess
+        // This prevents the mood selection from disappearing during unnecessary refetch
       }
     }
   )
