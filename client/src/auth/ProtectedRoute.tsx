@@ -3,8 +3,8 @@ import Loading from '../pages/Loading'
 import type { ComponentType } from 'react'
 import { useEffect, useState } from 'react'
 
-export default function ProtectedRoute(Component: ComponentType<object>) {
-  return function ProtectedComponent(props: any) {
+export default function ProtectedRoute<P extends object>(Component: ComponentType<P>) {
+  return function ProtectedComponent(props: P) {
     const { isAuthenticated, isLoading, error, loginWithRedirect } = useAuth0()
     const [timeoutReached, setTimeoutReached] = useState(false)
 
