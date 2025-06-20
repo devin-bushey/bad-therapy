@@ -17,12 +17,12 @@ const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ prompts, onPromptCl
       <TypingBubble />
     ) : (
       <>
-        {prompts.length > 0 && <p className="text-xs text-gray-500 mb-1">Click a suggested prompt</p>}
+        {prompts.length > 0 && <p className="text-xs text-warm-600 mb-2 italic">💡 Suggested prompts - click to use</p>}
         {prompts.map(p => (
           <button
             key={p}
             onClick={() => onPromptClick(p)}
-            className="inline-block bg-purple-600 text-white border-none rounded-2xl px-4 py-2.5 max-w-[80%] break-words whitespace-pre-line my-1.5 text-left font-medium shadow-sm outline-none transition-colors hover:bg-purple-700"
+            className="inline-block bg-ai-500 text-warm-50 border border-ai-400 rounded-2xl px-4 py-2.5 max-w-[80%] break-words whitespace-pre-line my-1.5 text-left font-medium shadow-sm outline-none transition-all duration-200 hover:bg-ai-600 hover:border-ai-500 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
           >
             {p}
           </button>

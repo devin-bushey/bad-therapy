@@ -4,7 +4,6 @@ import { useAuth0 } from '@auth0/auth0-react'
 import Navbar from '../../pages/Navbar'
 import { fetchProfile, saveProfile } from './services/profileService'
 import type { ProfileForm } from '../../types/profile.types'
-import './UserProfileForm.css'
 
 export default function UserProfileForm() {
     const queryClient = useQueryClient()
@@ -48,34 +47,65 @@ export default function UserProfileForm() {
         mutation.mutate(form)
     }
     return (
-        <div className="profile-form-bg">
+        <div className="min-h-screen bg-warm-50 w-full overflow-x-hidden">
             <Navbar />
-            <div className="profile-form-outer">
-                <div className="profile-form-inner">
-                    <h2 className="profile-form-title">Your Profile</h2>
-                    <p className="profile-form-desc">
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-6 py-6 box-border w-full">
+                <div className="bg-warm-100 border border-warm-200 rounded-3xl shadow-lg p-10 max-w-md w-full flex flex-col items-center">
+                    <h2 className="text-warm-800 font-bold text-3xl mb-5 text-center">Your Profile</h2>
+                    <p className="text-warm-600 text-base -mt-2.5 mb-5 text-center">
                         All fields are optional. Any updates to your profile will be used in new conversations. All of your data and conversations are securely stored and encrypted.
                     </p>
-                    <form onSubmit={handleSubmit} className="profile-form">
-                        {mutation.isError && <div className="profile-form-error">Error saving profile</div>}
-                        {mutation.isSuccess && <div className="profile-form-success">Profile saved</div>}
-                        {mutation.isPending && <div className="profile-form-pending">Saving...</div>}
-                        {isLoading ? (<div className="profile-form-pending">Loading profile...</div>) : (<>
-                            <label htmlFor="full_name" className="profile-form-label">Name</label>
-                            <input id="full_name" name="full_name" placeholder="Name" value={form.full_name} onChange={handleChange} className="profile-form-input" />
-                            <label htmlFor="age" className="profile-form-label">Age</label>
-                            <input id="age" name="age" placeholder="Age" type="number" min={18} max={100} value={form.age} onChange={handleChange} className="profile-form-input" />
-                            <label htmlFor="gender" className="profile-form-label">Gender</label>
-                            <input id="gender" name="gender" placeholder="Gender" value={form.gender} onChange={handleChange} className="profile-form-input" />
-                            <label htmlFor="ethnicity" className="profile-form-label">Ethnicity</label>
-                            <input id="ethnicity" name="ethnicity" placeholder="Ethnicity" value={form.ethnicity} onChange={handleChange} className="profile-form-input" />
-                            <label htmlFor="coaching_style" className="profile-form-label">Coaching Style</label>
+                    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4 min-h-[520px]">
+                        {mutation.isError && <div className="text-error-500 font-medium mt-1">Error saving profile</div>}
+                        {mutation.isSuccess && <div className="text-success-500 font-medium mt-1">Profile saved</div>}
+                        {mutation.isPending && <div className="text-ai-500 font-medium mt-1">Saving...</div>}
+                        {isLoading ? (<div className="text-ai-500 font-medium mt-1">Loading profile...</div>) : (<>
+                            <label htmlFor="full_name" className="text-warm-800 font-medium text-sm">Name</label>
+                            <input 
+                                id="full_name" 
+                                name="full_name" 
+                                placeholder="Name" 
+                                value={form.full_name} 
+                                onChange={handleChange} 
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500" 
+                            />
+                            <label htmlFor="age" className="text-warm-800 font-medium text-sm">Age</label>
+                            <input 
+                                id="age" 
+                                name="age" 
+                                placeholder="Age" 
+                                type="number" 
+                                min={18} 
+                                max={100} 
+                                value={form.age} 
+                                onChange={handleChange} 
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500" 
+                            />
+                            <label htmlFor="gender" className="text-warm-800 font-medium text-sm">Gender</label>
+                            <input 
+                                id="gender" 
+                                name="gender" 
+                                placeholder="Gender" 
+                                value={form.gender} 
+                                onChange={handleChange} 
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500" 
+                            />
+                            <label htmlFor="ethnicity" className="text-warm-800 font-medium text-sm">Ethnicity</label>
+                            <input 
+                                id="ethnicity" 
+                                name="ethnicity" 
+                                placeholder="Ethnicity" 
+                                value={form.ethnicity} 
+                                onChange={handleChange} 
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500" 
+                            />
+                            <label htmlFor="coaching_style" className="text-warm-800 font-medium text-sm">Coaching Style</label>
                             <select
                                 id="coaching_style"
                                 name="coaching_style"
                                 value={form.coaching_style}
                                 onChange={handleChange}
-                                className="profile-form-input"
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500"
                             >
                                 <option value="">Select Coaching Style</option>
                                 <option value="CBT">Cognitive Behavioral Therapy (CBT)</option>
@@ -87,9 +117,22 @@ export default function UserProfileForm() {
                                 <option value="Solution-Focused">Solution-Focused</option>
                                 <option value="Coaching">Coaching</option>
                             </select>
-                            <label htmlFor="bio" className="profile-form-label">Short bio</label>
-                            <textarea id="bio" name="bio" placeholder="Short bio" value={form.bio} onChange={handleChange} className="profile-form-textarea" />
-                            <button type="submit" disabled={mutation.isPending} className="profile-form-save">Save</button>
+                            <label htmlFor="bio" className="text-warm-800 font-medium text-sm">Short bio</label>
+                            <textarea 
+                                id="bio" 
+                                name="bio" 
+                                placeholder="Short bio" 
+                                value={form.bio} 
+                                onChange={handleChange} 
+                                className="bg-warm-50 text-warm-800 border border-warm-300 rounded-lg p-3 text-base mb-0.5 min-h-20 resize-y focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500" 
+                            />
+                            <button 
+                                type="submit" 
+                                disabled={mutation.isPending} 
+                                className="bg-earth-500 text-warm-50 border-none rounded-lg py-3 px-0 font-bold text-lg mt-2 cursor-pointer shadow-sm hover:bg-earth-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Save
+                            </button>
                         </>)}
                     </form>
                 </div>

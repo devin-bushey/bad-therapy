@@ -76,13 +76,13 @@ export default function Chat() {
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
-    <div className="h-dvh grid grid-rows-[auto_1fr_auto] bg-slate-900" style={{ height: '100dvh' }}>
+    <div className="h-dvh grid grid-rows-[auto_1fr_auto] bg-warm-50" style={{ height: '100dvh' }}>
       {/* Fixed Header - Always visible at top */}
-      <header className="flex-shrink-0 h-16 pt-safe-top px-4 flex items-center justify-center text-left overflow-hidden">
+      <header className="flex-shrink-0 h-16 pt-safe-top px-4 flex items-center justify-center text-left overflow-hidden bg-warm-100 border-b border-warm-200">
         <div className="flex items-center gap-2 w-full max-w-[600px]">
           <button 
             onClick={() => navigate('/dashboard')} 
-            className="text-blue-400 hover:text-blue-300 transition-colors text-base p-0 min-w-[48px] bg-transparent border-none"
+            className="text-earth-500 hover:text-earth-600 transition-colors text-base p-0 min-w-[48px] bg-transparent border-none"
           >
             Back
           </button>
@@ -92,21 +92,17 @@ export default function Chat() {
                 value={nameInput}
                 onChange={e => setNameInput(e.target.value)}
                 autoFocus
-                className="text-lg font-bold text-white border-none rounded-lg py-1 px-3 text-left flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis"
-                style={{ backgroundColor: 'rgb(40, 40, 70)' }}
+                className="text-lg font-bold text-warm-800 border border-warm-200 bg-warm-50 rounded-lg py-1 px-3 text-left flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis focus:outline-none focus:ring-2 focus:ring-earth-500 focus:border-earth-500"
                 maxLength={64}
                 onBlur={handleSaveName}
               />
-              <button type="submit" className="text-sm px-2.5 py-1 bg-purple-600 text-white rounded-lg border-none hover:bg-purple-700 transition-colors">
+              <button type="submit" className="text-sm px-2.5 py-1 bg-ai-500 text-warm-50 rounded-lg border-none hover:bg-ai-600 transition-colors">
                 Save
               </button>
             </form>
           ) : (
             <span
-              className="text-lg font-bold text-white rounded-lg py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis flex-1 cursor-pointer transition-colors"
-              style={{ backgroundColor: 'rgb(40, 40, 70)' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgb(50, 50, 80)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(40, 40, 70)'}
+              className="text-lg font-bold text-warm-800 bg-warm-200 hover:bg-warm-300 rounded-lg py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis flex-1 cursor-pointer transition-colors"
               onClick={() => setEditing(true)}
               title={session?.name || 'Untitled'}
             >
@@ -122,8 +118,7 @@ export default function Chat() {
         className="overflow-y-auto px-4 w-full max-w-[600px] mx-auto flex flex-col"
       >
         <div 
-          className="rounded-xl p-6 flex flex-col flex-1 scrollbar-hide"
-          style={{ backgroundColor: 'rgb(35, 35, 58)' }}
+          className="rounded-xl p-6 flex flex-col flex-1 scrollbar-hide bg-warm-100 border border-warm-200 my-4"
         >
           <ChatMessages messages={messages} loading={loading} showTypingBubble={
             !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
@@ -148,7 +143,7 @@ export default function Chat() {
       </main>
       
       {/* Fixed Input - Always visible at bottom */}
-      <footer className="flex-shrink-0 h-20 pb-safe-bottom px-4 flex items-center justify-center bg-slate-900 shadow-lg">
+      <footer className="flex-shrink-0 py-2 pb-safe-bottom px-4 flex items-center justify-center bg-warm-100 border-t border-warm-200 shadow-lg">
         <ChatInput
           input={input}
           onInput={setInput}

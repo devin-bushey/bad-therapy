@@ -3,30 +3,48 @@ import { Editor } from '@tiptap/react'
 
 export default function JournalToolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null
-  const btn = (onClick: () => void, active: boolean, children: React.ReactNode, aria: string) => (
+  
+  const Button = ({ onClick, active, children, aria }: { 
+    onClick: () => void, 
+    active: boolean, 
+    children: React.ReactNode, 
+    aria: string 
+  }) => (
     <button
       onClick={onClick}
       aria-label={aria}
-      style={{
-        background: active ? '#2563eb' : '#23233a',
-        color: active ? '#fff' : '#60a5fa',
-        border: 'none',
-        borderRadius: 4,
-        padding: '0 10px',
-        height: 28,
-        fontWeight: 600,
-        fontSize: 14,
-        cursor: 'pointer',
-        transition: 'background 0.15s',
-      }}
-    >{children}</button>
+      className={`border-none rounded px-2.5 h-7 font-semibold text-sm cursor-pointer transition-colors ${
+        active 
+          ? 'bg-earth-500 text-warm-50' 
+          : 'bg-warm-100 text-earth-500 hover:bg-warm-200'
+      }`}
+    >
+      {children}
+    </button>
   )
+  
   return (
-    <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: '#181824', borderRadius: 6, padding: 4, width: 'fit-content' }}>
-      {btn(() => editor.chain().focus().toggleBold().run(), editor.isActive('bold'), 'B', 'Bold')}
-      {btn(() => editor.chain().focus().toggleItalic().run(), editor.isActive('italic'), 'I', 'Italic')}
-      {/* {btn(() => editor.chain().focus().toggleBulletList().run(), editor.isActive('bulletList'), 'List', 'Bullet List')} */}
-      <input type="color" onChange={e => editor.chain().focus().setColor(e.target.value).run()} style={{ width: 28, height: 28, border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }} aria-label="Text color" />
+    <div className="flex gap-1.5 mb-3 bg-warm-200 rounded p-1 w-fit">
+      <Button 
+        onClick={() => editor.chain().focus().toggleBold().run()} 
+        active={editor.isActive('bold')} 
+        aria="Bold"
+      >
+        B
+      </Button>
+      <Button 
+        onClick={() => editor.chain().focus().toggleItalic().run()} 
+        active={editor.isActive('italic')} 
+        aria="Italic"
+      >
+        I
+      </Button>
+      <input 
+        type="color" 
+        onChange={e => editor.chain().focus().setColor(e.target.value).run()} 
+        className="w-7 h-7 border-none bg-transparent cursor-pointer p-0 rounded" 
+        aria-label="Text color" 
+      />
     </div>
   )
 } 

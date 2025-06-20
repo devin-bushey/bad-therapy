@@ -35,8 +35,8 @@ const DailyMoodTracker: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
-        <div className="flex justify-center items-center h-[120px] text-gray-400">
+      <div className="bg-warm-100 rounded-2xl shadow-lg p-8 mb-10 border border-warm-200">
+        <div className="flex justify-center items-center h-[120px] text-warm-600">
           <LoadingSpinner />
         </div>
       </div>
@@ -44,8 +44,8 @@ const DailyMoodTracker: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700 relative">
-      <h3 className="text-lg font-semibold pb-4 text-white">
+    <div className="bg-warm-100 rounded-2xl shadow-lg p-8 mb-10 border border-warm-200 relative">
+      <h3 className="text-lg font-semibold pb-4 text-warm-800">
         How are you feeling today?
       </h3>
       
@@ -73,16 +73,16 @@ const DailyMoodTracker: React.FC = () => {
               <span
                 className={cn(
                   "block w-12 h-12 rounded-full transition-all duration-200 shadow-md",
-                  option.score <= 2 ? "bg-red-500" :
-                  option.score <= 4 ? "bg-orange-400" :
-                  option.score <= 5 ? "bg-gray-400" :
-                  option.score <= 7 ? "bg-green-400" :
-                  "bg-green-600",
-                  isSelected && !isPending && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-blue-400",
-                  isPending && "scale-105 ring-2 ring-opacity-50 ring-blue-300 animate-pulse",
+                  option.score <= 2 ? "bg-mood-negative" :
+                  option.score <= 4 ? "bg-warning-500" :
+                  option.score <= 5 ? "bg-mood-neutral" :
+                  option.score <= 7 ? "bg-mood-positive" :
+                  "bg-success-500",
+                  isSelected && !isPending && "scale-110 shadow-2xl ring-4 ring-opacity-40 ring-earth-400",
+                  isPending && "scale-105 ring-2 ring-opacity-50 ring-earth-300 animate-pulse",
                 )}
               />
-              <span className="text-[11px] text-gray-400 font-medium text-center mt-2 opacity-70 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
+              <span className="text-[11px] text-warm-600 font-medium text-center mt-2 opacity-70 transition-opacity duration-200" style={{letterSpacing: 0.2}}>
                 {option.label}
               </span>
             </button>
@@ -91,15 +91,15 @@ const DailyMoodTracker: React.FC = () => {
       </div>
       
       {todayMood && (
-        <div className="text-center text-gray-400 text-sm mt-2">
+        <div className="text-center text-warm-600 text-sm mt-2">
           <span>Current: {currentMoodOption && (
             <span className={cn(
               "inline-block w-3 h-3 rounded-full align-middle ml-1 mr-1",
-              currentMoodOption.score <= 2 ? "bg-red-500" :
-              currentMoodOption.score <= 4 ? "bg-orange-400" :
-              currentMoodOption.score <= 5 ? "bg-gray-400" :
-              currentMoodOption.score <= 7 ? "bg-green-400" :
-              "bg-green-600"
+              currentMoodOption.score <= 2 ? "bg-mood-negative" :
+              currentMoodOption.score <= 4 ? "bg-warning-500" :
+              currentMoodOption.score <= 5 ? "bg-mood-neutral" :
+              currentMoodOption.score <= 7 ? "bg-mood-positive" :
+              "bg-success-500"
             )} />
           )} {currentMoodOption?.label}</span>
           <span className="ml-2 opacity-70">

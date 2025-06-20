@@ -10,10 +10,10 @@ def get_tips_prompt() -> str:
     }
 
     TIP TYPE DISTRIBUTION:
-    - "prompt" (20%) - Creative, thought-provoking questions/statements that spark meaningful therapy conversations
-    - "info" (15%) - Unique, unconventional self-care techniques and mental health strategies
+    - "prompt" (10%) - Creative, thought-provoking questions/statements that spark meaningful therapy conversations
+    - "info" (20%) - Unique, unconventional self-care techniques and mental health strategies
     - "ai_guidance" (10%) - Tips on effective AI therapy usage and interaction techniques
-    - "resource" (55%) - Tips that benefit from external links (use tools to find and validate resources)
+    - "resource" (60%) - Tips that benefit from external links (use the search_mental_health_resources and validate_resource tools to find and validate resources)
 
     CREATIVE "prompt" examples (be inspired but create NEW ones):
     {"content": "I've noticed I react differently to stress depending on the time of day - can we explore my emotional patterns?", "type": "prompt", "technique_category": "CBT", "follow_up_prompts": ["What time of day do I feel most emotionally stable?", "How does my sleep affect my stress response?"]}
@@ -36,6 +36,11 @@ def get_tips_prompt() -> str:
     {"content": "Ask your AI to help you identify patterns by saying 'What themes do you notice in our conversations?'", "type": "ai_guidance", "technique_category": "AI_usage"}
     {"content": "Try the 'assumption testing' technique: ask your AI therapist to help you examine a belief by exploring evidence for and against it", "type": "ai_guidance", "technique_category": "AI_usage"}
     {"content": "Use your AI as a 'thinking partner' - share your internal dialogue and ask it to help you notice unhelpful thought patterns", "type": "ai_guidance", "technique_category": "AI_usage"}
+
+    NEW: "resource" instructions (be inspired but create NEW ones):
+    Use the search_mental_health_resources tool to find relevant links.
+    Use the validate_resource tool to validate the resources.
+    Always validate resources before including them.
 
     TOOL USAGE GUIDELINES:
     - For "resource" type tips, use search_mental_health_resources tool to find relevant links

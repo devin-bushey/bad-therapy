@@ -10,12 +10,12 @@ function getMonthDays(year: number, month: number) {
 }
 
 function getMoodColor(score?: number) {
-  if (score == null) return 'bg-gray-400'
-  if (score <= 2) return 'bg-red-500'
-  if (score <= 4) return 'bg-orange-400'
-  if (score <= 5) return 'bg-gray-400'
-  if (score <= 7) return 'bg-green-400'
-  return 'bg-green-600'
+  if (score == null) return 'bg-warm-300'
+  if (score <= 2) return 'bg-mood-negative'
+  if (score <= 4) return 'bg-warning-500'
+  if (score <= 5) return 'bg-mood-neutral'
+  if (score <= 7) return 'bg-mood-positive'
+  return 'bg-success-500'
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -50,11 +50,11 @@ const MoodTrendChart: React.FC = () => {
   ]
   
   return (
-    <div className="bg-gray-800 rounded-2xl shadow-lg p-8 mb-10 border border-gray-700">
-      <div className="font-bold mb-4 text-white text-center">
+    <div className="bg-warm-100 rounded-2xl shadow-lg p-8 mb-10 border border-warm-200">
+      <div className="font-bold mb-4 text-warm-800 text-center">
         {now.toLocaleString('default', { month: 'long' })}
       </div>
-      <div className="grid grid-cols-7 gap-2 mb-2 text-xs text-gray-400 text-center">
+      <div className="grid grid-cols-7 gap-2 mb-2 text-xs text-warm-600 text-center">
         {WEEKDAYS.map(d => <div key={d}>{d}</div>)}
       </div>
       <div className="grid grid-cols-7 gap-2 justify-items-center">

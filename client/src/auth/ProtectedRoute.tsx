@@ -22,17 +22,17 @@ export default function ProtectedRoute<P extends object>(Component: ComponentTyp
     // Handle authentication error or timeout
     if (error || timeoutReached) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-warm-50">
           <div className="text-center">
-            <div className="text-red-400 text-lg mb-4">
+            <div className="text-error-500 text-lg mb-4">
               {error ? 'Authentication Error' : 'Loading Timeout'}
             </div>
-            <div className="text-gray-300 mb-6">
+            <div className="text-warm-600 mb-6">
               {error?.message || 'Authentication is taking too long. Please try again.'}
             </div>
             <button 
               onClick={() => loginWithRedirect()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+              className="bg-earth-500 hover:bg-earth-600 text-warm-50 px-6 py-2 rounded-lg transition-colors"
             >
               Try Again
             </button>

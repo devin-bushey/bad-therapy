@@ -1,13 +1,11 @@
-@import "tailwindcss";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   font-family: 'Inter', Helvetica, Arial, sans-serif;
-  color-scheme: dark;
-  background-color: #181824;
+  color-scheme: light;
+  background-color: #FBF9F7;
 }
 
 /* Tiptap editor list styles (if needed) */
