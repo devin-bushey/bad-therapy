@@ -125,7 +125,6 @@ export default function Chat() {
           className="rounded-xl p-6 flex flex-col flex-1 scrollbar-hide"
           style={{ backgroundColor: 'rgb(35, 35, 58)' }}
         >
-          <div className="flex-grow" />
           <ChatMessages messages={messages} loading={loading} showTypingBubble={
             !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
           } />
