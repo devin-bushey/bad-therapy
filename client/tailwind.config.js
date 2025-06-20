@@ -7,6 +7,16 @@ export default {
         "xs": "375px",
         "max-xs": {"max": "374px"},
         "max-sm": {"max": "639px"}
+      },
+      height: {
+        'dvh': '100dvh', // Dynamic viewport height for mobile
+        'safe': 'calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))'
+      },
+      padding: {
+        'safe-top': 'env(safe-area-inset-top, 1rem)',
+        'safe-bottom': 'env(safe-area-inset-bottom, 1rem)',
+        'safe-left': 'env(safe-area-inset-left, 0px)',
+        'safe-right': 'env(safe-area-inset-right, 0px)'
       }
     }
   },

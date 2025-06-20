@@ -22,6 +22,8 @@ createRoot(document.getElementById('root')!).render(
         domain={authConfig.domain}
         clientId={authConfig.clientId}
         authorizationParams={authConfig.authorizationParams}
+        useRefreshTokens={true}
+        cacheLocation="localstorage"
       >
         <BrowserRouter>
           <Routes>

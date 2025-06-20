@@ -56,8 +56,6 @@ export default function Chat() {
 
   const initialPromptsToShow = initialSuggestedPrompts.length > 0 ? initialSuggestedPrompts : suggestedPrompts
 
-
-
   const handleSend = async () => {
     if (!input.trim() || !sessionId) return
     setInput('')
@@ -70,8 +68,6 @@ export default function Chat() {
     setEditing(false)
   }
 
-  // Remove chat-active class usage - now handled by pure Tailwind layout
-
   // Auto-send initial prompt from URL parameter
   useEffect(() => {
     if (initialPrompt && sessionId && messages.length === 0 && !loading) {
@@ -80,24 +76,12 @@ export default function Chat() {
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
 
   return (
-    <div className="flex flex-col items-center w-screen h-screen bg-slate-900 overflow-hidden" style={{ 
-      /* Prevent body scrolling only in chat - support safe areas */
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      paddingTop: 'env(safe-area-inset-top, 0px)',
-      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-      paddingLeft: 'env(safe-area-inset-left, 0px)',
-      paddingRight: 'env(safe-area-inset-right, 0px)',
-      touchAction: 'none' /* Prevent all touch scrolling on container */
-    }}>
-      {/* Fixed header - always visible at top */}
-      <div className="flex items-center w-full max-w-[600px] px-4 gap-2 text-left overflow-hidden flex-shrink-0 h-16 sm:px-6">
+    <div className="h-dvh flex flex-col bg-slate-900">
+      {/* Fixed Header - Always visible at top */}
+      <header className="flex-shrink-0 h-16 pt-safe-top px-4 flex items-center gap-2 text-left overflow-hidden max-w-[600px] w-full mx-auto">
         <button 
           onClick={() => navigate('/dashboard')} 
-          className="bg-transparent text-blue-400 border-none text-base p-0 min-w-[48px] hover:text-blue-300 transition-colors"
+          className="text-blue-400 hover:text-blue-300 transition-colors text-base p-0 min-w-[48px] bg-transparent border-none"
         >
           Back
         </button>
@@ -128,44 +112,39 @@ export default function Chat() {
             {session?.name || 'Untitled'}
           </span>
         )}
-      </div>
+      </header>
       
-      {/* Scrollable chat messages area - fills remaining space */}
-      <div
-        ref={chatRef}
-        className="w-full max-w-[600px] overflow-y-auto rounded-xl p-6 relative flex flex-col scrollbar-hide"
-        style={{
-          backgroundColor: 'rgb(35, 35, 58)',
-          height: 'calc(100vh - 64px - 80px)', /* viewport - header - input */
-          /* Ensure scrollbar is hidden on all browsers */
-          scrollbarWidth: 'none', /* Firefox */
-          msOverflowStyle: 'none', /* IE and Edge */
-          touchAction: 'pan-y', /* Allow only vertical scrolling on mobile */
-        }}
-      >
-        <ChatMessages messages={messages} loading={loading} showTypingBubble={
-          !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
-        } />
-        {!showFollowupSuggestions && showInitialSuggestedPrompts && (
-          <SuggestedPrompts
-            prompts={initialPromptsToShow}
-            onPromptClick={handlePromptClick}
-            align="flex-end"
-            loading={false}
-          />
-        )}
-        {showFollowupSuggestions && (
-          <SuggestedPrompts
-            prompts={suggestedPrompts}
-            onPromptClick={handlePromptClick}
-            align="flex-end"
-            loading={followupSuggestionsLoading}
-          />
-        )}
-      </div>
+      {/* Scrollable Messages Area - Takes remaining space */}
+      <main className="flex-1 overflow-y-auto px-4 max-w-[600px] w-full mx-auto">
+        <div 
+          ref={chatRef}
+          className="h-full rounded-xl p-6 flex flex-col scrollbar-hide overflow-y-auto"
+          style={{ backgroundColor: 'rgb(35, 35, 58)' }}
+        >
+          <ChatMessages messages={messages} loading={loading} showTypingBubble={
+            !loading && messages.length > 0 && messages[messages.length - 1].content === '' && messages[messages.length - 1].type !== 'human'
+          } />
+          {!showFollowupSuggestions && showInitialSuggestedPrompts && (
+            <SuggestedPrompts
+              prompts={initialPromptsToShow}
+              onPromptClick={handlePromptClick}
+              align="flex-end"
+              loading={false}
+            />
+          )}
+          {showFollowupSuggestions && (
+            <SuggestedPrompts
+              prompts={suggestedPrompts}
+              onPromptClick={handlePromptClick}
+              align="flex-end"
+              loading={followupSuggestionsLoading}
+            />
+          )}
+        </div>
+      </main>
       
-      {/* Fixed input at bottom - always visible */}
-      <div className="w-full bg-slate-900 z-50 py-3 px-4 flex justify-center items-center fixed bottom-0 h-20 shadow-lg">
+      {/* Fixed Input - Always visible at bottom */}
+      <footer className="flex-shrink-0 h-20 pb-safe-bottom px-4 flex items-center justify-center bg-slate-900 shadow-lg">
         <ChatInput
           input={input}
           onInput={setInput}
@@ -173,7 +152,7 @@ export default function Chat() {
           loading={loading}
           onLightbulbClick={handleLightbulbClickWithScroll}
         />
-      </div>
+      </footer>
     </div>
   )
 }
