@@ -55,10 +55,31 @@ export default function Dashboard() {
                         <SessionsTable sessions={sessions} loading={loading} />
                     </div>
                 </section>
-                <section className="pb-3">
+                <section className="mb-3">
                     <h2 className="font-bold mb-3 text-warm-800">Mood Tracker</h2>
                     <MoodTrendChart />
                 </section>
+
+                <footer className="mt-8 pt-6 border-t border-warm-200 pb-10">
+                    <div className="text-center text-sm text-warm-500 space-x-4">
+                        <a 
+                            href="/terms" 
+                            className="hover:text-warm-700 transition-colors underline"
+                        >
+                            Terms of Service
+                        </a>
+                        <span>•</span>
+                        <a 
+                            href="/privacy" 
+                            className="hover:text-warm-700 transition-colors underline"
+                        >
+                            Privacy Policy
+                        </a>
+                    </div>
+                    <div className="text-center text-xs text-warm-400 mt-2">
+                        AI Mental Health Coach - Not a substitute for professional therapy
+                    </div>
+                </footer>
 
             </main>
         </div>
