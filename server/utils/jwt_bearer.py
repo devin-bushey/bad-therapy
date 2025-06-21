@@ -4,6 +4,7 @@ from jose import jwt, JWTError
 from pydantic import BaseModel
 from urllib.request import urlopen
 import json
+from database.user_profile import get_user_profile, create_user_profile
 
 class TokenPayload(BaseModel):
     sub: str
@@ -39,6 +40,27 @@ async def require_auth(request: Request):
             audience=os.environ["AUTH0_AUDIENCE"],
             issuer=f"https://{os.environ['AUTH0_DOMAIN']}/",
         )
-        return TokenPayload(**payload)
+        user = TokenPayload(**payload)
+        
+        # Auto-create user profile if it doesn't exist
+        try:
+            existing_profile = get_user_profile(user_id=user.sub)
+            if not existing_profile:
+                create_user_profile(
+                    user_id=user.sub,
+                    full_name=None,
+                    age=None,
+                    bio=None,
+                    gender=None,
+                    ethnicity=None,
+                    goals=None,
+                    coaching_style=None,
+                    preferred_focus_area=None
+                )
+        except Exception as e:
+            # Log the error but don't fail auth - user can still use the app
+            print(f"Warning: Failed to auto-create user profile for {user.sub}: {e}")
+        
+        return user
     except JWTError:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Invalid token") 

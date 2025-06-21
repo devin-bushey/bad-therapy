@@ -1,5 +1,5 @@
 from datetime import datetime
-from database.connection import get_supabase_client, get_user_profile_table
+from database.connection import get_supabase_client, get_user_profile_table, get_journal_table
 from typing import Optional
 from utils.obfuscation import encrypt_data, decrypt_data
 
@@ -50,4 +50,83 @@ def get_user_profile(*, user_id: str) -> Optional[dict]:
     item['coaching_style'] = decrypt_data(data=item.get('coaching_style', '')).data
     item['preferred_focus_area'] = decrypt_data(data=item.get('preferred_focus_area', '')).data
     return item
+
+def update_user_profile(user_id: str, updates: dict) -> dict:
+    """Update specific fields in user profile"""
+    supabase = get_supabase_client()
+    result = supabase.table(get_user_profile_table()).update(updates).eq('user_id', user_id).execute()
+    return result.data[0] if result.data else None
+
+def increment_message_count(user_id: str) -> dict:
+    """Increment user's message count by 1"""
+    supabase = get_supabase_client()
+    
+    try:
+        # Get current user profile
+        user_profile = get_user_profile(user_id=user_id)
+        
+        if user_profile:
+            # User exists, increment message count
+            current_count = user_profile.get('message_count', 0)
+            new_count = current_count + 1
+            result = supabase.table(get_user_profile_table()).update({
+                'message_count': new_count
+            }).eq('user_id', user_id).execute()
+            
+            if not result.data:
+                raise Exception(f"Failed to update message count for user {user_id}")
+                
+        else:
+            # User doesn't exist, create profile with message_count = 1
+            # This should rarely happen due to auto-creation in auth
+            result = supabase.table(get_user_profile_table()).insert({
+                'user_id': user_id,
+                'message_count': 1,
+                'is_premium': False,
+                'full_name': encrypt_data('').data,
+                'age': encrypt_data('').data,
+                'bio': encrypt_data('').data,
+                'gender': encrypt_data('').data,
+                'ethnicity': encrypt_data('').data,
+                'goals': encrypt_data('').data,
+                'coaching_style': encrypt_data('').data,
+                'preferred_focus_area': encrypt_data('').data,
+                'created_at': datetime.utcnow().isoformat()
+            }).execute()
+            
+            if not result.data:
+                raise Exception(f"Failed to create profile for user {user_id}")
+        
+        return result.data[0]
+        
+    except Exception as e:
+        print(f"Error incrementing message count for user {user_id}: {e}")
+        # Re-raise the exception so calling code can handle it
+        raise e
+
+def delete_user_account(user_id: str) -> bool:
+    """Permanently delete user account and all associated data"""
+    supabase = get_supabase_client()
+    
+    try:
+        # Delete conversation history (messages)
+        supabase.table('conversation_history').delete().eq('user_id', user_id).execute()
+        
+        # Delete sessions
+        supabase.table('sessions').delete().eq('user_id', user_id).execute()
+        
+        # Delete journal entries
+        supabase.table(get_journal_table()).delete().eq('user_id', user_id).execute()
+        
+        # Delete mood entries
+        supabase.table('mood_entries').delete().eq('user_id', user_id).execute()
+        
+        # Delete user profile (last)
+        supabase.table(get_user_profile_table()).delete().eq('user_id', user_id).execute()
+        
+        return True
+        
+    except Exception as e:
+        print(f"Error deleting account for user {user_id}: {e}")
+        raise e
 

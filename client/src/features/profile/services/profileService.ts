@@ -18,4 +18,13 @@ export const saveProfile = async ({ data, token }: { data: ProfileForm, token: s
     })
     if (!res.ok) throw new Error('Failed to save profile')
     return res.json()
+}
+
+export const deleteAccount = async (token: string) => {
+    const res = await fetch(`${API_URL}/user/profile`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    if (!res.ok) throw new Error('Failed to delete account')
+    return res.json()
 } 

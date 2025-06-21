@@ -35,6 +35,27 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTip
     },
     body: JSON.stringify({ session_id: sessionId, prompt, is_tip_message: isTipMessage })
   })
+  
+  // Check for HTTP errors before trying to read stream
+  if (!res.ok) {
+    let errorData
+    try {
+      errorData = await res.json()
+    } catch {
+      errorData = { message: 'Unknown error occurred' }
+    }
+    
+    // Create specific error types based on status code
+    if (res.status === 402) {
+      const error = new Error('MESSAGE_LIMIT_REACHED')
+      error.name = 'MessageLimitError'
+      ;(error as any).details = errorData
+      throw error
+    } else {
+      throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`)
+    }
+  }
+  
   if (!res.body) throw new Error('No response body')
   const reader = res.body.getReader()
   let aiMsg = ''

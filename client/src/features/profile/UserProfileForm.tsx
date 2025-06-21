@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth0 } from '@auth0/auth0-react'
 import Navbar from '../../pages/Navbar'
-import { fetchProfile, saveProfile } from './services/profileService'
+import { fetchProfile, saveProfile, deleteAccount } from './services/profileService'
+import DeleteAccountModal from './components/DeleteAccountModal'
 import type { ProfileForm } from '../../types/profile.types'
 
 export default function UserProfileForm() {
     const queryClient = useQueryClient()
-    const { getAccessTokenSilently } = useAuth0()
+    const { getAccessTokenSilently, logout } = useAuth0()
     const [form, setForm] = useState<ProfileForm>({ full_name: '', age: '', bio: '', gender: '', ethnicity: '', goals: '', coaching_style: '', preferred_focus_area: '' })
     const [initialized, setInitialized] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
 
     const { isLoading } = useQuery({
         queryKey: ['profile'],
@@ -41,10 +43,26 @@ export default function UserProfileForm() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile'] })
     })
 
+    const deleteMutation = useMutation({
+        mutationFn: async () => {
+            const token = await getAccessTokenSilently()
+            return deleteAccount(token)
+        },
+        onSuccess: () => {
+            logout({ logoutParams: { returnTo: window.location.origin } })
+        }
+    })
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+    
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         mutation.mutate(form)
+    }
+
+    const handleDeleteAccount = () => {
+        deleteMutation.mutate()
+        setShowDeleteModal(false)
     }
     return (
         <div className="min-h-screen bg-warm-50 w-full overflow-x-hidden">
@@ -133,10 +151,26 @@ export default function UserProfileForm() {
                             >
                                 Save
                             </button>
+                            
+                            <button 
+                                type="button"
+                                onClick={() => setShowDeleteModal(true)}
+                                disabled={mutation.isPending || deleteMutation.isPending}
+                                className="bg-red-500 text-white border-none rounded-lg py-3 px-0 font-medium text-base mt-4 cursor-pointer shadow-sm hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Delete Account
+                            </button>
                         </>)}
                     </form>
                 </div>
             </div>
+            
+            <DeleteAccountModal 
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleDeleteAccount}
+                isDeleting={deleteMutation.isPending}
+            />
         </div>
     )
 } 
