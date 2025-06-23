@@ -4,15 +4,48 @@ from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
 from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
 from utils.jwt_bearer import require_auth
+from utils.billing_utils import create_message_limit_response, is_message_valid_for_counting
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
+from service.billing_service import billing_service
 from models.ai import AIRequest
 from models.therapy import TherapyState
+from core.config import get_settings
 import logging
 import json
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+def check_and_handle_message_limits(user, data) -> StreamingResponse | None:
+    """
+    Check message limits and handle billing logic for AI message generation.
+    
+    Args:
+        user: Authenticated user object
+        data: AIRequest data containing the prompt
+        
+    Returns:
+        JSONResponse if limit reached, None if user can proceed
+    """
+    if not billing_service.is_billing_enabled():
+        return None
+    
+    # Check message limits using billing service
+    limit_check = billing_service.check_message_limits(user.sub)
+    
+    if not limit_check["can_send"]:
+        error_data = billing_service.format_limit_error_response(user.sub)
+        return create_message_limit_response(error_data)
+    
+    # Increment message count IMMEDIATELY when user sends a valid message
+    if is_message_valid_for_counting(data.prompt):
+        success = billing_service.increment_user_message_count(user.sub)
+        if not success:
+            # Log error but don't block the user from sending the message
+            logger.warning(f"Failed to increment message count for user {user.sub}")
+    
+    return None
 
 @router.post("/ai/generate-stream")
 async def generate_ai_response_stream(
@@ -20,6 +53,11 @@ async def generate_ai_response_stream(
     user=Depends(require_auth)
 ):
     try:
+        # Check message limits and handle billing logic
+        limit_response = check_and_handle_message_limits(user, data)
+        if limit_response:
+            return limit_response
+        
         history = get_conversation_history(session_id=data.session_id, user_id=user.sub)
         
         state = TherapyState(

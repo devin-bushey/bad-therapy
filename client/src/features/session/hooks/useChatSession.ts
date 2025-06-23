@@ -4,12 +4,20 @@ import type { Message, TherapySession } from '../../../types/session.types'
 import { fetchSession, patchSessionName, streamAIMessage } from '../services/chat_services'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AIChunk } from '../services/chat_services'
+import { useBillingContext } from '../../billing'
 
 export function useChatSession(sessionId?: string, skipInitialMessage?: boolean) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
+  const { refetch: refetchBilling, isMessageLimitReached } = useBillingContext()
   const [messages, setMessages] = useState<Message[]>([])
   const [nameInput, setNameInput] = useState('')
   const [initialSuggestedPrompts, setInitialSuggestedPrompts] = useState<string[]>([])
+  const [messageLimitReached, setMessageLimitReached] = useState(false)
+  const [limitErrorDetails, setLimitErrorDetails] = useState<{
+    message?: string
+    current_count?: number
+    limit?: number
+  } | null>(null)
   const didInit = useRef(false)
   const queryClient = useQueryClient()
 
@@ -75,22 +83,45 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
       if (messages.length + 2 === 6) {
         try { await sessionQuery.refetch() } catch (e) { console.error('Failed to refetch session:', e) }
       }
-    } catch {
-      setMessages(msgs => {
-        // Remove the last (empty) ai message and add error message
-        if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
+      // Refresh billing data after message is sent to update message count
+      try { await refetchBilling() } catch (e) { console.error('Failed to refresh billing data:', e) }
+    } catch (error: unknown) {
+      // Handle specific message limit error
+      if (error && typeof error === 'object' && 'name' in error && error.name === 'MessageLimitError') {
+        setMessageLimitReached(true)
+        setLimitErrorDetails('details' in error ? error.details as { message?: string; current_count?: number; limit?: number } : null)
+        setMessages(msgs => {
+          // Remove the last (empty) ai message
+          if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
+            return msgs.slice(0, -1)
+          }
+          return msgs
+        })
+      } else {
+        // Handle other errors with generic message
+        setMessages(msgs => {
+          // Remove the last (empty) ai message and add error message
+          if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
+            return [
+              ...msgs.slice(0, -1),
+              { content: 'Sorry, something went wrong. Please try again.', type: 'ai' }
+            ]
+          }
           return [
-            ...msgs.slice(0, -1),
+            ...msgs,
             { content: 'Sorry, something went wrong. Please try again.', type: 'ai' }
           ]
-        }
-        return [
-          ...msgs,
-          { content: 'Sorry, something went wrong. Please try again.', type: 'ai' }
-        ]
-      })
+        })
+      }
     }
-  }, [sessionId, getAccessTokenSilently, messages.length, sessionQuery])
+  }, [sessionId, getAccessTokenSilently, messages.length, sessionQuery, refetchBilling])
+
+  // Sync local message limit state with billing context
+  useEffect(() => {
+    if (isMessageLimitReached && !messageLimitReached) {
+      setMessageLimitReached(true)
+    }
+  }, [isMessageLimitReached, messageLimitReached])
 
   // Initial AI message logic
   useEffect(() => {
@@ -119,6 +150,9 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
     sendAIMessage,
     saveName: (name: string) => patchNameMutation.mutateAsync(name),
     initialSuggestedPrompts,
-    setInitialSuggestedPrompts
+    setInitialSuggestedPrompts,
+    messageLimitReached,
+    limitErrorDetails,
+    setMessageLimitReached
   }
 } 

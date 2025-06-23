@@ -3,6 +3,7 @@ import { SessionsTable } from './components/SessionsTable'
 import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
+import { BillingBanner, CheckoutStatusHandler } from '../billing'
 import Navbar from '../../pages/Navbar'
 import DailyMoodTracker from '../mood/components/DailyMoodTracker'
 import MoodTrendChart from '../mood/components/MoodTrendChart'
@@ -44,6 +45,13 @@ export default function Dashboard() {
                         </button>
                     </div>
                 </section>
+
+                {/* Checkout Status Messages */}
+                <CheckoutStatusHandler />
+
+                {/* Billing Banner */}
+                <BillingBanner />
+
                 <section>
                     <h2 className="font-bold mb-3 text-warm-800">Today's Mood</h2>
                     <DailyMoodTracker />

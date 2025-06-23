@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     PERPLEXITY_API_KEY: str
     GOOGLE_MAPS_API_KEY: str
     SERPAPI_API_KEY: str
+    STRIPE_SECRET_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
+    FRONTEND_URL: str
+    BILLING_ENABLED: bool = False
 
     class Config:
         env_file = ".env"

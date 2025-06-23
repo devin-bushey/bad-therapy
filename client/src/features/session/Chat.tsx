@@ -5,6 +5,7 @@ import { useSuggestFollowupPrompts } from './hooks/useSuggestFollowupPrompts'
 import { ChatMessages } from './components/ChatMessages'
 import { ChatInput } from './components/ChatInput'
 import SuggestedPrompts from './components/SuggestedPrompts'
+import { MessageLimitReached } from '../billing'
 
 export default function Chat() {
   const [searchParams] = useSearchParams()
@@ -18,7 +19,9 @@ export default function Chat() {
     setNameInput,
     sendAIMessage,
     saveName,
-    initialSuggestedPrompts
+    initialSuggestedPrompts,
+    messageLimitReached,
+    limitErrorDetails,
   } = useChatSession(sessionId, !!initialPrompt)
   const {
     suggestedPrompts,
@@ -101,13 +104,13 @@ export default function Chat() {
               </button>
             </form>
           ) : (
-            <span
-              className="text-lg font-bold text-warm-800 bg-warm-200 hover:bg-warm-300 rounded-lg py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis flex-1 cursor-pointer transition-colors"
-              onClick={() => setEditing(true)}
-              title={session?.name || 'Untitled'}
-            >
-              {session?.name || 'Untitled'}
-            </span>
+              <span
+                className="text-lg font-bold text-warm-800 bg-warm-200 hover:bg-warm-300 rounded-lg py-1 px-3 whitespace-nowrap overflow-hidden text-ellipsis flex-1 cursor-pointer transition-colors"
+                onClick={() => setEditing(true)}
+                title={session?.name || 'Untitled'}
+              >
+                {session?.name || 'Untitled'}
+              </span>
           )}
         </div>
       </header>
@@ -140,6 +143,13 @@ export default function Chat() {
             />
           )}
         </div>
+        
+        {/* Message Limit Reached Component */}
+        {messageLimitReached && (
+          <MessageLimitReached
+            errorDetails={limitErrorDetails}
+          />
+        )}
       </main>
       
       {/* Fixed Input - Always visible at bottom */}
@@ -150,6 +160,8 @@ export default function Chat() {
           onSend={handleSend}
           loading={loading}
           onLightbulbClick={handleLightbulbClickWithScroll}
+          disabled={messageLimitReached}
+          disabledMessage="Upgrade to Premium to continue chatting"
         />
       </footer>
     </div>
