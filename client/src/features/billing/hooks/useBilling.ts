@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth0 } from '@auth0/auth0-react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { type BillingData, createBillingService } from '../services/BillingService'
 import { useApiClient } from '../../../shared/services/apiClient'
 
@@ -17,11 +17,17 @@ export interface UseBillingReturn {
   usageText: string
   isPremium: boolean
   messagesRemaining: number | null
+  isCreatingCheckout: boolean
+  isOpeningPortal: boolean
 }
 
 export function useBilling(): UseBillingReturn {
   const { isAuthenticated } = useAuth0()
   const apiClient = useApiClient()
+  
+  // Loading states for billing actions
+  const [isCreatingCheckout, setIsCreatingCheckout] = useState(false)
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false)
   
   // Create billing service instance
   const billingService = useMemo(() => {
@@ -87,6 +93,9 @@ export function useBilling(): UseBillingReturn {
 
   // Optimized checkout session creation
   const createCheckoutSession = useCallback(async () => {
+    if (isCreatingCheckout) return // Prevent double-clicks
+    
+    setIsCreatingCheckout(true)
     try {
       const url = await billingService.createCheckoutSession()
       if (url) {
@@ -98,11 +107,16 @@ export function useBilling(): UseBillingReturn {
       console.error('Error creating checkout session:', error)
       const message = error instanceof Error ? error.message : 'Unknown error'
       alert(`Error: ${message}`)
+    } finally {
+      setIsCreatingCheckout(false)
     }
-  }, [billingService, refetch])
+  }, [billingService, refetch, isCreatingCheckout])
 
   // Optimized billing portal opening
   const openBillingPortal = useCallback(async (sessionId?: string) => {
+    if (isOpeningPortal) return // Prevent double-clicks
+    
+    setIsOpeningPortal(true)
     try {
       const finalSessionId = sessionId || billingData?.stripe_session_id
       if (!finalSessionId) {
@@ -119,8 +133,10 @@ export function useBilling(): UseBillingReturn {
       console.error('Error opening billing portal:', error)
       const message = error instanceof Error ? error.message : 'Unknown error'
       alert(`Error: ${message}`)
+    } finally {
+      setIsOpeningPortal(false)
     }
-  }, [billingService, billingData, refetch])
+  }, [billingService, billingData, refetch, isOpeningPortal])
 
   return {
     billingData,
@@ -135,5 +151,7 @@ export function useBilling(): UseBillingReturn {
     usageText,
     isPremium,
     messagesRemaining,
+    isCreatingCheckout,
+    isOpeningPortal,
   }
 }

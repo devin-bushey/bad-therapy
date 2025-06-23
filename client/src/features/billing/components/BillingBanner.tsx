@@ -13,7 +13,9 @@ export function BillingBanner({ className = "mb-8", size = 'default' }: BillingB
     createCheckoutSession, 
     openBillingPortal,
     usageText,
-    isPremium
+    isPremium,
+    isCreatingCheckout,
+    isOpeningPortal
   } = useBillingContext()
 
   // Show loading skeleton while data is loading
@@ -44,9 +46,10 @@ export function BillingBanner({ className = "mb-8", size = 'default' }: BillingB
             </div>
             <button
               onClick={() => openBillingPortal()}
-              className={`text-green-600 hover:text-green-800 underline transition-colors ${compactMode ? 'text-xs' : 'text-xs'}`}
+              disabled={isOpeningPortal}
+              className={`text-green-600 hover:text-green-800 underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${compactMode ? 'text-xs' : 'text-xs'}`}
             >
-              Manage
+              {isOpeningPortal ? 'Loading...' : 'Manage'}
             </button>
           </div>
         </div>
@@ -64,13 +67,14 @@ export function BillingBanner({ className = "mb-8", size = 'default' }: BillingB
             </div>
             <button 
               onClick={createCheckoutSession}
-              className={`bg-earth-500 text-warm-50 rounded font-medium hover:bg-earth-600 transition-colors ${
+              disabled={isCreatingCheckout}
+              className={`bg-earth-500 text-warm-50 rounded font-medium hover:bg-earth-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-earth-500 ${
                 compactMode 
                   ? 'px-2 py-1 text-xs' 
                   : 'px-3 py-1.5 text-xs'
               }`}
             >
-              Upgrade
+              {isCreatingCheckout ? 'Loading...' : 'Upgrade'}
             </button>
           </div>
         </div>

@@ -96,19 +96,22 @@ async def stripe_webhook(request: Request) -> WebhookResponse:
         payload = await request.body()
         sig_header = request.headers.get("stripe-signature")
         
+        # Always require webhook signature verification in production
+        if not STRIPE_WEBHOOK_SECRET:
+            print("❌ Webhook error - STRIPE_WEBHOOK_SECRET not configured")
+            raise HTTPException(status_code=500, detail="Webhook secret not configured")
+        
+        if not sig_header:
+            print("❌ Webhook error - Missing stripe-signature header")
+            raise HTTPException(status_code=400, detail="Missing signature header")
+        
         # Verify webhook signature
-        if STRIPE_WEBHOOK_SECRET:
-            event = stripe.Webhook.construct_event(
-                payload=payload, 
-                sig_header=sig_header, 
-                secret=STRIPE_WEBHOOK_SECRET
-            )
-            data = event['data']
-        else:
-            # For development without webhook secret
-            event_data = json.loads(payload)
-            data = event_data['data']
-            event = event_data
+        event = stripe.Webhook.construct_event(
+            payload=payload, 
+            sig_header=sig_header, 
+            secret=STRIPE_WEBHOOK_SECRET
+        )
+        data = event['data']
         
         event_type = event['type']
         data_object = data['object']

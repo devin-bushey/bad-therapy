@@ -11,7 +11,7 @@ export function CheckoutSuccessMessage({
   onDismiss, 
   className = "mb-6" 
 }: CheckoutSuccessMessageProps) {
-  const { openBillingPortal } = useBillingContext()
+  const { openBillingPortal, isOpeningPortal } = useBillingContext()
   
   const handleManageSubscription = () => {
     if (sessionId) {
@@ -31,9 +31,10 @@ export function CheckoutSuccessMessage({
             {sessionId && (
               <button
                 onClick={handleManageSubscription}
-                className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition-colors"
+                disabled={isOpeningPortal}
+                className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600"
               >
-                Manage Subscription
+                {isOpeningPortal ? 'Loading...' : 'Manage Subscription'}
               </button>
             )}
           </div>
