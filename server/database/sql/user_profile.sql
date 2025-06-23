@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS user_profile (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id text NOT NULL,
+    email text,
     full_name text,
     age text,
     bio text,
@@ -15,4 +16,4 @@ CREATE TABLE IF NOT EXISTS user_profile (
     stripe_session_id text,
     created_at timestamptz NOT NULL DEFAULT now()
 );
--- All fields except id, user_id, created_at will be stored encrypted 
+-- All fields except id, user_id, email, created_at, message_count, is_premium, stripe_customer_id, stripe_session_id will be stored encrypted 

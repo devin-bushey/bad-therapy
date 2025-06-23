@@ -47,9 +47,9 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTip
     
     // Create specific error types based on status code
     if (res.status === 402) {
-      const error = new Error('MESSAGE_LIMIT_REACHED')
+      const error = new Error('MESSAGE_LIMIT_REACHED') as Error & { details: typeof errorData }
       error.name = 'MessageLimitError'
-      ;(error as any).details = errorData
+      error.details = errorData
       throw error
     } else {
       throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`)

@@ -8,6 +8,7 @@ router = APIRouter()
 async def create_profile(profile: UserProfileCreate, user=Depends(require_auth)) -> UserProfile:
     created = create_user_profile(
         user_id=user.sub,
+        email=user.email,  # Add email from JWT token
         full_name=profile.full_name,
         age=profile.age,
         bio=profile.bio,

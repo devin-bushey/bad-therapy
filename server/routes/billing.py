@@ -7,6 +7,7 @@ from models.user import UserProfile
 from utils.jwt_bearer import require_auth
 import json
 from pydantic import BaseModel
+from core.config import get_settings
 
 router = APIRouter()
 
@@ -24,6 +25,10 @@ async def create_checkout_session(
     current_user = Depends(require_auth)
 ):
     """Create Stripe Checkout Session for subscription"""
+    settings = get_settings()
+    if not settings.BILLING_ENABLED:
+        raise HTTPException(status_code=400, detail="Billing is currently disabled")
+    
     try:
         # Get price using lookup key (following Stripe best practices)
         prices = stripe.Price.list(
@@ -66,6 +71,10 @@ async def create_portal_session(
     current_user = Depends(require_auth)
 ):
     """Create Stripe Customer Portal session for billing management"""
+    settings = get_settings()
+    if not settings.BILLING_ENABLED:
+        raise HTTPException(status_code=400, detail="Billing is currently disabled")
+    
     try:
         # Following Stripe sample pattern - use checkout session to get customer
         checkout_session = stripe.checkout.Session.retrieve(request.session_id)
@@ -209,13 +218,27 @@ async def stripe_webhook(request: Request):
 async def get_usage(current_user = Depends(require_auth)):
     """Get user's current usage and subscription status"""
     try:
+        settings = get_settings()
+        
+        # If billing is disabled, all users are premium with unlimited messages
+        if not settings.BILLING_ENABLED:
+            return {
+                "message_count": 0,
+                "is_premium": True,
+                "messages_remaining": None,
+                "billing_enabled": False
+            }
+        
         user_profile = get_user_profile(user_id=current_user.sub)
+
+        print(f'User profile: {user_profile}')
         
         if not user_profile:
             return {
                 "message_count": 0,
                 "is_premium": False,
-                "messages_remaining": 10
+                "messages_remaining": 10,
+                "billing_enabled": True
             }
         
         message_count = user_profile.get('message_count', 0)
@@ -227,7 +250,8 @@ async def get_usage(current_user = Depends(require_auth)):
             "message_count": message_count,
             "is_premium": is_premium,
             "messages_remaining": messages_remaining,
-            "stripe_session_id": stripe_session_id
+            "stripe_session_id": stripe_session_id,
+            "billing_enabled": True
         }
         
     except Exception as e:

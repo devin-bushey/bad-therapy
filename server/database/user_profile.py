@@ -3,7 +3,7 @@ from database.connection import get_supabase_client, get_user_profile_table, get
 from typing import Optional
 from utils.obfuscation import encrypt_data, decrypt_data
 
-def create_user_profile(*, user_id: str, full_name: Optional[str], age: Optional[int], bio: Optional[str], gender: Optional[str] = None, ethnicity: Optional[str] = None, goals: Optional[str] = None, coaching_style: Optional[str] = None, preferred_focus_area: Optional[str] = None) -> dict:
+def create_user_profile(*, user_id: str, email: Optional[str] = None, full_name: Optional[str], age: Optional[int], bio: Optional[str], gender: Optional[str] = None, ethnicity: Optional[str] = None, goals: Optional[str] = None, coaching_style: Optional[str] = None, preferred_focus_area: Optional[str] = None) -> dict:
     supabase = get_supabase_client()
     encrypted_full_name = encrypt_data(data=full_name or '')
     encrypted_age = encrypt_data(data=age or '')
@@ -17,6 +17,7 @@ def create_user_profile(*, user_id: str, full_name: Optional[str], age: Optional
     existing = supabase.table(get_user_profile_table()).select('id').eq('user_id', user_id).limit(1).execute()
     data = {
         "user_id": user_id,
+        "email": email,  # Store email in plaintext
         "full_name": encrypted_full_name.data,
         "age": encrypted_age.data,
         "bio": encrypted_bio.data,
@@ -41,6 +42,8 @@ def get_user_profile(*, user_id: str) -> Optional[dict]:
     if not result.data:
         return None
     item = result.data[0]
+    # Email is stored in plaintext, no decryption needed
+    # item['email'] already contains the plaintext email
     item['full_name'] = decrypt_data(data=item['full_name']).data
     item['age'] = decrypt_data(data=item['age']).data
     item['bio'] = decrypt_data(data=item['bio']).data
@@ -81,7 +84,8 @@ def increment_message_count(user_id: str) -> dict:
             # This should rarely happen due to auto-creation in auth
             result = supabase.table(get_user_profile_table()).insert({
                 'user_id': user_id,
-                'message_count': 1,
+                'email': None,  # Will be set later when available
+                'message_count': 0,
                 'is_premium': False,
                 'full_name': encrypt_data('').data,
                 'age': encrypt_data('').data,

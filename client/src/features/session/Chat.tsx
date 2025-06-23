@@ -5,14 +5,12 @@ import { useSuggestFollowupPrompts } from './hooks/useSuggestFollowupPrompts'
 import { ChatMessages } from './components/ChatMessages'
 import { ChatInput } from './components/ChatInput'
 import SuggestedPrompts from './components/SuggestedPrompts'
-import { useBillingContext } from '../../contexts/BillingContext'
 import { MessageLimitReached } from './components/MessageLimitReached'
 
 export default function Chat() {
   const [searchParams] = useSearchParams()
   const sessionId = searchParams.get('sessionId') || undefined
   const initialPrompt = searchParams.get('initialPrompt')
-  const { billingData, loading: billingLoading } = useBillingContext()
   const {
     messages,
     session,

@@ -14,7 +14,7 @@ import PageNotFound from './pages/PageNotFound.tsx'
 import Journal from './features/journal/Journal.tsx'
 import TermsOfService from './features/legal/components/TermsOfService.tsx'
 import PrivacyPolicy from './features/legal/components/PrivacyPolicy.tsx'
-import { BillingProvider } from './contexts/BillingContext.tsx'
+import { BillingProvider } from './features/billing/contexts/BillingContext.tsx'
 
 const queryClient = new QueryClient()
 

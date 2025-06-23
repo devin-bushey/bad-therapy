@@ -1,14 +1,11 @@
 import React, { createContext, useContext } from 'react'
-import { useBilling } from '../features/dashboard/hooks/useBilling'
+import { useBilling, type UseBillingReturn } from '../hooks/useBilling'
 
-interface BillingContextType {
-  billingData: any
-  loading: boolean
-  error: string | null
-  refetch: () => Promise<void>
-  createCheckoutSession: () => Promise<void>
-  openBillingPortal: (sessionId?: string) => Promise<void>
-}
+// Re-export the billing data type for convenience
+export type { BillingData } from '../services/BillingService'
+
+// Use the complete billing interface
+type BillingContextType = UseBillingReturn
 
 const BillingContext = createContext<BillingContextType | undefined>(undefined)
 

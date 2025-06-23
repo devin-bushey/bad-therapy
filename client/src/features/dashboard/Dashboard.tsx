@@ -3,7 +3,8 @@ import { SessionsTable } from './components/SessionsTable'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
-import { useBillingContext } from '../../contexts/BillingContext'
+import { BillingBanner } from '../billing'
+import { useBillingContext } from '../billing/contexts/BillingContext'
 import Navbar from '../../pages/Navbar'
 import DailyMoodTracker from '../mood/components/DailyMoodTracker'
 import MoodTrendChart from '../mood/components/MoodTrendChart'
@@ -15,7 +16,7 @@ export default function Dashboard() {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
-    const { billingData, loading: billingLoading, createCheckoutSession, openBillingPortal } = useBillingContext()
+    const { openBillingPortal } = useBillingContext()
     const [checkoutStatus, setCheckoutStatus] = useState<'success' | 'canceled' | null>(null)
     const [sessionId, setSessionId] = useState<string | null>(null)
 
@@ -101,51 +102,7 @@ export default function Dashboard() {
                 )}
 
                 {/* Billing Banner */}
-                {!billingLoading && (
-                    <section className="mb-8">
-                        {billingData && billingData.is_premium ? (
-                            // Premium Status - Minimal
-                            <div className="bg-green-50 rounded-lg p-3">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-green-800 text-sm font-medium">
-                                            ✨ Premium Plan Active
-                                        </p>
-                                        <p className="text-green-600 text-xs">
-                                            Unlimited messages • $5/week
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => openBillingPortal(billingData?.stripe_session_id)}
-                                        className="text-green-600 hover:text-green-800 text-xs underline transition-colors"
-                                    >
-                                        Manage
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            // Free Trial - Minimal Banner
-                            <div className="bg-warm-100 rounded-lg p-3">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-warm-800 text-sm">
-                                            {billingData?.message_count || 0}/10 free messages used
-                                        </p>
-                                        <p className="text-warm-600 text-xs">
-                                            Upgrade for unlimited • $5/week
-                                        </p>
-                                    </div>
-                                    <button 
-                                        onClick={createCheckoutSession}
-                                        className="bg-earth-500 text-warm-50 px-3 py-1.5 rounded text-xs font-medium hover:bg-earth-600 transition-colors"
-                                    >
-                                        Upgrade
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </section>
-                )}
+                <BillingBanner />
 
                 <section>
                     <h2 className="font-bold mb-3 text-warm-800">Today's Mood</h2>

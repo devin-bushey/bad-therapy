@@ -9,6 +9,7 @@ from database.conversation_history import get_conversation_history, save_convers
 from database.user_profile import get_user_profile, increment_message_count
 from models.ai import AIRequest
 from models.therapy import TherapyState
+from core.config import get_settings
 import logging
 import json
 
@@ -21,30 +22,34 @@ async def generate_ai_response_stream(
     user=Depends(require_auth)
 ):
     try:
-        # Check message limits for non-premium users
-        user_profile = get_user_profile(user_id=user.sub)
-        if user_profile and not user_profile.get('is_premium', False):
-            message_count = user_profile.get('message_count', 0)
-            if message_count >= 10:
-                from fastapi.responses import JSONResponse
-                return JSONResponse(
-                    status_code=402,
-                    content={
-                        "error_type": "MESSAGE_LIMIT_REACHED",
-                        "message": "You've reached your 10 free message limit. Upgrade to Premium for unlimited messages!",
-                        "current_count": message_count,
-                        "limit": 10,
-                        "upgrade_required": True
-                    }
-                )
-            
-            # Increment message count IMMEDIATELY when user sends a non-empty message
-            if data.prompt and data.prompt.strip():
-                try:
-                    increment_message_count(user.sub)
-                except Exception as e:
-                    # Log error but don't block the user from sending the message
-                    print(f"Warning: Failed to increment message count for user {user.sub}: {e}")
+        settings = get_settings()
+        
+        # Skip message limits if billing is disabled (all users are premium)
+        if settings.BILLING_ENABLED:
+            # Check message limits for non-premium users
+            user_profile = get_user_profile(user_id=user.sub)
+            if user_profile and not user_profile.get('is_premium', False):
+                message_count = user_profile.get('message_count', 0)
+                if message_count >= 10:
+                    from fastapi.responses import JSONResponse
+                    return JSONResponse(
+                        status_code=402,
+                        content={
+                            "error_type": "MESSAGE_LIMIT_REACHED",
+                            "message": "You've reached your 10 free message limit. Upgrade to Premium for unlimited messages!",
+                            "current_count": message_count,
+                            "limit": 10,
+                            "upgrade_required": True
+                        }
+                    )
+                
+                # Increment message count IMMEDIATELY when user sends a non-empty message
+                if data.prompt and data.prompt.strip():
+                    try:
+                        increment_message_count(user.sub)
+                    except Exception as e:
+                        # Log error but don't block the user from sending the message
+                        print(f"Warning: Failed to increment message count for user {user.sub}: {e}")
         
         history = get_conversation_history(session_id=data.session_id, user_id=user.sub)
         

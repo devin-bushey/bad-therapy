@@ -4,6 +4,7 @@ from typing import Optional
 class UserProfile(BaseModel):
     id: str
     user_id: str
+    email: Optional[str] = None
     full_name: Optional[str] = None
     age: Optional[str] = None
     bio: Optional[str] = None
@@ -19,6 +20,7 @@ class UserProfile(BaseModel):
     created_at: str
 
 class UserProfileCreate(BaseModel):
+    email: Optional[str] = None
     full_name: Optional[str] = None
     age: Optional[str] = None
     bio: Optional[str] = None

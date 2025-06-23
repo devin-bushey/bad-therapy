@@ -1,19 +1,28 @@
-import { useBillingContext } from '../../../contexts/BillingContext'
+import { useBillingContext } from '../../billing/contexts/BillingContext'
 
 interface MessageLimitReachedProps {
-  errorDetails?: any
+  errorDetails?: {
+    message?: string
+    current_count?: number
+    limit?: number
+  } | null
   onDismiss?: () => void
 }
 
 export function MessageLimitReached({ errorDetails, onDismiss }: MessageLimitReachedProps) {
-  const { createCheckoutSession } = useBillingContext()
+  const { createCheckoutSession, billingData } = useBillingContext()
+  
+  // Don't show message limit reached if billing is disabled
+  if (billingData && billingData.billing_enabled === false) {
+    return null
+  }
   
   const handleUpgrade = () => {
     createCheckoutSession()
   }
 
   const message = errorDetails?.message || "You've reached your 10 free message limit. Upgrade to Premium for unlimited messages!"
-  const currentCount = errorDetails?.current_count || 10
+  const currentCount = errorDetails?.current_count || billingData?.message_count || 10
   const limit = errorDetails?.limit || 10
 
   return (
