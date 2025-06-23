@@ -82,6 +82,7 @@ sqlalchemy==2.0.40
 starlette==0.46.2
 storage3==0.11.3
 strenum==0.4.15
+stripe==12.2.0
 supabase==2.15.1
 supafunc==0.9.4
 tenacity==9.1.2
@@ -91,7 +92,6 @@ typer==0.15.3
 typing-extensions==4.13.2
 typing-inspection==0.4.0
 urllib3==2.4.0
-uv==0.7.3
 uvicorn==0.34.2
 uvloop==0.21.0
 watchfiles==1.0.5
