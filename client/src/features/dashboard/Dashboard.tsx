@@ -8,11 +8,14 @@ import Navbar from '../../pages/Navbar'
 import DailyMoodTracker from '../mood/components/DailyMoodTracker'
 import MoodTrendChart from '../mood/components/MoodTrendChart'
 import { TipsSection } from '../tips'
+import { JournalEntriesTable } from '../journal/components/JournalEntriesTable'
+import { useJournalEntries } from '../journal/hooks/useJournalEntries'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()
     const navigate = useNavigate()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
+    const { entries, loading: entriesLoading } = useJournalEntries(isAuthenticated, getAccessTokenSilently)
 
     return (
         <div className="min-h-screen bg-warm-50">
@@ -61,6 +64,12 @@ export default function Dashboard() {
                     <h2 className="font-bold mb-3 text-warm-800">Recent Sessions</h2>
                     <div className="bg-warm-100 rounded-2xl shadow-lg p-8 mb-10 border border-warm-200">
                         <SessionsTable sessions={sessions} loading={loading} />
+                    </div>
+                </section>
+                <section>
+                    <h2 className="font-bold mb-3 text-warm-800">Recent Journal Entries</h2>
+                    <div className="bg-warm-100 rounded-2xl shadow-lg p-8 mb-10 border border-warm-200">
+                        <JournalEntriesTable entries={entries} loading={entriesLoading} />
                     </div>
                 </section>
                 <section className="mb-3">

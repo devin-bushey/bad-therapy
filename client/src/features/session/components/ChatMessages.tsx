@@ -60,8 +60,26 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
     )
   }
 
-  function isJournalSavedMessage(msg: string) {
-    return msg === 'Journal entry saved! Click me to view it.'
+  function parseJournalMessage(msg: string): { isJournalMessage: boolean; entryId?: string; displayText?: string } {
+    // Check for new format with entry ID
+    const newFormatMatch = msg.match(/^(Journal entry saved! Click to view it\.) \{\"entry_id\": \"([^"]+)\"\}$/)
+    if (newFormatMatch) {
+      return {
+        isJournalMessage: true,
+        entryId: newFormatMatch[2],
+        displayText: newFormatMatch[1]
+      }
+    }
+    
+    // Check for legacy format for backward compatibility
+    if (msg === 'Journal entry saved! Click me to view it.') {
+      return {
+        isJournalMessage: true,
+        displayText: msg
+      }
+    }
+    
+    return { isJournalMessage: false }
   }
 
   return (
@@ -70,17 +88,26 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
         const { summary, therapists } = parseSummaryAndTherapists(m.content)
         const elements = []
         if (summary) {
-          if (isJournalSavedMessage(summary)) {
+          const journalInfo = parseJournalMessage(summary)
+          if (journalInfo.isJournalMessage) {
+            const handleJournalClick = () => {
+              if (journalInfo.entryId) {
+                navigate(`/journal/${journalInfo.entryId}`)
+              } else {
+                navigate('/journal')
+              }
+            }
+            
             elements.push(
               <div
                 key={i + '-journal-link'}
                 className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}
               >
                 <span
-                  onClick={() => navigate('/journal')}
+                  onClick={handleJournalClick}
                   className="inline-block bg-ai-500 text-warm-50 rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left cursor-pointer shadow-lg hover:bg-ai-600 transition-colors"
                 >
-                  {summary}
+                  {journalInfo.displayText}
                 </span>
               </div>
             )
