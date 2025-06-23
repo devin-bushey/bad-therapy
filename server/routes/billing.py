@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import stripe
 import os
-from database.user_profile import get_user_profile, update_user_profile
-from models.user import UserProfile
+from service.billing_service import billing_service
+from models.billing import (
+    CheckoutRequest, PortalRequest, UsageResponse, 
+    CheckoutResponse, PortalResponse, WebhookResponse
+)
 from utils.jwt_bearer import require_auth
 import json
-from pydantic import BaseModel
 from core.config import get_settings
 
 router = APIRouter()
@@ -16,17 +18,14 @@ stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
-class CheckoutRequest(BaseModel):
-    lookup_key: str = "premium-plan"
 
 @router.post("/create-checkout-session")
 async def create_checkout_session(
     request: CheckoutRequest,
     current_user = Depends(require_auth)
-):
+) -> CheckoutResponse:
     """Create Stripe Checkout Session for subscription"""
-    settings = get_settings()
-    if not settings.BILLING_ENABLED:
+    if not billing_service.is_billing_enabled():
         raise HTTPException(status_code=400, detail="Billing is currently disabled")
     
     try:
@@ -57,22 +56,19 @@ async def create_checkout_session(
             }
         )
         
-        return {"url": checkout_session.url}
+        return CheckoutResponse(url=checkout_session.url)
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-class PortalRequest(BaseModel):
-    session_id: str
 
 @router.post("/create-portal-session")
 async def create_portal_session(
     request: PortalRequest,
     current_user = Depends(require_auth)
-):
+) -> PortalResponse:
     """Create Stripe Customer Portal session for billing management"""
-    settings = get_settings()
-    if not settings.BILLING_ENABLED:
+    if not billing_service.is_billing_enabled():
         raise HTTPException(status_code=400, detail="Billing is currently disabled")
     
     try:
@@ -88,13 +84,13 @@ async def create_portal_session(
             return_url=f"{FRONTEND_URL}/dashboard"
         )
         
-        return {"url": portal_session.url}
+        return PortalResponse(url=portal_session.url)
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/webhook")
-async def stripe_webhook(request: Request):
+async def stripe_webhook(request: Request) -> WebhookResponse:
     """Handle Stripe webhook events - Following official Stripe sample patterns"""
     try:
         payload = await request.body()
@@ -119,90 +115,26 @@ async def stripe_webhook(request: Request):
         
         print(f'Webhook received: {event_type}')
         
-        # Handle events following Stripe sample patterns
+        # Handle events using billing service
         if event_type == 'checkout.session.completed':
-            # Payment succeeded - store session info for customer portal
-            checkout_session = data_object
-            customer_id = checkout_session.get('customer')
-            
-            if customer_id and checkout_session.get('metadata', {}).get('user_id'):
-                user_id = checkout_session['metadata']['user_id']
-                # Store session_id for customer portal access
-                update_user_profile(user_id, {
-                    "stripe_customer_id": customer_id,
-                    "stripe_session_id": checkout_session['id'],
-                    "is_premium": True,
-                    "message_count": 0
-                })
-                print(f'✅ Payment succeeded for user {user_id}')
+            billing_service.handle_checkout_completed(data_object)
         
         elif event_type == 'customer.subscription.created':
-            subscription = data_object
-            customer_id = subscription["customer"]
-            
-            # Find user by customer ID and activate premium
-            customer = stripe.Customer.retrieve(customer_id)
-            user_id = customer.metadata.get("user_id")
-            
-            if user_id:
-                update_user_profile(user_id, {
-                    "is_premium": True,
-                    "message_count": 0
-                })
-                print(f'✅ Subscription created for user {user_id}')
+            billing_service.handle_subscription_created(data_object)
         
         elif event_type == 'customer.subscription.updated':
-            subscription = data_object
-            customer_id = subscription["customer"]
-            
-            customer = stripe.Customer.retrieve(customer_id)
-            user_id = customer.metadata.get("user_id")
-            
-            if user_id:
-                # Update subscription status based on subscription state
-                is_active = subscription["status"] in ["active", "trialing"]
-                update_user_profile(user_id, {
-                    "is_premium": is_active
-                })
-                print(f'✅ Subscription updated for user {user_id}: {subscription["status"]}')
+            billing_service.handle_subscription_updated(data_object)
         
         elif event_type == 'customer.subscription.deleted':
-            subscription = data_object
-            customer_id = subscription["customer"]
-            
-            customer = stripe.Customer.retrieve(customer_id)
-            user_id = customer.metadata.get("user_id")
-            
-            if user_id:
-                update_user_profile(user_id, {
-                    "is_premium": False
-                })
-                print(f'✅ Subscription canceled for user {user_id}')
+            billing_service.handle_subscription_deleted(data_object)
         
         elif event_type == 'customer.subscription.trial_will_end':
-            subscription = data_object
-            customer_id = subscription["customer"]
-            
-            customer = stripe.Customer.retrieve(customer_id)
-            user_id = customer.metadata.get("user_id")
-            print(f'⚠️ Trial ending soon for user {user_id}')
+            billing_service.handle_trial_ending(data_object)
         
         elif event_type == 'invoice.payment_succeeded':
-            invoice = data_object
-            customer_id = invoice["customer"]
-            
-            if invoice["billing_reason"] == "subscription_cycle":
-                customer = stripe.Customer.retrieve(customer_id)
-                user_id = customer.metadata.get("user_id")
-                
-                if user_id:
-                    # Reset message count on successful billing cycle
-                    update_user_profile(user_id, {
-                        "message_count": 0
-                    })
-                    print(f'✅ Payment succeeded - reset message count for user {user_id}')
+            billing_service.handle_payment_succeeded(data_object)
         
-        return {"status": "success"}
+        return WebhookResponse(status="success")
         
     except ValueError as e:
         print(f"❌ Webhook error - Invalid payload: {e}")
@@ -215,44 +147,11 @@ async def stripe_webhook(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/usage")
-async def get_usage(current_user = Depends(require_auth)):
+async def get_usage(current_user = Depends(require_auth)) -> UsageResponse:
     """Get user's current usage and subscription status"""
     try:
-        settings = get_settings()
-        
-        # If billing is disabled, all users are premium with unlimited messages
-        if not settings.BILLING_ENABLED:
-            return {
-                "message_count": 0,
-                "is_premium": True,
-                "messages_remaining": None,
-                "billing_enabled": False
-            }
-        
-        user_profile = get_user_profile(user_id=current_user.sub)
-
-        print(f'User profile: {user_profile}')
-        
-        if not user_profile:
-            return {
-                "message_count": 0,
-                "is_premium": False,
-                "messages_remaining": 10,
-                "billing_enabled": True
-            }
-        
-        message_count = user_profile.get('message_count', 0)
-        is_premium = user_profile.get('is_premium', False)
-        stripe_session_id = user_profile.get('stripe_session_id')
-        messages_remaining = None if is_premium else max(0, 10 - message_count)
-        
-        return {
-            "message_count": message_count,
-            "is_premium": is_premium,
-            "messages_remaining": messages_remaining,
-            "stripe_session_id": stripe_session_id,
-            "billing_enabled": True
-        }
+        billing_status = billing_service.get_billing_status(current_user.sub)
+        return UsageResponse(**billing_status)
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

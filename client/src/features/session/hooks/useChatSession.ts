@@ -4,7 +4,7 @@ import type { Message, TherapySession } from '../../../types/session.types'
 import { fetchSession, patchSessionName, streamAIMessage } from '../services/chat_services'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AIChunk } from '../services/chat_services'
-import { useBillingContext } from '../../billing/contexts/BillingContext'
+import { useBillingContext } from '../../billing'
 
 export function useChatSession(sessionId?: string, skipInitialMessage?: boolean) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()

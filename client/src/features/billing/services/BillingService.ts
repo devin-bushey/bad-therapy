@@ -1,3 +1,5 @@
+import { ApiClient } from '../../../shared/services/apiClient'
+
 export interface BillingData {
   message_count: number
   is_premium: boolean
@@ -7,17 +9,16 @@ export interface BillingData {
 }
 
 export interface BillingConfig {
-  apiUrl: string
   billingEnabled: boolean
 }
 
 export class BillingService {
   private config: BillingConfig
-  private getAccessToken: () => Promise<string>
+  private apiClient: ApiClient
 
-  constructor(config: BillingConfig, getAccessToken: () => Promise<string>) {
+  constructor(config: BillingConfig, apiClient: ApiClient) {
     this.config = config
-    this.getAccessToken = getAccessToken
+    this.apiClient = apiClient
   }
 
   // Single source of truth for billing enabled check
@@ -52,20 +53,7 @@ export class BillingService {
       return this.getMockPremiumData()
     }
 
-    const token = await this.getAccessToken()
-    
-    const response = await fetch(`${this.config.apiUrl}/billing/usage`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch billing data: ${response.status}`)
-    }
-
-    return response.json()
+    return this.apiClient.get<BillingData>('/billing/usage')
   }
 
   // Create Stripe checkout session
@@ -75,26 +63,11 @@ export class BillingService {
       return ''
     }
 
-    const token = await this.getAccessToken()
-    
-    const response = await fetch(`${this.config.apiUrl}/billing/create-checkout-session`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        lookup_key: 'premium-plan'
-      })
+    const response = await this.apiClient.post<{ url: string }>('/billing/create-checkout-session', {
+      lookup_key: 'premium-plan'
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Failed to create checkout session: ${response.status} ${errorText}`)
-    }
-
-    const data = await response.json()
-    return data.url
+    
+    return response.url
   }
 
   // Open billing portal
@@ -107,26 +80,11 @@ export class BillingService {
       throw new Error('No session ID available for billing portal')
     }
 
-    const token = await this.getAccessToken()
-    
-    const response = await fetch(`${this.config.apiUrl}/billing/create-portal-session`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        session_id: sessionId
-      })
+    const response = await this.apiClient.post<{ url: string }>('/billing/create-portal-session', {
+      session_id: sessionId
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Failed to create billing portal session: ${response.status} ${errorText}`)
-    }
-
-    const data = await response.json()
-    return data.url
+    
+    return response.url
   }
 
   // Check if user has reached message limit
@@ -153,16 +111,10 @@ export class BillingService {
 }
 
 // Factory function to create billing service
-export function createBillingService(): BillingService {
+export function createBillingService(apiClient: ApiClient): BillingService {
   const config: BillingConfig = {
-    apiUrl: import.meta.env.VITE_SERVER_DOMAIN,
     billingEnabled: import.meta.env.VITE_BILLING_ENABLED !== 'false'
   }
 
-  // This will be set when the hook is used
-  const getAccessToken = async () => {
-    throw new Error('Access token getter not initialized')
-  }
-
-  return new BillingService(config, getAccessToken)
+  return new BillingService(config, apiClient)
 }

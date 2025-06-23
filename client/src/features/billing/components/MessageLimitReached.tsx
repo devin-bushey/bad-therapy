@@ -1,4 +1,4 @@
-import { useBillingContext } from '../../billing/contexts/BillingContext'
+import { useBillingContext } from '../contexts/BillingContext'
 
 interface MessageLimitReachedProps {
   errorDetails?: {
@@ -6,10 +6,9 @@ interface MessageLimitReachedProps {
     current_count?: number
     limit?: number
   } | null
-  onDismiss?: () => void
 }
 
-export function MessageLimitReached({ errorDetails, onDismiss }: MessageLimitReachedProps) {
+export function MessageLimitReached({ errorDetails }: MessageLimitReachedProps) {
   const { createCheckoutSession, billingData } = useBillingContext()
   
   // Don't show message limit reached if billing is disabled
@@ -57,23 +56,8 @@ export function MessageLimitReached({ errorDetails, onDismiss }: MessageLimitRea
         >
           Upgrade to Premium - $5/week
         </button>
+
         
-        {/* Benefits */}
-        <div className="text-sm text-warm-600 space-y-1">
-          <p>✨ Unlimited messages</p>
-          <p>🚀 Priority support</p>
-          <p>💬 Advanced AI features</p>
-        </div>
-        
-        {/* Dismiss option */}
-        {onDismiss && (
-          <button
-            onClick={onDismiss}
-            className="mt-4 text-warm-500 hover:text-warm-700 text-sm underline transition-colors"
-          >
-            Dismiss for now
-          </button>
-        )}
       </div>
     </div>
   )

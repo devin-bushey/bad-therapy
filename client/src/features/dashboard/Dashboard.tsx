@@ -1,42 +1,18 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { SessionsTable } from './components/SessionsTable'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { createSession } from './services/sessionServices'
 import { useSessions } from './hooks/useSessions'
-import { BillingBanner } from '../billing'
-import { useBillingContext } from '../billing/contexts/BillingContext'
+import { BillingBanner, CheckoutStatusHandler } from '../billing'
 import Navbar from '../../pages/Navbar'
 import DailyMoodTracker from '../mood/components/DailyMoodTracker'
 import MoodTrendChart from '../mood/components/MoodTrendChart'
 import { TipsSection } from '../tips'
-import { useEffect, useState } from 'react'
 
 export default function Dashboard() {
     const { isAuthenticated, getAccessTokenSilently, user } = useAuth0()
     const navigate = useNavigate()
-    const [searchParams] = useSearchParams()
     const { sessions, loading } = useSessions(isAuthenticated, getAccessTokenSilently)
-    const { openBillingPortal } = useBillingContext()
-    const [checkoutStatus, setCheckoutStatus] = useState<'success' | 'canceled' | null>(null)
-    const [sessionId, setSessionId] = useState<string | null>(null)
-
-    // Handle Stripe checkout success/cancel - Following Stripe sample pattern
-    useEffect(() => {
-        const success = searchParams.get('success')
-        const canceled = searchParams.get('canceled')
-        const stripeSessionId = searchParams.get('session_id')
-
-        if (success === 'true' && stripeSessionId) {
-            setCheckoutStatus('success')
-            setSessionId(stripeSessionId)
-            // Clear URL params after processing
-            window.history.replaceState({}, '', '/dashboard')
-        } else if (canceled === 'true') {
-            setCheckoutStatus('canceled')
-            // Clear URL params after processing
-            window.history.replaceState({}, '', '/dashboard')
-        }
-    }, [searchParams])
 
     return (
         <div className="min-h-screen bg-warm-50">
@@ -70,36 +46,8 @@ export default function Dashboard() {
                     </div>
                 </section>
 
-                {/* Checkout Success/Cancel Messages */}
-                {checkoutStatus === 'success' && (
-                    <section className="mb-6">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <h3 className="text-green-800 font-medium mb-2">🎉 Subscription successful!</h3>
-                            <p className="text-green-700 text-sm mb-3">
-                                Welcome to Premium! You now have unlimited access to all features.
-                            </p>
-                            {sessionId && (
-                                <button
-                                    onClick={() => openBillingPortal(sessionId)}
-                                    className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition-colors"
-                                >
-                                    Manage Subscription
-                                </button>
-                            )}
-                        </div>
-                    </section>
-                )}
-
-                {checkoutStatus === 'canceled' && (
-                    <section className="mb-6">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <h3 className="text-yellow-800 font-medium mb-2">Checkout Canceled</h3>
-                            <p className="text-yellow-700 text-sm">
-                                No worries! You can upgrade to Premium anytime below.
-                            </p>
-                        </div>
-                    </section>
-                )}
+                {/* Checkout Status Messages */}
+                <CheckoutStatusHandler />
 
                 {/* Billing Banner */}
                 <BillingBanner />

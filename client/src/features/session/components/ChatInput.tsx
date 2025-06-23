@@ -31,9 +31,9 @@ export function ChatInput({ input, onInput, onSend, loading, onLightbulbClick, d
           aria-label="Show follow-up suggestions"
           type="button"
           onClick={onLightbulbClick}
-          disabled={loading}
+          disabled={loading || disabled}
           className={`h-11 w-9 p-0 rounded-lg bg-transparent border-none text-lg text-yellow-400 transition-opacity duration-200 flex items-center justify-center ${
-            loading ? 'cursor-not-allowed opacity-40' : 'cursor-pointer opacity-70 hover:opacity-100'
+            (disabled || loading) ? 'cursor-not-allowed opacity-40' : 'cursor-pointer opacity-70 hover:opacity-100'
           }`}
         >
           💡

@@ -5,7 +5,7 @@ import { useSuggestFollowupPrompts } from './hooks/useSuggestFollowupPrompts'
 import { ChatMessages } from './components/ChatMessages'
 import { ChatInput } from './components/ChatInput'
 import SuggestedPrompts from './components/SuggestedPrompts'
-import { MessageLimitReached } from './components/MessageLimitReached'
+import { MessageLimitReached } from '../billing'
 
 export default function Chat() {
   const [searchParams] = useSearchParams()
@@ -22,7 +22,6 @@ export default function Chat() {
     initialSuggestedPrompts,
     messageLimitReached,
     limitErrorDetails,
-    setMessageLimitReached
   } = useChatSession(sessionId, !!initialPrompt)
   const {
     suggestedPrompts,
@@ -149,7 +148,6 @@ export default function Chat() {
         {messageLimitReached && (
           <MessageLimitReached
             errorDetails={limitErrorDetails}
-            onDismiss={() => setMessageLimitReached(false)}
           />
         )}
       </main>

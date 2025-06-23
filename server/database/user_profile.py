@@ -61,52 +61,32 @@ def update_user_profile(user_id: str, updates: dict) -> dict:
     return result.data[0] if result.data else None
 
 def increment_message_count(user_id: str) -> dict:
-    """Increment user's message count by 1"""
+    """Increment the message count for a user"""
     supabase = get_supabase_client()
     
-    try:
-        # Get current user profile
-        user_profile = get_user_profile(user_id=user_id)
-        
-        if user_profile:
-            # User exists, increment message count
-            current_count = user_profile.get('message_count', 0)
-            new_count = current_count + 1
-            result = supabase.table(get_user_profile_table()).update({
-                'message_count': new_count
-            }).eq('user_id', user_id).execute()
-            
-            if not result.data:
-                raise Exception(f"Failed to update message count for user {user_id}")
-                
-        else:
-            # User doesn't exist, create profile with message_count = 1
-            # This should rarely happen due to auto-creation in auth
-            result = supabase.table(get_user_profile_table()).insert({
-                'user_id': user_id,
-                'email': None,  # Will be set later when available
-                'message_count': 0,
-                'is_premium': False,
-                'full_name': encrypt_data('').data,
-                'age': encrypt_data('').data,
-                'bio': encrypt_data('').data,
-                'gender': encrypt_data('').data,
-                'ethnicity': encrypt_data('').data,
-                'goals': encrypt_data('').data,
-                'coaching_style': encrypt_data('').data,
-                'preferred_focus_area': encrypt_data('').data,
-                'created_at': datetime.utcnow().isoformat()
-            }).execute()
-            
-            if not result.data:
-                raise Exception(f"Failed to create profile for user {user_id}")
-        
-        return result.data[0]
-        
-    except Exception as e:
-        print(f"Error incrementing message count for user {user_id}: {e}")
-        # Re-raise the exception so calling code can handle it
-        raise e
+    # Get current message count
+    result = supabase.table(get_user_profile_table()).select('message_count').eq('user_id', user_id).limit(1).execute()
+    
+    if not result.data:
+        # Create user profile with message count 1 if it doesn't exist
+        data = {
+            "user_id": user_id,
+            "message_count": 1,
+            "is_premium": False,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        create_result = supabase.table(get_user_profile_table()).insert(data).execute()
+        return create_result.data[0] if create_result.data else None
+    
+    # Increment existing count
+    current_count = result.data[0].get('message_count', 0)
+    new_count = current_count + 1
+    
+    update_result = supabase.table(get_user_profile_table()).update({
+        'message_count': new_count
+    }).eq('user_id', user_id).execute()
+    
+    return update_result.data[0] if update_result.data else None
 
 def delete_user_account(user_id: str) -> bool:
     """Permanently delete user account and all associated data"""

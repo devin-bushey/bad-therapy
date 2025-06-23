@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCallback, useMemo } from 'react'
 import { type BillingData, createBillingService } from '../services/BillingService'
+import { useApiClient } from '../../../shared/services/apiClient'
 
 export interface UseBillingReturn {
   billingData: BillingData | null
@@ -19,15 +20,13 @@ export interface UseBillingReturn {
 }
 
 export function useBilling(): UseBillingReturn {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0()
+  const { isAuthenticated } = useAuth0()
+  const apiClient = useApiClient()
   
   // Create billing service instance
   const billingService = useMemo(() => {
-    const service = createBillingService()
-    // Override the access token getter
-    service['getAccessToken'] = getAccessTokenSilently
-    return service
-  }, [getAccessTokenSilently])
+    return createBillingService(apiClient)
+  }, [apiClient])
 
   // Optimized query with event-driven updates only
   const query = useQuery<BillingData>({

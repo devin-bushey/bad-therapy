@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     FRONTEND_URL: str
-    BILLING_ENABLED: bool = True
+    BILLING_ENABLED: bool = False
 
     class Config:
         env_file = ".env"
