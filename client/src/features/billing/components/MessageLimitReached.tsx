@@ -1,4 +1,4 @@
-import { useBillingContext } from '../contexts/BillingContext'
+import { useBillingContext } from '../hooks/useBillingContext'
 
 interface MessageLimitReachedProps {
   errorDetails?: {

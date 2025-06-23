@@ -1,12 +1,11 @@
 // Export main billing functionality
-export { useBilling } from './hooks/useBilling'
+export { useBilling, useBillingContext, useCheckoutStatus } from './hooks'
 export { BillingService, createBillingService } from './services/BillingService'
-export type { UseBillingReturn } from './hooks/useBilling'
+export type { UseBillingReturn, CheckoutStatus } from './hooks'
 export type { BillingData } from './services/BillingService'
 
 // Export context
-export { BillingProvider, useBillingContext } from './contexts/BillingContext'
-export type { BillingData as BillingContextData } from './contexts/BillingContext'
+export { BillingProvider } from './contexts/BillingContext'
 
 // Export UI components
 export { 
@@ -15,7 +14,5 @@ export {
   MessageLimitReached,
   CheckoutStatusHandler,
   CheckoutSuccessMessage,
-  CheckoutCancelledMessage,
-  useCheckoutStatus
+  CheckoutCancelledMessage
 } from './components'
-export type { CheckoutStatus } from './components'

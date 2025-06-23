@@ -6,5 +6,4 @@ export { MessageLimitReached } from './MessageLimitReached'
 // Checkout Status Components
 export { CheckoutSuccessMessage } from './CheckoutSuccessMessage'
 export { CheckoutCancelledMessage } from './CheckoutCancelledMessage'
-export { CheckoutStatusHandler, useCheckoutStatus } from './CheckoutStatusHandler'
-export type { CheckoutStatus } from './CheckoutStatusHandler'
+export { CheckoutStatusHandler } from './CheckoutStatusHandler'

@@ -1,4 +1,4 @@
-import { useBillingContext } from '../contexts/BillingContext'
+import { useBillingContext } from '../hooks/useBillingContext'
 import { BillingLoadingSkeleton } from './BillingLoadingSkeleton'
 
 interface BillingBannerProps {
