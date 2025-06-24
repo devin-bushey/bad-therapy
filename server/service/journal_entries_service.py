@@ -80,3 +80,50 @@ def get_recent_journal_entries_service(user_id: str, limit: int = 5) -> List[dic
     except Exception as e:
         logger.error(f"Failed to get recent journal entries for user {user_id}: {str(e)}")
         raise
+
+def get_journal_entries_for_insights_service(user_id: str, limit: int = 10) -> List[dict]:
+    """Get recent journal entries content for AI insights analysis."""
+    try:
+        entries = get_journal_entries(user_id, limit)
+        
+        # Extract content for insights - we need the text content, not the full TipTap JSON
+        insights_data = []
+        for entry in entries:
+            if entry.get('content') and entry.get('created_at'):
+                # Extract text from TipTap JSON structure
+                content_text = extract_text_from_tiptap_content(entry['content'])
+                if content_text.strip():  # Only include entries with actual content
+                    insights_data.append({
+                        'title': entry.get('title', 'Untitled Entry'),
+                        'content': content_text,
+                        'created_at': entry['created_at']
+                    })
+        
+        logger.info(f"Retrieved {len(insights_data)} journal entries with content for insights for user {user_id}")
+        return insights_data
+    except Exception as e:
+        logger.error(f"Failed to get journal entries for insights for user {user_id}: {str(e)}")
+        raise
+
+def extract_text_from_tiptap_content(tiptap_json: dict) -> str:
+    """Extract plain text from TipTap JSON content structure."""
+    def extract_text_recursive(node):
+        text = ""
+        if isinstance(node, dict):
+            # If this node has text content, add it
+            if node.get('text'):
+                text += node['text']
+            # If this node has content (children), process them
+            if node.get('content'):
+                for child in node['content']:
+                    text += extract_text_recursive(child)
+        elif isinstance(node, list):
+            # If it's a list of nodes, process each one
+            for item in node:
+                text += extract_text_recursive(item)
+        return text
+    
+    try:
+        return extract_text_recursive(tiptap_json).strip()
+    except Exception:
+        return ""

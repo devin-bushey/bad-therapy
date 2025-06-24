@@ -1,14 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
 from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
+from service.journal_entries_service import get_journal_entries_for_insights_service
+from prompts.journal_prompts import get_journal_insights_prompt
 from utils.jwt_bearer import require_auth
 from utils.billing_utils import create_message_limit_response, is_message_valid_for_counting
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
 from service.billing_service import billing_service
-from models.ai import AIRequest
+from models.ai import AIRequest, JournalInsightsRequest, JournalInsightsResponse
 from models.therapy import TherapyState
 from core.config import get_settings
 import logging
@@ -148,4 +152,51 @@ async def get_followup_suggestions(session_id: str, user=Depends(require_auth)):
     except Exception as e:
         logger.error(f"Error in get_followup_suggestions: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/ai/generate-journal-insights", response_model=JournalInsightsResponse)
+async def generate_journal_insights(
+    request: JournalInsightsRequest,
+    user=Depends(require_auth)
+):
+    """Generate AI insights from user's recent journal entries."""
+    try:
+        # Get recent journal entries
+        entries = get_journal_entries_for_insights_service(user.sub, request.limit)
+        
+        if not entries:
+            return JournalInsightsResponse(
+                insights="You haven't written any journal entries yet. Start journaling to see personalized insights about your thoughts and emotional patterns!",
+                entries_analyzed=0
+            )
+        
+        # Prepare the journal content for analysis
+        journal_content = ""
+        for i, entry in enumerate(entries, 1):
+            journal_content += f"Entry {i} ({entry['created_at'][:10]}):\n"
+            if entry['title'] and entry['title'] != 'Untitled Entry':
+                journal_content += f"Title: {entry['title']}\n"
+            journal_content += f"Content: {entry['content']}\n\n"
+        
+        # Generate insights using OpenAI
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+        system_prompt = get_journal_insights_prompt()
+        user_prompt = f"Here are the user's recent journal entries:\n\n{journal_content}\n\nPlease provide insights about their emotional patterns and growth."
+        
+        response = await llm.ainvoke([
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=user_prompt)
+        ])
+        
+        insights = response.content.strip()
+        
+        logger.info(f"Generated insights for user {user.sub} from {len(entries)} entries")
+        
+        return JournalInsightsResponse(
+            insights=insights,
+            entries_analyzed=len(entries)
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in generate_journal_insights: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate insights. Please try again.")
 

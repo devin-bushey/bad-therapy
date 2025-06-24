@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchJournalEntries, fetchJournalEntry, createJournalEntry, updateJournalEntry, deleteJournalEntry } from '../services/journalEntriesService'
+import { fetchJournalEntries, fetchJournalEntry, createJournalEntry, updateJournalEntry, deleteJournalEntry, generateJournalInsights, type JournalInsightsResponse } from '../services/journalEntriesService'
 import type { JournalEntry } from '../../../types/journal-entries.types'
 
 export function useJournalEntries(isAuthenticated: boolean, getAccessTokenSilently: () => Promise<string>) {
@@ -61,6 +61,14 @@ export function useDeleteJournalEntry() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['journal-entries'] })
+    }
+  })
+}
+
+export function useGenerateJournalInsights() {
+  return useMutation({
+    mutationFn: async ({ token, limit }: { token: string, limit?: number }): Promise<JournalInsightsResponse> => {
+      return generateJournalInsights(token, limit)
     }
   })
 }
