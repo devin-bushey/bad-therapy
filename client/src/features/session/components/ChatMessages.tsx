@@ -62,7 +62,7 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
 
   function parseJournalMessage(msg: string): { isJournalMessage: boolean; entryId?: string; displayText?: string } {
     // Check for new format with entry ID
-    const newFormatMatch = msg.match(/^(Journal entry saved! Click to view it\.) \{\"entry_id\": \"([^"]+)\"\}$/)
+    const newFormatMatch = msg.match(/^(Journal entry saved! Click to view it\.) \{"entry_id": "([^"]+)"\}$/)
     if (newFormatMatch) {
       return {
         isJournalMessage: true,

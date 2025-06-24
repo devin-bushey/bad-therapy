@@ -7,8 +7,8 @@ export async function fetchSession({ sessionId, token }: { sessionId: string; to
     headers: { Authorization: `Bearer ${token}` }
   })
   if (!res.ok) {
-    const error = new Error('Failed to fetch session')
-    ;(error as any).status = res.status
+    const error = new Error('Failed to fetch session') as Error & { status: number }
+    error.status = res.status
     throw error
   }
   return res.json()
