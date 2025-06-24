@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
 from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
@@ -10,7 +12,6 @@ from database.conversation_history import get_conversation_history, save_convers
 from service.billing_service import billing_service
 from models.ai import AIRequest
 from models.therapy import TherapyState
-from core.config import get_settings
 import logging
 import json
 
@@ -69,7 +70,9 @@ async def generate_ai_response_stream(
             next="",
             therapists=[],
             therapists_summary="",
-            is_tip_message=data.is_tip_message
+            is_tip_message=data.is_tip_message,
+            is_journal_insights=data.is_journal_insights,
+            journal_insights_limit=data.journal_insights_limit
         )
 
         graph = build_therapy_graph()
@@ -106,7 +109,7 @@ async def generate_ai_response_stream(
                     message_chunk, meta = event
                     node = meta["langgraph_node"]
 
-                    if node == "primary_therapist":
+                    if node == "primary_therapist" or node == "journal_insights":
 
                         already_in_history = any(message_chunk.content == h.content for h in state.history)
 
@@ -148,4 +151,5 @@ async def get_followup_suggestions(session_id: str, user=Depends(require_auth)):
     except Exception as e:
         logger.error(f"Error in get_followup_suggestions: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
 

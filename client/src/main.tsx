@@ -12,6 +12,7 @@ import UserProfileForm from './features/profile/UserProfileForm.tsx'
 import ProtectedRoute from './auth/ProtectedRoute.tsx'
 import PageNotFound from './pages/PageNotFound.tsx'
 import Journal from './features/journal/Journal.tsx'
+import JournalEntry from './features/journal/JournalEntry.tsx'
 import TermsOfService from './features/legal/components/TermsOfService.tsx'
 import PrivacyPolicy from './features/legal/components/PrivacyPolicy.tsx'
 import { BillingProvider } from './features/billing'
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path="/chat" element={createElement(ProtectedRoute(Chat))} />
               <Route path="/user" element={createElement(ProtectedRoute(UserProfileForm))} />
               <Route path="/journal" element={createElement(ProtectedRoute(Journal))} />
+              <Route path="/journal/:entryId" element={createElement(ProtectedRoute(JournalEntry))} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="*" element={<PageNotFound />} />
