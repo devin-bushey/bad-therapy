@@ -11,6 +11,7 @@ export default function Chat() {
   const [searchParams] = useSearchParams()
   const sessionId = searchParams.get('sessionId') || undefined
   const initialPrompt = searchParams.get('initialPrompt')
+  const isInsights = searchParams.get('insights') === 'true'
   const {
     messages,
     session,
@@ -22,7 +23,7 @@ export default function Chat() {
     initialSuggestedPrompts,
     messageLimitReached,
     limitErrorDetails,
-  } = useChatSession(sessionId, !!initialPrompt)
+  } = useChatSession(sessionId, !!initialPrompt, isInsights)
   const {
     suggestedPrompts,
     showSuggestions: showFollowupSuggestions,
@@ -48,9 +49,12 @@ export default function Chat() {
   const [input, setInput] = useState('')
   const chatRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const insightsSentRef = useRef(false)
 
   // Show initial prompts from backend if available, else fallback
+  // Don't show suggested prompts for insights sessions
   const showInitialSuggestedPrompts =
+    !isInsights &&
     messages.length === 2 &&
     messages[0].type === 'human' &&
     messages[1].type !== 'human' &&
@@ -77,6 +81,14 @@ export default function Chat() {
       sendAIMessage(decodeURIComponent(initialPrompt), true)
     }
   }, [initialPrompt, sessionId, messages.length, loading, sendAIMessage])
+
+  // Auto-send insights request - only once
+  useEffect(() => {
+    if (isInsights && sessionId && messages.length === 0 && !loading && !insightsSentRef.current) {
+      insightsSentRef.current = true
+      sendAIMessage('Please analyze my recent journal entries and provide insights about my emotional patterns and growth.', false, true)
+    }
+  }, [isInsights, sessionId, messages.length, loading, sendAIMessage])
 
   return (
     <div className="h-dvh grid grid-rows-[auto_1fr_auto] bg-warm-50" style={{ height: '100dvh' }}>

@@ -12,7 +12,7 @@ settings = get_settings()
 
 @router.post("/sessions", response_model=Session)
 async def create_new_session(session: SessionCreate, user=Depends(require_auth)) -> Session:
-    created_session = create_session(name=session.name, user_id=session.user_id)
+    created_session = create_session(name=session.name, user_id=user.sub)
     return Session(**created_session)
 
 @router.get("/sessions", response_model=list[Session])
@@ -43,9 +43,9 @@ async def get_session(session_id: str, user=Depends(require_auth)):
         .select("*")\
         .eq("id", session_id)\
         .eq("user_id", user.sub)\
-        .single()\
+        .maybe_single()\
         .execute()
-    if not result.data:
+    if not result or not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
     session = result.data
     session['name'] = decrypt_data(data=session['name']).data

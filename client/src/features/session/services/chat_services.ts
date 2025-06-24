@@ -6,7 +6,11 @@ export async function fetchSession({ sessionId, token }: { sessionId: string; to
   const res = await fetch(`${API_URL}/sessions/${sessionId}`, {
     headers: { Authorization: `Bearer ${token}` }
   })
-  if (!res.ok) throw new Error('Failed to fetch session')
+  if (!res.ok) {
+    const error = new Error('Failed to fetch session')
+    ;(error as any).status = res.status
+    throw error
+  }
   return res.json()
 }
 
@@ -26,14 +30,19 @@ export async function patchSessionName({ sessionId, token, name, userId }: { ses
 // Define a type for the chunk
 export type AIChunk = { content: string; type: 'ai' } | { suggestedPrompts: string[] }
 
-export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTipMessage = false }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: AIChunk) => void; isTipMessage?: boolean }): Promise<void> {
+export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTipMessage = false, isJournalInsights = false }: { sessionId: string; token: string; prompt: string; onChunk: (chunk: AIChunk) => void; isTipMessage?: boolean; isJournalInsights?: boolean }): Promise<void> {
   const res = await fetch(`${API_URL}/ai/generate-stream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ session_id: sessionId, prompt, is_tip_message: isTipMessage })
+    body: JSON.stringify({ 
+      session_id: sessionId, 
+      prompt, 
+      is_tip_message: isTipMessage,
+      is_journal_insights: isJournalInsights 
+    })
   })
   
   // Check for HTTP errors before trying to read stream

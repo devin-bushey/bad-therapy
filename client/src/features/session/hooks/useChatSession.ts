@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AIChunk } from '../services/chat_services'
 import { useBillingContext } from '../../billing'
 
-export function useChatSession(sessionId?: string, skipInitialMessage?: boolean) {
+export function useChatSession(sessionId?: string, skipInitialMessage?: boolean, isInsights?: boolean) {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0()
   const { refetch: refetchBilling, isMessageLimitReached } = useBillingContext()
   const [messages, setMessages] = useState<Message[]>([])
@@ -28,6 +28,14 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
       const token = await getAccessTokenSilently()
       return fetchSession({ sessionId, token })
     },
+    retry: (failureCount, error) => {
+      // Retry up to 3 times for 404 errors (session might be creating)
+      if (error && 'status' in error && error.status === 404 && failureCount < 3) {
+        return true
+      }
+      return false
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 3000),
     enabled: !!sessionId && isAuthenticated
   })
 
@@ -51,8 +59,9 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
     }
   })
 
-  const sendAIMessage = useCallback(async (prompt: string, isTipMessage = false) => {
+  const sendAIMessage = useCallback(async (prompt: string, isTipMessage = false, isJournalInsights = false) => {
     if (!sessionId) return
+    // Always show both user message and AI loading bubble
     setMessages(msgs => [
       ...msgs,
       { content: prompt, type: 'human' },
@@ -65,6 +74,7 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
         token,
         prompt,
         isTipMessage,
+        isJournalInsights,
         onChunk: (chunk: AIChunk) => {
           if ('suggestedPrompts' in chunk) {
             setInitialSuggestedPrompts(chunk.suggestedPrompts)
@@ -123,11 +133,12 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
     }
   }, [isMessageLimitReached, messageLimitReached])
 
-  // Initial AI message logic
+  // Initial AI message logic - skip for insights sessions
   useEffect(() => {
     if (
       !didInit.current &&
       !skipInitialMessage &&
+      !isInsights &&
       sessionQuery.data &&
       Array.isArray(sessionQuery.data.messages) &&
       sessionQuery.data.messages.length === 0 &&
@@ -137,7 +148,7 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean)
       didInit.current = true
       sendAIMessage('')
     }
-  }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage, skipInitialMessage])
+  }, [sessionQuery.data, sessionId, isAuthenticated, sendAIMessage, skipInitialMessage, isInsights])
 
   return {
     messages,

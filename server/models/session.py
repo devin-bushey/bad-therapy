@@ -10,4 +10,4 @@ class Session(BaseModel):
 
 class SessionCreate(BaseModel):
     name: str
-    user_id: str 
+    user_id: Optional[str] = None 

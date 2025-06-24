@@ -1,18 +1,35 @@
 import { useAuth0 } from '@auth0/auth0-react'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useJournalEntries, useCreateJournalEntry, useGenerateJournalInsights } from './hooks/useJournalEntries'
+import { useJournalEntries, useCreateJournalEntry } from './hooks/useJournalEntries'
 import { JournalEntriesTable } from './components/JournalEntriesTable'
-import type { JournalInsightsResponse } from './services/journalEntriesService'
+import { useMutation } from '@tanstack/react-query'
+
+// Function to create a new session
+async function createSession(token: string, name: string) {
+  const API_URL = import.meta.env.VITE_SERVER_DOMAIN
+  const response = await fetch(`${API_URL}/sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ name })
+  })
+  if (!response.ok) throw new Error('Failed to create session')
+  return response.json()
+}
 
 export default function JournalList() {
   const navigate = useNavigate()
   const { getAccessTokenSilently, isAuthenticated } = useAuth0()
   const { entries, loading } = useJournalEntries(isAuthenticated, getAccessTokenSilently)
   const createEntry = useCreateJournalEntry()
-  const generateInsights = useGenerateJournalInsights()
-  const [insights, setInsights] = useState<JournalInsightsResponse | null>(null)
-  const [showInsights, setShowInsights] = useState(false)
+  
+  const createInsightsSession = useMutation({
+    mutationFn: async ({ token }: { token: string }) => {
+      return createSession(token, 'Journal Insights')
+    }
+  })
 
   const handleCreateEntry = async () => {
     if (!isAuthenticated) return
@@ -33,11 +50,13 @@ export default function JournalList() {
     if (!isAuthenticated) return
     try {
       const token = await getAccessTokenSilently()
-      const result = await generateInsights.mutateAsync({ token, limit: 10 })
-      setInsights(result)
-      setShowInsights(true)
+      const session = await createInsightsSession.mutateAsync({ token })
+      // Add a delay to ensure session is fully created
+      await new Promise(resolve => setTimeout(resolve, 500))
+      // Navigate to chat with the new session and automatically trigger insights
+      navigate(`/chat?sessionId=${session.id}&insights=true`)
     } catch (error) {
-      console.error('Failed to generate insights:', error)
+      console.error('Failed to create insights session:', error)
     }
   }
 
@@ -72,10 +91,10 @@ export default function JournalList() {
             </button>
             <button
               onClick={handleGenerateInsights}
-              disabled={generateInsights.isPending}
+              disabled={createInsightsSession.isPending}
               className="bg-ai-500 text-warm-50 rounded-lg px-6 py-3 border-none font-semibold hover:bg-ai-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {generateInsights.isPending ? 'Generating...' : 'Generate Insights'}
+              {createInsightsSession.isPending ? 'Creating Session...' : 'Generate Insights'}
             </button>
           </div>
         </div>
@@ -83,53 +102,6 @@ export default function JournalList() {
         <div className="bg-warm-100 rounded-2xl shadow-lg p-8 border border-warm-200">
           <JournalEntriesTable entries={entries} loading={loading} />
         </div>
-
-        {/* Insights Section */}
-        {showInsights && insights && (
-          <div className="bg-ai-50 rounded-2xl shadow-lg p-8 border border-ai-200 mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-ai-800">AI Insights</h2>
-              <button
-                onClick={() => setShowInsights(false)}
-                className="text-ai-600 hover:text-ai-800 transition-colors text-lg"
-                title="Close insights"
-              >
-                ×
-              </button>
-            </div>
-            <div className="text-ai-700 leading-relaxed whitespace-pre-line">
-              {insights.insights}
-            </div>
-            <div className="text-ai-600 text-sm mt-4">
-              Based on analysis of {insights.entries_analyzed} journal {insights.entries_analyzed === 1 ? 'entry' : 'entries'}
-            </div>
-          </div>
-        )}
-
-        {/* Error state for insights */}
-        {generateInsights.isError && (
-          <div className="bg-error-50 rounded-2xl shadow-lg p-8 border border-error-200 mt-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-error-800">Error</h2>
-              <button
-                onClick={() => generateInsights.reset()}
-                className="text-error-600 hover:text-error-800 transition-colors text-lg"
-                title="Close error"
-              >
-                ×
-              </button>
-            </div>
-            <div className="text-error-700">
-              Failed to generate insights. Please try again.
-            </div>
-            <button
-              onClick={handleGenerateInsights}
-              className="mt-4 bg-error-500 text-warm-50 rounded-lg px-4 py-2 border-none font-semibold hover:bg-error-600 transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        )}
 
       </div>
     </div>

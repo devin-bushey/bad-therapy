@@ -5,6 +5,8 @@ class AIRequest(BaseModel):
     prompt: str
     session_id: str
     is_tip_message: bool = False
+    is_journal_insights: bool = False
+    journal_insights_limit: int = 10
 
 class AIResponse(BaseModel):
     result: str

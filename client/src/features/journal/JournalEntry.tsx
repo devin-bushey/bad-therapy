@@ -122,11 +122,9 @@ export default function JournalEntry() {
           
           {entry?.created_at && (
             <div className="text-sm text-warm-600 mb-4">
-              Created: {new Date(entry.created_at).toLocaleDateString()} {new Date(entry.created_at).toLocaleTimeString()}
+              <div>Created: {new Date(entry.created_at).toLocaleDateString()} {new Date(entry.created_at).toLocaleTimeString()}</div>
               {entry.updated_at && entry.updated_at !== entry.created_at && (
-                <span className="ml-4">
-                  Updated: {new Date(entry.updated_at).toLocaleDateString()} {new Date(entry.updated_at).toLocaleTimeString()}
-                </span>
+                <div>Updated: {new Date(entry.updated_at).toLocaleDateString()} {new Date(entry.updated_at).toLocaleTimeString()}</div>
               )}
             </div>
           )}
