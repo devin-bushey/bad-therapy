@@ -23,6 +23,7 @@ class TherapyState(BaseModel):
     therapists_summary: str = Field(..., description="Summary of therapists")
     current_mood: Optional[MoodEntry] = Field(None, description="User's current mood entry for today")
     mood_context: Optional[str] = Field(None, description="AI-generated mood context for therapy session")
+    relevant_context: Optional[str] = Field(None, description="Summarized relevant context from past conversations")
     is_tip_message: bool = Field(False, description="Whether this message originated from a tip")
     is_journal_insights: bool = Field(False, description="Whether this is a journal insights request")
     journal_insights_limit: int = Field(10, description="Number of recent journal entries to analyze")

@@ -2,11 +2,44 @@ import { useEffect, useRef } from 'react'
 import type { Message } from '../../../types/session.types'
 import TypingBubble from './TypingBubble'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 
 interface ChatMessagesProps {
   messages: Message[]
   loading: boolean
   showTypingBubble?: boolean
+}
+
+function MarkdownMessage({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+        li: ({ children }) => <li className="mb-1">{children}</li>,
+        code: ({ children }) => (
+          <code className="bg-warm-300 px-1 py-0.5 rounded text-sm font-mono">
+            {children}
+          </code>
+        ),
+        pre: ({ children }) => (
+          <pre className="bg-warm-300 p-2 rounded mt-2 mb-2 overflow-x-auto">
+            {children}
+          </pre>
+        ),
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-4 border-warm-400 pl-3 italic mb-2">
+            {children}
+          </blockquote>
+        ),
+      }}
+    >
+      {content}
+    </ReactMarkdown>
+  )
 }
 
 export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessagesProps) {
@@ -114,10 +147,10 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
           } else {
             elements.push(
               <div key={i + '-summary'} className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}>
-                <span className={`inline-block rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left ${
-                  m.type === 'human' ? 'bg-earth-500 text-warm-50' : 'bg-warm-200 text-warm-800 border border-warm-300'
+                <span className={`inline-block rounded-2xl py-2.5 px-4 max-w-[80%] break-words text-left ${
+                  m.type === 'human' ? 'bg-earth-500 text-warm-50 whitespace-pre-line' : 'bg-warm-200 text-warm-800 border border-warm-300'
                 }`}>
-                  {summary}
+                  {m.type === 'human' ? summary : <MarkdownMessage content={summary} />}
                 </span>
               </div>
             )
@@ -132,10 +165,10 @@ export function ChatMessages({ messages, loading, showTypingBubble }: ChatMessag
         // fallback: render as plain text
         return (
           <div key={i} className={`my-3 ${m.type === 'human' ? 'text-right' : 'text-left'}`}>
-            <span className={`inline-block rounded-2xl py-2.5 px-4 max-w-[80%] break-words whitespace-pre-line text-left ${
-              m.type === 'human' ? 'bg-earth-500 text-warm-50' : 'bg-warm-200 text-warm-800 border border-warm-300'
+            <span className={`inline-block rounded-2xl py-2.5 px-4 max-w-[80%] break-words text-left ${
+              m.type === 'human' ? 'bg-earth-500 text-warm-50 whitespace-pre-line' : 'bg-warm-200 text-warm-800 border border-warm-300'
             }`}>
-              {m.content}
+              {m.type === 'human' ? m.content : <MarkdownMessage content={m.content} />}
             </span>
           </div>
         )
