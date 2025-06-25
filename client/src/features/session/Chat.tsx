@@ -86,7 +86,7 @@ export default function Chat() {
   useEffect(() => {
     if (isInsights && sessionId && messages.length === 0 && !loading && !insightsSentRef.current) {
       insightsSentRef.current = true
-      sendAIMessage('Please analyze my recent journal entries and provide insights about my emotional patterns and growth.', false, true)
+      sendAIMessage('Please analyze and provide insights about my recent journal entries.', false, true)
     }
   }, [isInsights, sessionId, messages.length, loading, sendAIMessage])
 
