@@ -17,7 +17,7 @@ llm = ChatOpenAI(
 
 def primary_therapist_node(state: TherapyState) -> TherapyState:
     user_profile = get_user_profile(user_id=state.user_id)
-    is_first_message = (not state.history or len(state.history) == 0) and not state.is_tip_message
+    is_first_message = (not state.history or len(state.history) == 0) and not state.is_tip_message and not state.is_journal_insights
 
     # Get mood context
     mood_context = None
