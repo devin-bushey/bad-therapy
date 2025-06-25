@@ -36,10 +36,6 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
     if context:
         system_prompt_content += f"\n\nRelevant past conversations from other sessions:\n{context}"
 
-    print(f"Primary Therapist: prompt: {state.prompt}")
-    print(f"is_journal_insights: {state.is_journal_insights}")
-    print(f"is_first_message: {is_first_message}")
-
     system_prompt = SystemMessage(content=system_prompt_content)
     human_prompt = HumanMessage(content=state.prompt)
     prompt = [system_prompt] + state.history + [human_prompt]

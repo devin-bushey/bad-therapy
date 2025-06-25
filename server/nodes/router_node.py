@@ -19,7 +19,6 @@ router = llm.with_structured_output(Route)
 def router_node(state: TherapyState) -> TherapyState:
     # Check if this is explicitly a journal insights request
     if state.is_journal_insights:
-        print(f"Router: Routing journal insights request for user {state.user_id} to journal_insights node")
         return {"next": "journal_insights"}
 
     agents = ["primary_therapist", "find_therapist", "journal_insights"]
@@ -31,7 +30,5 @@ def router_node(state: TherapyState) -> TherapyState:
         system_prompt,
         HumanMessage(content=state.prompt),
     ])
-
-    print(f"Router: decision: {decision}")
 
     return {"next": decision.step}
