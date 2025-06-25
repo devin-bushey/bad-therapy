@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from models.journal import JOURNAL_SAVED_MESSAGE
@@ -7,6 +9,7 @@ from service.session_service import update_session_name
 from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
 from utils.jwt_bearer import require_auth
 from utils.billing_utils import create_message_limit_response, is_message_valid_for_counting
+from utils.rate_limit_utils import get_user_id_for_rate_limit
 from graphs.therapy_graph import build_therapy_graph
 from database.conversation_history import get_conversation_history, save_conversation
 from service.billing_service import billing_service
@@ -17,6 +20,9 @@ import json
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+# Initialize rate limiter for this router
+limiter = Limiter(key_func=get_user_id_for_rate_limit)
 
 def check_and_handle_message_limits(user, data) -> StreamingResponse | None:
     """
@@ -49,7 +55,9 @@ def check_and_handle_message_limits(user, data) -> StreamingResponse | None:
     return None
 
 @router.post("/ai/generate-stream")
+@limiter.limit("30/minute")
 async def generate_ai_response_stream(
+    request: Request,
     data: AIRequest,
     user=Depends(require_auth)
 ):
@@ -143,7 +151,8 @@ async def generate_ai_response_stream(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/ai/followup-suggestions")
-async def get_followup_suggestions(session_id: str, user=Depends(require_auth)):
+@limiter.limit("60/minute")
+async def get_followup_suggestions(request: Request, session_id: str, user=Depends(require_auth)):
     try:
         history = get_conversation_history(session_id=session_id, user_id=user.sub)
         suggestions = await generate_followup_suggestions(history)

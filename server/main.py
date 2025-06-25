@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from utils.rate_limit_utils import get_user_id_for_rate_limit, get_remote_address
 from routes.routes import router
 from core.config import get_settings
 from dotenv import load_dotenv
@@ -7,7 +10,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 settings = get_settings()
+
+# Initialize rate limiter with in-memory storage
+# Use user ID for authenticated requests, IP for unauthenticated
+limiter = Limiter(key_func=get_user_id_for_rate_limit)
 app = FastAPI(title="Bad Therapy API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
