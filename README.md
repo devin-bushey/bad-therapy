@@ -19,13 +19,16 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 
 - **Conversational AI (Arlo)**:
   - Safety checks for harmful language
+  - Context-aware conversations with relevant history retrieval
   - AI-powered primary therapist (coaching, journaling)
   - Therapist finder (uses Perplexity to suggest real therapists)
   - Smart router to decide next steps
 - **User Profiles**: Personalized sessions and recommendations.
-- **Journaling**: Save and review your thoughts securely.
+- **Journaling**: Save and review your thoughts securely with rich text editing (TipTap) and AI-powered insights generator.
 - **Daily Tips**: AI-generated wellness tips with curated resource links and credibility scoring.
 - **Mood Tracking**: Daily mood logging with trend visualization and analytics.
+- **Rate Limiting**: API protection with user-based rate limiting (30/min for AI, 100/min general).
+- **Message Formatting**: Markdown-rendered AI responses with streaming support.
 - **Security**: All data is encrypted and protected with Auth0 authentication.
 
 ## Upcoming
@@ -44,8 +47,10 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 - Nodes:
   - [`safety`](server/nodes/safety_node.py): Checks for harmful language.
   - [`router`](server/nodes/router_node.py): Decides next step.
+  - [`context`](server/nodes/context_node.py): Retrieves and summarizes relevant conversation history using GPT-4o-mini.
   - [`primary_therapist`](server/nodes/primary_therapist_node.py): Main chatbot including custom tool calls to save messages to the user journal.
   - [`find_therapist`](server/nodes/find_therapist_node.py): Searches for and suggests real therapists based on user input and conversation history using the Perplexity api.
+  - [`journal_insights`](server/nodes/journal_insights_node.py): Analyzes user journal entries to provide AI-powered insights and patterns.
 
 ### Conditional Routing
 - Edges between nodes are conditional, so the agent can branch based on user input and state (e.g., escalate to human therapist if unsafe).
@@ -63,8 +68,6 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 - All LangGraph runs can be visualized with LangGraph Studio debugging.
 
 ```sh
-cd server
-source .venv/bin/activate
 langgraph dev
 ```
 
@@ -75,6 +78,7 @@ langgraph dev
 ### LangSmith Tracing
 - All LangGraph runs are traced with LangSmith for cloud-based debugging and observability.
 - See tracings and monitoring here: https://smith.langchain.com/o/65c77578-2a48-42ef-a24f-8d83c29bc984/
+- **Production Security**: Use `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true` environment variables to protect sensitive mental health data in production environments.
 
 <p align="left">
   <img src="docs/LangSmith.png" alt="LangSmith"/>
@@ -87,6 +91,7 @@ langgraph dev
 ### Security
 - Sensitive data is encrypted at rest.
 - Auth0 is used for authentication and access control.
+- Rate limiting with slowapi
 
 ## Server (FastAPI)
 
@@ -95,20 +100,19 @@ langgraph dev
 cd server
 source .venv/bin/activate
 uv pip install -r pyproject.toml
+
+# For production deployment
+uv pip freeze > requirements.txt 
 ```
 
 **Run development server:**
 ```sh
-source .venv/bin/activate
 uv run fastapi dev
 ```
 
 **Run server unit tests:**
 ```sh
 PYTHONPATH=. uv run pytest
-
-# or for a specific test:
-PYTHONPATH=. uv run pytest tests/routes/test_ai.py
 ```
 
 ## Client (React/TypeScript)

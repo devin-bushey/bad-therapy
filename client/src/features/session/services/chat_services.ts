@@ -60,6 +60,13 @@ export async function streamAIMessage({ sessionId, token, prompt, onChunk, isTip
       error.name = 'MessageLimitError'
       error.details = errorData
       throw error
+    } else if (res.status === 429) {
+      const retryAfter = res.headers.get('Retry-After')
+      const retrySeconds = retryAfter ? parseInt(retryAfter) : 60
+      const error = new Error(`You're sending messages too quickly. Please wait ${retrySeconds} seconds before trying again.`) as Error & { name: string; retryAfterSeconds: number }
+      error.name = 'RateLimitError'
+      error.retryAfterSeconds = retrySeconds
+      throw error
     } else {
       throw new Error(errorData.message || `HTTP ${res.status}: ${res.statusText}`)
     }

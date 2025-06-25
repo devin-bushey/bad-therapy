@@ -107,6 +107,22 @@ export function useChatSession(sessionId?: string, skipInitialMessage?: boolean,
           }
           return msgs
         })
+      } else if (error && typeof error === 'object' && 'name' in error && error.name === 'RateLimitError') {
+        // Handle rate limit error
+        const errorMessage = error && 'message' in error ? error.message : 'You are sending messages too quickly. Please slow down.'
+        setMessages(msgs => {
+          // Remove the last (empty) ai message and add rate limit message
+          if (msgs.length > 0 && msgs[msgs.length - 1].type === 'ai' && msgs[msgs.length - 1].content === '') {
+            return [
+              ...msgs.slice(0, -1),
+              { content: errorMessage as string, type: 'ai' }
+            ]
+          }
+          return [
+            ...msgs,
+            { content: errorMessage as string, type: 'ai' }
+          ]
+        })
       } else {
         // Handle other errors with generic message
         setMessages(msgs => {

@@ -2,6 +2,13 @@ import { useAuth0 } from '@auth0/auth0-react'
 
 const API_URL = import.meta.env.VITE_SERVER_DOMAIN
 
+export class RateLimitError extends Error {
+  constructor(message: string, public retryAfterSeconds: number) {
+    super(message)
+    this.name = 'RateLimitError'
+  }
+}
+
 export class ApiClient {
   constructor(private getToken: () => Promise<string>) {}
 
@@ -18,6 +25,16 @@ export class ApiClient {
     })
 
     if (!response.ok) {
+      // Handle rate limiting specifically
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After')
+        const retrySeconds = retryAfter ? parseInt(retryAfter) : 60
+        throw new RateLimitError(
+          `Rate limit exceeded. Please wait ${retrySeconds} seconds before trying again.`,
+          retrySeconds
+        )
+      }
+      
       throw new Error(`API request failed: ${response.status} ${response.statusText}`)
     }
 
