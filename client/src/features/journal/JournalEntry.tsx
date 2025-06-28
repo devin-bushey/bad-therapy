@@ -7,6 +7,8 @@ import { useAuth0 } from '@auth0/auth0-react'
 import { useJournalEntry, useUpdateJournalEntry } from './hooks/useJournalEntries'
 import JournalToolbar from './components/JournalToolbar'
 import StarterKit from '@tiptap/starter-kit'
+import { useJournalWritingPrompts } from './hooks/useJournalWritingPrompts'
+import SuggestedPrompts from '../session/components/SuggestedPrompts'
 
 export default function JournalEntry() {
   const { entryId } = useParams<{ entryId: string }>()
@@ -33,6 +35,15 @@ export default function JournalEntry() {
       setHasUnsavedChanges(true)
     }
   })
+
+  // AI Writing Prompts hook
+  const {
+    suggestedPrompts,
+    showSuggestions,
+    loading: aiLoading,
+    handleLightbulbClick,
+    handlePromptClick
+  } = useJournalWritingPrompts(editor, setTitle)
 
   useEffect(() => {
     if (editor && entry) {
@@ -129,12 +140,28 @@ export default function JournalEntry() {
             </div>
           )}
 
-          <JournalToolbar editor={editor} />
+          <JournalToolbar 
+            editor={editor} 
+            onAIAssistClick={handleLightbulbClick}
+            aiLoading={aiLoading}
+          />
           <EditorContent 
             editor={editor} 
             className="tiptap flex-1 h-full min-h-0 prose prose-invert focus:outline-none bg-warm-100 text-warm-800 rounded-lg p-2 overflow-y-auto" 
             style={{height:'100%', minHeight:0}} 
           />
+          
+          {/* AI Writing Prompts */}
+          {showSuggestions && (
+            <div className="mt-4">
+              <SuggestedPrompts
+                prompts={suggestedPrompts}
+                onPromptClick={handlePromptClick}
+                loading={aiLoading}
+                align="flex-start"
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

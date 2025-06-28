@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from prompts.suggested_prompts import get_suggested_default_prompts, get_suggested_prompts
+from prompts.journal_prompts import get_journal_writing_prompts, get_journal_writing_default_prompts
 
 import json
 import logging
@@ -49,3 +50,29 @@ async def generate_followup_suggestions(history: list) -> list[str]:
     except Exception:
         logger.error(f"Failed to generate follow-up suggestions: {resp.content}")
         return default_prompts 
+
+async def generate_journal_writing_prompts() -> list[dict]:
+    """Generate AI-powered writing prompts with titles for journal entries."""
+    llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0.7)
+    prompt = get_journal_writing_prompts()
+    resp = await llm.ainvoke([HumanMessage(content=prompt)])
+    default_prompts = get_journal_writing_default_prompts()
+    try:
+        # Parse and validate the response
+        prompts = json.loads(resp.content)
+        if not isinstance(prompts, list):
+            raise ValueError("Response is not a list")
+        
+        # Validate each prompt object has text and title fields
+        for prompt_obj in prompts:
+            if not isinstance(prompt_obj, dict) or 'text' not in prompt_obj or 'title' not in prompt_obj:
+                raise ValueError("Invalid prompt object format")
+            if not isinstance(prompt_obj['text'], str) or not isinstance(prompt_obj['title'], str):
+                raise ValueError("Prompt text and title must be strings")
+            if not prompt_obj['text'].strip() or not prompt_obj['title'].strip():
+                raise ValueError("Prompt text and title cannot be empty")
+        
+        return prompts
+    except Exception:
+        logger.error(f"Failed to generate journal writing prompts: {resp.content}")
+        return default_prompts

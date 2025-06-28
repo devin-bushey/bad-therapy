@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from models.journal import JOURNAL_SAVED_MESSAGE
 from service.session_service import update_session_name
-from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions
+from service.suggested_prompts_service import generate_suggested_prompts, generate_followup_suggestions, generate_journal_writing_prompts
 from utils.jwt_bearer import require_auth
 from utils.billing_utils import create_message_limit_response, is_message_valid_for_counting
 from utils.rate_limit_utils import get_user_id_for_rate_limit
@@ -159,6 +159,17 @@ async def get_followup_suggestions(request: Request, session_id: str, user=Depen
         return {"suggestions": suggestions}
     except Exception as e:
         logger.error(f"Error in get_followup_suggestions: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/ai/journal-writing-prompts")
+@limiter.limit("60/minute")
+async def get_journal_writing_prompts(request: Request, user=Depends(require_auth)):
+    """Generate AI-powered writing prompts for journal entries."""
+    try:
+        prompts = await generate_journal_writing_prompts()
+        return {"prompts": prompts}
+    except Exception as e:
+        logger.error(f"Error in get_journal_writing_prompts: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
