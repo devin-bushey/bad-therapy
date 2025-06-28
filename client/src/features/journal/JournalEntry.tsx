@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { EditorContent, useEditor } from '@tiptap/react'
 import Color from '@tiptap/extension-color'
@@ -17,6 +17,8 @@ export default function JournalEntry() {
   const [token, setToken] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!isAuthenticated) return
@@ -53,9 +55,11 @@ export default function JournalEntry() {
     }
   }, [editor, entry])
 
-  const handleSave = async () => {
+  // Unified save function for both manual and auto-save
+  const handleSave = useCallback(async () => {
     if (!editor || !token || !entryId) return
     try {
+      setIsAutoSaving(true)
       await updateEntry.mutateAsync({
         token,
         entryId,
@@ -65,8 +69,33 @@ export default function JournalEntry() {
       setHasUnsavedChanges(false)
     } catch (error) {
       console.error('Failed to save journal entry:', error)
+    } finally {
+      setIsAutoSaving(false)
     }
-  }
+  }, [editor, token, entryId, title, updateEntry])
+
+
+  // Auto-save when content or title changes
+  useEffect(() => {
+    if (hasUnsavedChanges && editor && token && entryId) {
+      // Clear existing timeout
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+      
+      // Set new timeout for auto-save (3 seconds)
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        handleSave()
+      }, 3000)
+    }
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current)
+      }
+    }
+  }, [hasUnsavedChanges, editor, token, entryId, handleSave])
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value)
@@ -115,10 +144,10 @@ export default function JournalEntry() {
           </span>
           <button 
             onClick={handleSave} 
-            disabled={updateEntry.isPending || !token || !hasUnsavedChanges} 
+            disabled={updateEntry.isPending || isAutoSaving || !token || !hasUnsavedChanges} 
             className="absolute right-2 bg-transparent text-earth-500 border-none text-base cursor-pointer p-0 min-w-[48px] hover:text-earth-600 transition-colors disabled:text-warm-400 disabled:cursor-not-allowed"
           >
-            {updateEntry.isPending ? 'Saving...' : hasUnsavedChanges ? 'Save' : 'Saved'}
+            {updateEntry.isPending || isAutoSaving ? 'Saving...' : hasUnsavedChanges ? 'Save' : 'Saved'}
           </button>
         </div>
         

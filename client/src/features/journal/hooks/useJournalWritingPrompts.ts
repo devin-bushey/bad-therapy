@@ -8,7 +8,7 @@ interface JournalPrompt {
   title: string
 }
 
-export function useJournalWritingPrompts(editor?: Editor, onTitleUpdate?: (title: string) => void) {
+export function useJournalWritingPrompts(editor?: Editor | null, onTitleUpdate?: (title: string) => void) {
   const { getAccessTokenSilently } = useAuth0()
   const [promptObjects, setPromptObjects] = useState<JournalPrompt[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)

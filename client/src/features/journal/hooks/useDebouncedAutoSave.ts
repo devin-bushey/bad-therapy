@@ -2,13 +2,14 @@
 import { useEffect, useRef, useState } from 'react'
 
 interface Props {
-  editor: any
+  editor: any | null
   token: string | null
+  title: string
   saveMutation: any
   delay?: number
 }
 
-export function useDebouncedAutoSave({ editor, token, saveMutation, delay = 3000 }: Props): { handleSave: () => Promise<void> } {
+export function useDebouncedAutoSave({ editor, token, title, saveMutation, delay = 3000 }: Props): { handleSave: () => Promise<void> } {
   const [lastSaved, setLastSaved] = useState('')
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -16,7 +17,7 @@ export function useDebouncedAutoSave({ editor, token, saveMutation, delay = 3000
     if (!editor || !token) return
     const content = JSON.stringify(editor.getJSON())
     if (content === lastSaved) return
-    await saveMutation.mutateAsync(editor.getJSON())
+    await saveMutation.mutateAsync({ content: editor.getJSON(), title })
     setLastSaved(content)
   }
 
