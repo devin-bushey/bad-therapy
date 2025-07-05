@@ -8,7 +8,7 @@ import { useJournalEntry, useUpdateJournalEntry } from './hooks/useJournalEntrie
 import JournalToolbar from './components/JournalToolbar'
 import StarterKit from '@tiptap/starter-kit'
 import { useJournalWritingPrompts } from './hooks/useJournalWritingPrompts'
-import SuggestedPrompts from '../session/components/SuggestedPrompts'
+import SuggestedPromptsModal from './components/SuggestedPromptsModal'
 
 export default function JournalEntry() {
   const { entryId } = useParams<{ entryId: string }>()
@@ -41,9 +41,10 @@ export default function JournalEntry() {
   // AI Writing Prompts hook
   const {
     suggestedPrompts,
-    showSuggestions,
+    showModal,
     loading: aiLoading,
-    handleLightbulbClick,
+    handleLightbulbClickModal,
+    handleCloseModal,
     handlePromptClick
   } = useJournalWritingPrompts(editor, setTitle)
 
@@ -171,26 +172,24 @@ export default function JournalEntry() {
 
           <JournalToolbar 
             editor={editor} 
-            onAIAssistClick={handleLightbulbClick}
+            onAIAssistClick={handleLightbulbClickModal}
             aiLoading={aiLoading}
           />
+          
           <EditorContent 
             editor={editor} 
-            className="tiptap flex-1 h-full min-h-0 prose prose-invert focus:outline-none bg-warm-100 text-warm-800 rounded-lg p-2 overflow-y-auto" 
-            style={{height:'100%', minHeight:0}} 
+            className="tiptap flex-1 prose prose-invert focus:outline-none bg-warm-100 text-warm-800 rounded-lg p-2 overflow-y-auto" 
+            style={{minHeight: 0}} 
           />
           
-          {/* AI Writing Prompts */}
-          {showSuggestions && (
-            <div className="mt-4">
-              <SuggestedPrompts
-                prompts={suggestedPrompts}
-                onPromptClick={handlePromptClick}
-                loading={aiLoading}
-                align="flex-start"
-              />
-            </div>
-          )}
+          {/* AI Writing Prompts Modal */}
+          <SuggestedPromptsModal
+            isOpen={showModal}
+            onClose={handleCloseModal}
+            prompts={suggestedPrompts}
+            onPromptClick={handlePromptClick}
+            loading={aiLoading}
+          />
         </div>
       </div>
     </>

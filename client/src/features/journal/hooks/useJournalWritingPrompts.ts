@@ -12,6 +12,7 @@ export function useJournalWritingPrompts(editor?: Editor | null, onTitleUpdate?:
   const { getAccessTokenSilently } = useAuth0()
   const [promptObjects, setPromptObjects] = useState<JournalPrompt[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleLightbulbClick = async () => {
@@ -25,6 +26,24 @@ export function useJournalWritingPrompts(editor?: Editor | null, onTitleUpdate?:
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLightbulbClickModal = async () => {
+    setPromptObjects([])
+    setShowModal(true)
+    setLoading(true)
+    try {
+      const token = await getAccessTokenSilently()
+      const prompts = await fetchJournalWritingPrompts({ token })
+      setPromptObjects(prompts ?? [])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setPromptObjects([])
   }
 
   const handlePromptClick = (promptObj: JournalPrompt) => {
@@ -66,8 +85,12 @@ export function useJournalWritingPrompts(editor?: Editor | null, onTitleUpdate?:
     setSuggestedPrompts: setPromptObjects,
     showSuggestions,
     setShowSuggestions,
+    showModal,
+    setShowModal,
     loading,
     handleLightbulbClick,
+    handleLightbulbClickModal,
+    handleCloseModal,
     handlePromptClick: handlePromptStringClick
   }
 }
