@@ -64,7 +64,16 @@ Bad Therapy is an AI Agent chatbot that provides mental health coaching.
 ### Prompt Engineering
 - All prompts are saved in the [`prompts`](server/prompts/) directory
 
-### LangStudio 
+### Long-Term Memory
+- Conversations are saved in a PostgreSQL database for persistent memory.
+- Each message is vector-embedded for future Retrieval-Augmented Generation (RAG).
+
+### Security
+- Sensitive data is encrypted at rest.
+- Auth0 is used for authentication and access control.
+- Rate limiting with slowapi
+
+## LangStudio 
 - All LangGraph runs can be visualized with LangGraph Studio debugging.
 
 ```sh
@@ -75,7 +84,7 @@ langgraph dev
   <img src="docs/LanggraphStudio.png" alt="LangGrapgStudio"/>
 </p>
 
-### LangSmith Tracing
+## LangSmith Tracing
 - All LangGraph runs are traced with LangSmith for cloud-based debugging and observability.
 - See tracings and monitoring here: https://smith.langchain.com/o/65c77578-2a48-42ef-a24f-8d83c29bc984/
 - **Production Security**: Use `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true` environment variables to protect sensitive mental health data in production environments.
@@ -123,61 +132,37 @@ The evaluation system respects your production privacy settings:
 **Set up LangSmith datasets:**
 ```bash
 cd server
-python -m evaluations.evaluation_runner --type langsmith-setup
+python -m evaluations.runners.evaluation_runner --type langsmith-setup
 ```
 
 **Run safety-critical evaluation:**
 ```bash
-python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-safety-critical"
+python -m evaluations.runners.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-safety-critical"
 ```
 
 **Run therapy quality evaluation:**
 ```bash
-python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-quality"
+python -m evaluations.runners.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-quality"
 ```
 
 **Run system performance evaluation:**
 ```bash
-python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-performance"
+python -m evaluations.runners.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-performance"
 ```
 
 **Run comprehensive batch evaluation:**
 ```bash
-python -m evaluations.evaluation_runner --type langsmith-batch --experiment-name "my_evaluation"
+python -m evaluations.runners.evaluation_runner --type langsmith-batch --experiment-name "my_evaluation"
 ```
 
 **Run traditional local evaluation (without LangSmith):**
 ```bash
-python -m evaluations.evaluation_runner --type full
-python -m evaluations.evaluation_runner --type safety
-python -m evaluations.evaluation_runner --type quality
-python -m evaluations.evaluation_runner --type performance
+python -m evaluations.runners.evaluation_runner --type full
+python -m evaluations.runners.evaluation_runner --type safety
+python -m evaluations.runners.evaluation_runner --type quality
+python -m evaluations.runners.evaluation_runner --type performance
 ```
 
-### Evaluation Architecture
-
-```
-evaluations/
-├── safety_evaluators.py           # Crisis detection, harmful content prevention
-├── therapy_quality_evaluators.py  # Empathy, clinical appropriateness, effectiveness
-├── system_performance_evaluators.py # Router accuracy, context retention
-├── therapy_graph_evaluator.py     # Main evaluation orchestration
-├── langsmith_dataset_manager.py   # LangSmith dataset management
-├── therapy_target_function.py     # Target function for LangSmith integration
-├── test_datasets.py              # Synthetic evaluation scenarios
-└── evaluation_runner.py          # CLI interface and automation
-```
-
-The evaluation system runs your complete therapy graph through comprehensive testing while maintaining strict privacy compliance, giving you confidence in your AI's safety and effectiveness for mental health applications.
-
-### Long-Term Memory
-- Conversations are saved in a PostgreSQL database for persistent memory.
-- Each message is vector-embedded for future Retrieval-Augmented Generation (RAG).
-
-### Security
-- Sensitive data is encrypted at rest.
-- Auth0 is used for authentication and access control.
-- Rate limiting with slowapi
 
 ## Server (FastAPI)
 

@@ -21,9 +21,9 @@ load_dotenv()
 # Handle imports based on execution context
 try:
     # Try relative imports first (when run as module)
-    from .therapy_graph_evaluator import TherapyGraphEvaluator
-    from .langsmith_dataset_manager import LangSmithDatasetManager, setup_evaluation_datasets
-    from .test_datasets import (
+    from ..integrations.therapy_graph_evaluator import TherapyGraphEvaluator
+    from ..datasets.langsmith_dataset_manager import LangSmithDatasetManager, setup_evaluation_datasets
+    from ..datasets.test_datasets import (
         get_all_scenarios,
         get_scenarios_by_type,
         get_scenarios_by_priority,
@@ -37,9 +37,9 @@ except ImportError:
     server_dir = Path(__file__).parent.parent
     sys.path.insert(0, str(server_dir))
     
-    from evaluations.therapy_graph_evaluator import TherapyGraphEvaluator
-    from evaluations.langsmith_dataset_manager import LangSmithDatasetManager, setup_evaluation_datasets
-    from evaluations.test_datasets import (
+    from evaluations.integrations.therapy_graph_evaluator import TherapyGraphEvaluator
+    from evaluations.datasets.langsmith_dataset_manager import LangSmithDatasetManager, setup_evaluation_datasets
+    from evaluations.datasets.test_datasets import (
         get_all_scenarios,
         get_scenarios_by_type,
         get_scenarios_by_priority,

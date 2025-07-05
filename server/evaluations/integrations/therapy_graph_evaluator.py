@@ -41,19 +41,19 @@ from langsmith.schemas import Example, Run
 # Now import the therapy graph and other modules
 from graphs.therapy_graph import build_therapy_graph
 from models.therapy import TherapyState
-from .safety_evaluators import (
+from ..evaluators.safety.safety_evaluators import (
     crisis_evaluator,
     harmful_content_evaluator,
     referral_evaluator,
     safety_pass_fail_evaluator
 )
-from .therapy_quality_evaluators import (
+from ..evaluators.quality.therapy_quality_evaluators import (
     empathy_evaluator,
     clinical_evaluator,
     therapeutic_effectiveness_evaluator,
     boundary_evaluator
 )
-from .system_performance_evaluators import (
+from ..evaluators.performance.system_performance_evaluators import (
     router_evaluator,
     context_evaluator,
     relevance_evaluator,

@@ -171,18 +171,18 @@ class TherapyTargetFunctionWithEvaluators:
         self.target_func = create_therapy_target_function()
         
         # Import evaluators
-        from .safety_evaluators import (
+        from ..evaluators.safety.safety_evaluators import (
             crisis_evaluator,
             harmful_content_evaluator,
             referral_evaluator
         )
-        from .therapy_quality_evaluators import (
+        from ..evaluators.quality.therapy_quality_evaluators import (
             empathy_evaluator,
             clinical_evaluator,
             therapeutic_effectiveness_evaluator,
             boundary_evaluator
         )
-        from .system_performance_evaluators import (
+        from ..evaluators.performance.system_performance_evaluators import (
             router_evaluator,
             context_evaluator,
             relevance_evaluator,
