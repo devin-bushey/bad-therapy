@@ -19,6 +19,9 @@ dependencies = [
     "numpy>=2.2.6",
     "stripe>=11.5.0",
     "slowapi>=0.1.9",
+    "python-dotenv>=1.0.0",
+    "openevals>=0.1.0",
+    "langsmith>=0.1.0",
 ]
 
 [dependency-groups]

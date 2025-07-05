@@ -84,6 +84,92 @@ langgraph dev
   <img src="docs/LangSmith.png" alt="LangSmith"/>
 </p>
 
+## LangSmith Evaluations
+
+Bad Therapy includes a comprehensive evaluation system that integrates with LangSmith for tracking AI performance across safety, therapy quality, and system performance dimensions.
+
+<p align="left">
+  <img src="docs/LangSmithEvals.png" alt="LangSmithEvals"/>
+</p>
+
+### Evaluation Categories
+
+**Safety Evaluators**
+- **Crisis Detection**: Evaluates ability to identify suicidal ideation, self-harm, and crisis situations
+- **Harmful Content Prevention**: Tests filtering of inappropriate medical/therapeutic advice
+- **Referral Appropriateness**: Assesses when the system correctly escalates to human professionals
+
+**Therapy Quality Evaluators**
+- **Empathy Assessment**: Measures emotional validation and therapeutic understanding
+- **Clinical Appropriateness**: Ensures responses follow therapeutic boundaries and best practices
+- **Therapeutic Effectiveness**: Evaluates the therapeutic value and insight promotion
+- **Boundary Maintenance**: Prevents inappropriate personal disclosure or advice-giving
+
+**System Performance Evaluators**
+- **Router Accuracy**: Tests intent classification (therapy vs. therapist search vs. journal insights)
+- **Context Retention**: Evaluates multi-turn conversation coherence and memory
+- **Response Relevance**: Measures how well responses address user concerns
+- **Consistency**: Assesses reliability and coherence across interactions
+
+### Privacy-Compliant Evaluation
+
+The evaluation system respects your production privacy settings:
+- **Input/Output Hiding**: Works with `LANGSMITH_HIDE_INPUTS=true` and `LANGSMITH_HIDE_OUTPUTS=true`
+- **Metadata Tracking**: Monitors performance metrics without exposing sensitive therapy content
+- **Synthetic Data**: Uses realistic but non-sensitive test scenarios for comprehensive evaluation
+
+### Evaluation Commands
+
+**Set up LangSmith datasets:**
+```bash
+cd server
+python -m evaluations.evaluation_runner --type langsmith-setup
+```
+
+**Run safety-critical evaluation:**
+```bash
+python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-safety-critical"
+```
+
+**Run therapy quality evaluation:**
+```bash
+python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-quality"
+```
+
+**Run system performance evaluation:**
+```bash
+python -m evaluations.evaluation_runner --type langsmith-eval --langsmith-dataset "bad-therapy-performance"
+```
+
+**Run comprehensive batch evaluation:**
+```bash
+python -m evaluations.evaluation_runner --type langsmith-batch --experiment-name "my_evaluation"
+```
+
+**Run traditional local evaluation (without LangSmith):**
+```bash
+python -m evaluations.evaluation_runner --type full
+python -m evaluations.evaluation_runner --type safety
+python -m evaluations.evaluation_runner --type quality
+python -m evaluations.evaluation_runner --type performance
+```
+
+### Evaluation Architecture
+
+```
+evaluations/
+├── safety_evaluators.py           # Crisis detection, harmful content prevention
+├── therapy_quality_evaluators.py  # Empathy, clinical appropriateness, effectiveness
+├── system_performance_evaluators.py # Router accuracy, context retention
+├── therapy_graph_evaluator.py     # Main evaluation orchestration
+├── langsmith_dataset_manager.py   # LangSmith dataset management
+├── therapy_target_function.py     # Target function for LangSmith integration
+├── test_datasets.py              # Synthetic evaluation scenarios
+└── evaluation_runner.py          # CLI interface and automation
+```
+
+The evaluation system runs your complete therapy graph through comprehensive testing while maintaining strict privacy compliance, giving you confidence in your AI's safety and effectiveness for mental health applications.
+
 ### Long-Term Memory
 - Conversations are saved in a PostgreSQL database for persistent memory.
 - Each message is vector-embedded for future Retrieval-Augmented Generation (RAG).
