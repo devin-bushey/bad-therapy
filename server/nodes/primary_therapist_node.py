@@ -10,7 +10,7 @@ from models.mood import MoodEntry
 
 settings = get_settings()
 llm = ChatOpenAI(
-    model="gpt-4.1-mini", 
+    model="gpt-4.1", 
     temperature=0.7
 ).bind_tools([save_to_journal_tool])
 
