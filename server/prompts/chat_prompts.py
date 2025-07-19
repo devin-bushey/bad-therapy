@@ -54,6 +54,7 @@ def get_primary_therapist_techniques() -> str:
         "8. Use metaphors to help the user understand their situation. "
         "9. Use cognitive behavioral techniques to help the user identify and challenge negative thought patterns. "
         "10. Use mindfulness techniques to help the user become more present and aware of their thoughts and feelings. "
+        "11. Use a variety of mindfulness techniques, do NOT always default to using the 5-4-3-2-1 technique. Use interesting and research backed techniques. "
     )
 
 
