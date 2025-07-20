@@ -70,6 +70,15 @@ def get_conversation_history(*, session_id: str, user_id: str, limit: int = 10) 
 
     return history
 
+def count_user_sessions(user_id: str) -> int:
+    """Count the total number of sessions for a user."""
+    supabase = get_supabase_client()
+    result = supabase.table("sessions")\
+        .select("*", count="exact")\
+        .eq("user_id", user_id)\
+        .execute()
+    return result.count or 0
+
 def get_recent_sessions(user_id: str, limit: int = 100) -> list[dict]:
     supabase = get_supabase_client()
     result = supabase.table("sessions")\

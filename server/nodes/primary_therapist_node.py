@@ -7,6 +7,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from tools.save_to_journal_tool import save_to_journal_tool, TOOL_SAVE_TO_JOURNAL
 from database.mood_entries import get_today_mood_entry
 from models.mood import MoodEntry
+from database.conversation_history import count_user_sessions
 
 settings = get_settings()
 llm = ChatOpenAI(
@@ -27,6 +28,15 @@ def primary_therapist_node(state: TherapyState) -> TherapyState:
         # Update state with current mood
         state.current_mood = mood_entry
         state.mood_context = mood_context
+
+    # Check if this is a first message for a returning user
+    if is_first_message:
+        session_count = count_user_sessions(state.user_id)
+        if session_count > 1:
+            # Returning user - use hardcoded message
+            node_response = f"Hello! What's on your mind? \n\n Click the lightbulb icon if you want suggestions for what to talk about."
+            converted_response = AIMessage(content=node_response)
+            return { "history": state.history + [converted_response] }
 
     system_prompt_content = get_system_prompt(is_first_message, user_profile, mood_context, state.relevant_context)
 
